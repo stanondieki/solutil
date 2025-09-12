@@ -114,7 +114,7 @@ export default function ServicesPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
       <Navigation />
 
       {/* Hero Section */}
@@ -128,7 +128,7 @@ export default function ServicesPage() {
           >
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6">
               Our{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
                 Services
               </span>
             </h1>
@@ -169,7 +169,7 @@ export default function ServicesPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="text-2xl font-bold text-orange-600">
                       {service.price}
                     </div>
                   </div>
@@ -186,7 +186,7 @@ export default function ServicesPage() {
                         </li>
                       ))}
                       {service.features.length > 3 && (
-                        <li className="text-blue-600 dark:text-blue-400 text-sm cursor-pointer hover:underline"
+                        <li className="text-orange-600 text-sm cursor-pointer hover:underline"
                             onClick={() => setSelectedService(selectedService === service.id ? null : service.id)}>
                           {selectedService === service.id ? 'Show less' : `+${service.features.length - 3} more`}
                         </li>
@@ -211,7 +211,7 @@ export default function ServicesPage() {
 
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <FaClock className="text-blue-600 dark:text-blue-400" />
+                      <FaClock className="text-orange-600" />
                       <div>
                         <div className="font-medium text-slate-900 dark:text-white">Duration</div>
                         <div className="text-sm text-slate-600 dark:text-slate-300">{service.duration}</div>
@@ -231,7 +231,7 @@ export default function ServicesPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href={`/booking?service=${service.id}`}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 font-medium"
+                    className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 text-white text-center px-6 py-3 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105 font-medium"
                   >
                     Book {service.title}
                   </Link>
@@ -272,7 +272,7 @@ export default function ServicesPage() {
               viewport={{ once: true }}
               className="text-center"
             >
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <FaShieldAlt className="text-white text-2xl" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Vetted Professionals</h3>
@@ -317,7 +317,7 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <section className="py-20 bg-gradient-to-r from-orange-600 to-orange-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -335,7 +335,7 @@ export default function ServicesPage() {
             
             <Link
               href="/booking"
-              className="bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="bg-white text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               Book a Service Now
             </Link>

@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa';
 
 const services = [
-  { id: 'plumbing', title: 'Plumbing', icon: FaWrench, color: 'bg-blue-500' },
+  { id: 'plumbing', title: 'Plumbing', icon: FaWrench, color: 'bg-orange-500' },
   { id: 'electrical', title: 'Electrical', icon: FaLightbulb, color: 'bg-yellow-500' },
   { id: 'cleaning', title: 'Cleaning', icon: FaBroom, color: 'bg-green-500' },
   { id: 'carpentry', title: 'Carpentry', icon: FaShower, color: 'bg-amber-600' },
@@ -93,7 +93,7 @@ export default function BookingPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-orange-100 dark:from-slate-900 dark:via-slate-800 dark:to-orange-900 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -111,7 +111,7 @@ export default function BookingPage() {
           </p>
           <Link
             href="/"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-full hover:from-orange-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105"
           >
             Back to Home
           </Link>
@@ -121,7 +121,7 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-orange-100 dark:from-slate-900 dark:via-slate-800 dark:to-orange-900">
       <Navigation />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -132,14 +132,14 @@ export default function BookingPage() {
               <div key={step} className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
                   step <= currentStep 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-orange-600 text-white' 
                     : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
                 }`}>
                   {step}
                 </div>
                 {step < 4 && (
                   <div className={`w-16 h-1 mx-4 transition-all duration-300 ${
-                    step < currentStep ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
+                    step < currentStep ? 'bg-orange-600' : 'bg-slate-200 dark:bg-slate-700'
                   }`} />
                 )}
               </div>
@@ -176,8 +176,8 @@ export default function BookingPage() {
                     whileTap={{ scale: 0.95 }}
                     className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
                       formData.service === service.id
-                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
+                        ? 'border-orange-600 bg-orange-50 dark:bg-orange-900/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-orange-300'
                     }`}
                     onClick={() => handleInputChange('service', service.id)}
                   >
@@ -209,7 +209,7 @@ export default function BookingPage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -223,7 +223,7 @@ export default function BookingPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                     placeholder="+254 123 456 789"
                   />
                 </div>
@@ -237,7 +237,7 @@ export default function BookingPage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                     placeholder="Enter your location in Nairobi"
                   />
                 </div>
@@ -262,7 +262,7 @@ export default function BookingPage() {
                     value={formData.date}
                     onChange={(e) => handleInputChange('date', e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
                 
@@ -278,8 +278,8 @@ export default function BookingPage() {
                         onClick={() => handleInputChange('time', time)}
                         className={`p-3 rounded-xl border transition-all duration-300 ${
                           formData.time === time
-                            ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600'
-                            : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 text-slate-700 dark:text-slate-300'
+                            ? 'border-orange-600 bg-orange-50 dark:bg-orange-900/20 text-orange-600'
+                            : 'border-slate-200 dark:border-slate-700 hover:border-orange-300 text-slate-700 dark:text-slate-300'
                         }`}
                       >
                         {time}
@@ -296,7 +296,7 @@ export default function BookingPage() {
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     rows={4}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                     placeholder="Describe your service requirements..."
                   />
                 </div>

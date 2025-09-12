@@ -49,7 +49,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
       <Navigation />
 
       {/* Hero Section */}
@@ -72,7 +72,7 @@ export default function AboutPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6">
               About{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
                 Solutil
               </span>
             </h1>
@@ -124,7 +124,7 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 text-white">
+              <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-3xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4">Why Choose Solutil?</h3>
                 <ul className="space-y-3">
                   {values.map((value, index) => (
@@ -168,7 +168,7 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-200/50 dark:border-slate-700/50"
               >
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center mb-4">
                   <feature.icon className="text-white text-xl" />
                 </div>
                 
@@ -186,7 +186,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <section className="py-20 bg-gradient-to-r from-orange-600 to-orange-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -205,14 +205,14 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/booking"
-                className="bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-white text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 Book a Service Now
               </Link>
               
               <a
                 href="tel:+254123456789"
-                className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300 flex items-center space-x-2"
+                className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-orange-600 transition-all duration-300 flex items-center space-x-2"
               >
                 <FaPhoneAlt />
                 <span>Call Us</span>

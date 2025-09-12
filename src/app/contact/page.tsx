@@ -59,7 +59,7 @@ export default function ContactPage() {
       title: 'Phone',
       details: '+254 123 456 789',
       description: 'Call us for immediate assistance',
-      color: 'bg-blue-600'
+      color: 'bg-orange-600'
     },
     {
       icon: FaWhatsapp,
@@ -92,7 +92,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
       <Navigation />
 
       {/* Hero Section */}
@@ -106,7 +106,7 @@ export default function ContactPage() {
           >
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6">
               Contact{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
                 Us
               </span>
             </h1>
@@ -140,7 +140,7 @@ export default function ContactPage() {
                   {info.title}
                 </h3>
                 
-                <p className="text-lg font-medium text-blue-600 dark:text-blue-400 mb-2">
+                <p className="text-lg font-medium text-orange-600 dark:text-orange-400 mb-2">
                   {info.details}
                 </p>
                 
@@ -194,7 +194,7 @@ export default function ContactPage() {
                           required
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                           placeholder="Enter your full name"
                         />
                       </div>
@@ -208,7 +208,7 @@ export default function ContactPage() {
                           required
                           value={formData.email}
                           onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                           placeholder="Enter your email"
                         />
                       </div>
@@ -223,7 +223,7 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                           placeholder="+254 123 456 789"
                         />
                       </div>
@@ -235,7 +235,7 @@ export default function ContactPage() {
                         <select
                           value={formData.service}
                           onChange={(e) => handleInputChange('service', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                         >
                           <option value="">Select a service</option>
                           <option value="plumbing">Plumbing</option>
@@ -257,14 +257,14 @@ export default function ContactPage() {
                         rows={5}
                         value={formData.message}
                         onChange={(e) => handleInputChange('message', e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                         placeholder="Tell us about your service needs or ask any questions..."
                       />
                     </div>
                     
                     <button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 font-medium flex items-center justify-center space-x-2"
+                      className="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white px-8 py-4 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105 font-medium flex items-center justify-center space-x-2"
                     >
                       <FaPaperPlane />
                       <span>Send Message</span>
@@ -285,7 +285,7 @@ export default function ContactPage() {
               {/* Business Hours Card */}
               <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200/50 dark:border-slate-700/50">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
                     <FaClock className="text-white text-sm" />
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -308,7 +308,7 @@ export default function ContactPage() {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 text-white">
+              <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-3xl p-6 text-white">
                 <h3 className="text-lg font-semibold mb-4">Need Immediate Help?</h3>
                 <div className="space-y-3">
                   <a
@@ -331,7 +331,7 @@ export default function ContactPage() {
                   
                   <Link
                     href="/booking"
-                    className="flex items-center space-x-3 bg-white text-blue-600 rounded-xl p-3 hover:bg-slate-100 transition-colors font-medium"
+                    className="flex items-center space-x-3 bg-white text-orange-600 rounded-xl p-3 hover:bg-slate-100 transition-colors font-medium"
                   >
                     <FaWrench className="text-lg" />
                     <span>Book Service</span>
