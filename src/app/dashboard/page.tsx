@@ -4,6 +4,27 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { 
+  FaSearch,
+  FaWrench,
+  FaLightbulb,
+  FaBroom,
+  FaHammer,
+  FaPaintRoller,
+  FaStar,
+  FaBell,
+  FaUser,
+  FaHome,
+  FaCalendarAlt,
+  FaHeart,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaShoppingCart,
+  FaCrown,
+  FaFire,
+  FaChartLine
+} from 'react-icons/fa'
 
 interface User {
   email: string
@@ -11,9 +32,62 @@ interface User {
   isAuthenticated: boolean
 }
 
+// Sample data for the enhanced dashboard
+const popularServices = [
+  { id: 1, name: 'Plumbing', icon: FaWrench, color: 'bg-orange-500', bookings: 1240 },
+  { id: 2, name: 'Electrical', icon: FaLightbulb, color: 'bg-yellow-500', bookings: 980 },
+  { id: 3, name: 'Cleaning', icon: FaBroom, color: 'bg-green-500', bookings: 2150 },
+  { id: 4, name: 'Carpentry', icon: FaHammer, color: 'bg-amber-600', bookings: 750 },
+  { id: 5, name: 'Painting', icon: FaPaintRoller, color: 'bg-purple-500', bookings: 640 },
+]
+
+const featuredProviders = [
+  {
+    id: 1,
+    name: 'David Kimani',
+    service: 'Plumber',
+    rating: 4.9,
+    reviews: 128,
+    image: '/images/providers/david.jpg',
+    badge: 'Premium',
+    distance: '2.1 km',
+    price: 'KES 2,500/hr'
+  },
+  {
+    id: 2,
+    name: 'Sarah Wanjiku',
+    service: 'Electrician',
+    rating: 4.8,
+    reviews: 96,
+    image: '/images/providers/sarah.jpg',
+    badge: 'Top Rated',
+    distance: '1.8 km',
+    price: 'KES 3,000/hr'
+  },
+  {
+    id: 3,
+    name: 'James Ochieng',
+    service: 'Carpenter',
+    rating: 4.7,
+    reviews: 84,
+    image: '/images/providers/james.jpg',
+    badge: 'Verified',
+    distance: '3.2 km',
+    price: 'KES 2,200/hr'
+  },
+]
+
+const quickActions = [
+  { name: 'Emergency Service', icon: FaFire, color: 'bg-red-500', description: '24/7 Available' },
+  { name: 'Book Appointment', icon: FaCalendarAlt, color: 'bg-orange-500', description: 'Schedule Now' },
+  { name: 'My Bookings', icon: FaHome, color: 'bg-blue-500', description: 'View History' },
+  { name: 'Favorites', icon: FaHeart, color: 'bg-pink-500', description: 'Saved Services' },
+]
+
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -34,8 +108,12 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full"
+        />
       </div>
     )
   }
@@ -45,37 +123,48 @@ export default function DashboardPage() {
   }
 
   const isClient = user.userType === 'client'
-  const isWorker = user.userType === 'worker'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
+      {/* Modern Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
               <Image 
                 src="/images/logo.jpg" 
                 alt="Solutil Logo" 
-                width={40}
-                height={40}
-                className="rounded-lg object-cover"
+                width={50}
+                height={50}
+                className="rounded-xl object-cover shadow-md"
               />
               <div>
-                <span className="text-2xl font-bold text-gray-800">Solutil</span>
-                <span className="text-sm text-gray-500 ml-2">
-                  {isClient ? 'Client Dashboard' : 'Worker Dashboard'}
+                <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">
+                  Solutil
                 </span>
+                <p className="text-sm text-gray-500">Your Service Partner</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {user.email}
-              </span>
+            <div className="flex items-center space-x-6">
+              <div className="relative">
+                <FaBell className="text-gray-600 text-xl cursor-pointer hover:text-orange-600 transition-colors" />
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                  <FaUser className="text-white text-sm" />
+                </div>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium text-gray-800">Welcome back!</p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+              </div>
+              
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl hover:from-red-600 hover:to-red-700 transition-all transform hover:scale-105 text-sm font-medium shadow-lg"
               >
                 Logout
               </button>
@@ -85,255 +174,254 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-8 mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome to your {isClient ? 'Client' : 'Service Provider'} Dashboard!
-          </h1>
-          <p className="text-blue-100">
-            {isClient 
-              ? 'Manage your service bookings and find trusted professionals'
-              : 'Manage your services, bookings, and grow your business'
-            }
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {isClient ? (
-            <>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Active Bookings</h3>
-                    <p className="text-3xl font-bold text-blue-600">3</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Completed</h3>
-                    <p className="text-3xl font-bold text-green-600">12</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-purple-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Total Spent</h3>
-                    <p className="text-3xl font-bold text-purple-600">KES 45,500</p>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Monthly Earnings</h3>
-                    <p className="text-3xl font-bold text-green-600">KES 125,000</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Active Jobs</h3>
-                    <p className="text-3xl font-bold text-blue-600">8</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center">
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Rating</h3>
-                    <p className="text-3xl font-bold text-yellow-600">4.9</p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {isClient ? (
-                  <>
-                    <Link href="/booking" className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors">
-                      <div className="text-blue-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Book Service</span>
-                    </Link>
-                    
-                    <div className="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-green-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">My Bookings</span>
-                    </div>
-                    
-                    <div className="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-purple-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Messages</span>
-                    </div>
-                    
-                    <div className="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-yellow-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Profile</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-green-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">My Jobs</span>
-                    </div>
-                    
-                    <div className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-blue-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Earnings</span>
-                    </div>
-                    
-                    <div className="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-purple-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Reviews</span>
-                    </div>
-                    
-                    <div className="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-center transition-colors cursor-pointer">
-                      <div className="text-yellow-600 mb-2">
-                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Settings</span>
-                    </div>
-                  </>
-                )}
-              </div>
+        {/* Hero Banner - Similar to mobile design */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-gradient-to-r from-orange-600 via-orange-700 to-amber-600 rounded-3xl p-8 md:p-12 mb-8 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <motion.h1 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-4xl md:text-5xl font-bold text-white mb-4"
+              >
+                Get 30% off
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="text-xl text-orange-100 mb-6"
+              >
+                Just by Booking Home Services
+              </motion.p>
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="bg-white text-orange-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-orange-50 transition-all transform hover:scale-105 shadow-xl"
+              >
+                Book Now
+              </motion.button>
+            </div>
+            <div className="hidden lg:flex justify-end">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="w-64 h-64 bg-gradient-to-br from-white/20 to-white/10 rounded-3xl flex items-center justify-center backdrop-blur-sm"
+              >
+                <FaWrench className="text-8xl text-white/80" />
+              </motion.div>
             </div>
           </div>
+        </motion.div>
 
-          {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-            <div className="space-y-4">
-              {isClient ? (
-                <>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="bg-blue-500 w-2 h-2 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">Plumbing service booked</p>
-                      <p className="text-xs text-gray-500">2 hours ago</p>
+        {/* Enhanced Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-orange-100"
+        >
+          <div className="relative">
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              type="text"
+              placeholder="Search for services, providers, or areas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-all"
+            />
+            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all">
+              Search
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Quick Actions Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        >
+          {quickActions.map((action, index) => (
+            <motion.div
+              key={action.name}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 * index }}
+              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all cursor-pointer group border border-gray-100"
+            >
+              <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                <action.icon className="text-white text-xl" />
+              </div>
+              <h3 className="font-bold text-gray-800 mb-1">{action.name}</h3>
+              <p className="text-sm text-gray-500">{action.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Popular Services */}
+          <div className="lg:col-span-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="bg-white rounded-2xl shadow-xl p-6 border border-orange-100"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Popular Services</h2>
+                <Link href="/services" className="text-orange-600 hover:text-orange-700 font-medium">
+                  View all
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {popularServices.map((service, index) => (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 * index }}
+                    className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer group border border-gray-200"
+                  >
+                    <div className={`w-12 h-12 ${service.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      <service.icon className="text-white text-lg" />
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">Electrical work completed</p>
-                      <p className="text-xs text-gray-500">1 day ago</p>
+                    <h3 className="font-bold text-gray-800 mb-1">{service.name}</h3>
+                    <p className="text-sm text-gray-500">{service.bookings} bookings</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Recent Activity */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="bg-white rounded-2xl shadow-xl p-6 mt-6 border border-orange-100"
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Activity</h2>
+              <div className="space-y-4">
+                {[
+                  { action: 'Plumbing service completed', time: '2 hours ago', icon: FaWrench, color: 'bg-green-500' },
+                  { action: 'New booking confirmed', time: '4 hours ago', icon: FaCalendarAlt, color: 'bg-orange-500' },
+                  { action: 'Payment processed', time: '1 day ago', icon: FaShoppingCart, color: 'bg-blue-500' },
+                ].map((activity, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 * index }}
+                    className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    <div className={`w-10 h-10 ${activity.color} rounded-full flex items-center justify-center`}>
+                      <activity.icon className="text-white text-sm" />
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
-                    <div className="bg-yellow-500 w-2 h-2 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">Payment processed</p>
-                      <p className="text-xs text-gray-500">2 days ago</p>
+                      <p className="font-medium text-gray-800">{activity.action}</p>
+                      <p className="text-sm text-gray-500">{activity.time}</p>
                     </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">New job assigned</p>
-                      <p className="text-xs text-gray-500">1 hour ago</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Service Providers Sidebar */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="bg-white rounded-2xl shadow-xl p-6 border border-orange-100"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800">Top Providers</h2>
+                <Link href="/providers" className="text-orange-600 hover:text-orange-700 font-medium text-sm">
+                  View all
+                </Link>
+              </div>
+              
+              <div className="space-y-4">
+                {featuredProviders.map((provider, index) => (
+                  <motion.div
+                    key={provider.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 * index }}
+                    className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer border border-orange-100"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {provider.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-bold text-gray-800 text-sm">{provider.name}</h3>
+                          <span className="bg-orange-600 text-white text-xs px-2 py-1 rounded-full">
+                            {provider.badge}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{provider.service}</p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-1">
+                            <FaStar className="text-yellow-400 text-xs" />
+                            <span className="text-sm font-medium">{provider.rating}</span>
+                            <span className="text-xs text-gray-500">({provider.reviews})</span>
+                          </div>
+                          <span className="text-xs text-orange-600 font-medium">{provider.price}</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-gray-500">{provider.distance} away</span>
+                          <button className="bg-orange-600 text-white text-xs px-3 py-1 rounded-full hover:bg-orange-700 transition-colors">
+                            Book
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="bg-blue-500 w-2 h-2 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">Payment received</p>
-                      <p className="text-xs text-gray-500">3 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                    <div className="bg-purple-500 w-2 h-2 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">5-star review received</p>
-                      <p className="text-xs text-gray-500">1 day ago</p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Stats Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="bg-gradient-to-br from-orange-600 to-amber-600 rounded-2xl p-6 mt-6 text-white"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Your Stats</h3>
+                <FaChartLine className="text-2xl text-orange-200" />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-orange-100">Total Bookings</span>
+                  <span className="font-bold">15</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-orange-100">Money Saved</span>
+                  <span className="font-bold">KES 12,500</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-orange-100">Favorite Service</span>
+                  <span className="font-bold">Cleaning</span>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
