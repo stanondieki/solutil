@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -36,7 +36,7 @@ const timeSlots = [
   '4:00 PM', '5:00 PM'
 ];
 
-export default function BookingPage() {
+function BookingPageContent() {
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -394,4 +394,12 @@ export default function BookingPage() {
       <Footer />
     </div>
   );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <BookingPageContent />
+    </Suspense>
+  )
 }
