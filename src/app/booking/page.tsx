@@ -71,8 +71,19 @@ export default function BookingPage() {
   };
 
   const handleSubmit = () => {
+    // Get user data from localStorage for logged-in users
+    const userData = localStorage.getItem('user');
+    const user = userData ? JSON.parse(userData) : null;
+    
+    const bookingData = {
+      ...formData,
+      userId: user?.id || null,
+      userEmail: user?.email || null,
+      timestamp: new Date().toISOString()
+    };
+
     // Here you would typically send the data to your backend
-    console.log('Booking submitted:', formData);
+    console.log('Booking submitted:', bookingData);
     setIsSubmitted(true);
   };
 
@@ -110,10 +121,10 @@ export default function BookingPage() {
             Thank you for booking with Solutil. We&apos;ll send you an SMS confirmation and our professional will contact you shortly.
           </p>
           <Link
-            href="/"
+            href="/dashboard"
             className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-full hover:from-orange-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105"
           >
-            Back to Home
+            Go to Dashboard
           </Link>
         </motion.div>
       </div>

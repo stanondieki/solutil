@@ -114,11 +114,11 @@ export default function ServicesPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation />
 
       {/* Hero Section */}
-      <section className="py-20 lg:py-32">
+      <section className="py-20 lg:py-32 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -142,7 +142,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
@@ -317,7 +317,7 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-600 to-orange-700">
+      {/* <section className="py-20 bg-gradient-to-r from-orange-600 to-orange-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -341,7 +341,7 @@ export default function ServicesPage() {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       <Footer />
     </div>

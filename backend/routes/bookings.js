@@ -7,7 +7,9 @@ const {
   updateBookingStatus,
   cancelBooking,
   getUserBookings,
-  getProviderBookings
+  getProviderBookings,
+  completeBooking,
+  disputeBooking
 } = require('../controllers/bookingController');
 const { protect, restrictTo } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
@@ -85,5 +87,30 @@ router.delete('/:id', [
     .withMessage('Cancellation reason must be between 5 and 200 characters'),
   validate
 ], cancelBooking);
+
+// Complete booking and release escrow payment
+router.post('/:id/complete', [
+  body('rating')
+    .isFloat({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
+  body('review')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage('Review cannot exceed 1000 characters'),
+  body('releasePayment')
+    .isBoolean()
+    .withMessage('Release payment must be a boolean'),
+  validate
+], completeBooking);
+
+// Dispute booking and hold escrow payment
+router.post('/:id/dispute', [
+  body('reason')
+    .trim()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Dispute reason must be between 10 and 1000 characters'),
+  validate
+], disputeBooking);
 
 module.exports = router;

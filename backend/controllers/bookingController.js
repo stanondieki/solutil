@@ -1,6 +1,7 @@
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const User = require('../models/User');
+const EscrowPayment = require('../models/EscrowPayment');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
@@ -299,4 +300,139 @@ exports.getProviderBookings = catchAsync(async (req, res, next) => {
       bookings
     }
   });
+});
+
+// @desc    Complete booking and release escrow payment
+// @route   POST /api/bookings/:id/complete
+// @access  Private (Client only)
+exports.completeBooking = catchAsync(async (req, res, next) => {
+  const { rating, review, releasePayment } = req.body;
+  const bookingId = req.params.id;
+
+  // Get the booking
+  const booking = await Booking.findById(bookingId);
+
+  if (!booking) {
+    return next(new AppError('Booking not found', 404));
+  }
+
+  // Check if user is the client who made the booking
+  if (booking.client.toString() !== req.user.id) {
+    return next(new AppError('You can only complete your own bookings', 403));
+  }
+
+  // Check if booking is in the right status
+  if (booking.status !== 'in-progress') {
+    return next(new AppError('Booking must be in progress to complete', 400));
+  }
+
+  // Find the escrow payment for this booking
+  const escrowPayment = await EscrowPayment.findByBooking(bookingId);
+
+  if (!escrowPayment) {
+    return next(new AppError('No payment found for this booking', 404));
+  }
+
+  if (escrowPayment.status !== 'completed') {
+    return next(new AppError('Payment is not in completed status', 400));
+  }
+
+  try {
+    // Update booking status
+    booking.status = 'completed';
+    booking.completedAt = new Date();
+    booking.rating = rating;
+    booking.review = review;
+    await booking.save();
+
+    if (releasePayment) {
+      // Release payment to provider
+      await escrowPayment.releaseToProvider({
+        releasedBy: req.user.id,
+        rating,
+        review,
+        method: 'mpesa',
+        payoutReference: `PAYOUT_${Date.now()}`
+      });
+
+      logger.info(`Payment released for booking ${bookingId}: ${escrowPayment.formattedProviderAmount}`);
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Booking completed successfully',
+      data: {
+        booking,
+        paymentReleased: releasePayment,
+        providerAmount: escrowPayment.providerAmount
+      }
+    });
+  } catch (error) {
+    logger.error('Error completing booking:', error);
+    return next(new AppError('Failed to complete booking', 500));
+  }
+});
+
+// @desc    Dispute booking and hold escrow payment
+// @route   POST /api/bookings/:id/dispute
+// @access  Private (Client only)
+exports.disputeBooking = catchAsync(async (req, res, next) => {
+  const { reason } = req.body;
+  const bookingId = req.params.id;
+
+  // Get the booking
+  const booking = await Booking.findById(bookingId);
+
+  if (!booking) {
+    return next(new AppError('Booking not found', 404));
+  }
+
+  // Check if user is the client who made the booking
+  if (booking.client.toString() !== req.user.id) {
+    return next(new AppError('You can only dispute your own bookings', 403));
+  }
+
+  // Check if booking can be disputed
+  if (!['in-progress', 'completed'].includes(booking.status)) {
+    return next(new AppError('Booking cannot be disputed in current status', 400));
+  }
+
+  // Find the escrow payment for this booking
+  const escrowPayment = await EscrowPayment.findByBooking(bookingId);
+
+  if (!escrowPayment) {
+    return next(new AppError('No payment found for this booking', 404));
+  }
+
+  if (escrowPayment.status === 'released') {
+    return next(new AppError('Cannot dispute - payment has already been released', 400));
+  }
+
+  try {
+    // Update booking status
+    booking.status = 'disputed';
+    booking.disputeReason = reason;
+    booking.disputedAt = new Date();
+    await booking.save();
+
+    // Update escrow payment status
+    await escrowPayment.initiateDispute(reason, req.user.id);
+
+    // TODO: Send notification to admin/support team
+    // TODO: Send email notifications to client and provider
+
+    logger.info(`Dispute initiated for booking ${bookingId}: ${reason}`);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Dispute initiated successfully. Our support team will review and contact you within 24 hours.',
+      data: {
+        booking,
+        disputeId: escrowPayment.id
+      }
+    });
+  } catch (error) {
+    logger.error('Error initiating dispute:', error);
+    return next(new AppError('Failed to initiate dispute', 500));
+  }
 });
