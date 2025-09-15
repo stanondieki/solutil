@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
   
   /* Solutil Brand Colors - Orange Theme */
-  --primary: #ea580c;           /* orange-600 */
-  --primary-dark: #c2410c;      /* orange-700 */
-  --primary-light: #fb923c;     /* orange-400 */
+  --primary: #fb923c;           /* orange-400 for better contrast on dark */
+  --primary-dark: #ea580c;      /* orange-600 */
+  --primary-light: #fdba74;     /* orange-300 */
   --primary-lighter: #fed7aa;   /* orange-200 */
   --primary-lightest: #fff7ed;  /* orange-50 */
   
