@@ -49,7 +49,13 @@ export default function LoginPage() {
           verified: true, // Mark existing users as verified
           loginTime: new Date().toISOString()
         }
+        
+        // Generate a simple auth token (in a real app, this would come from the backend)
+        const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        
         localStorage.setItem('user', JSON.stringify(userData))
+        localStorage.setItem('authToken', authToken)
+        
         router.push('/dashboard')
       } else {
         setError('Please fill in all fields')
@@ -66,9 +72,16 @@ export default function LoginPage() {
       isAuthenticated: true,
       email: `user@${provider}.com`,
       name: `${provider} User`,
+      verified: true,
       loginTime: new Date().toISOString()
     }
+    
+    // Generate a simple auth token (in a real app, this would come from the backend)
+    const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    
     localStorage.setItem('user', JSON.stringify(userData))
+    localStorage.setItem('authToken', authToken)
+    
     router.push('/dashboard')
   }
 

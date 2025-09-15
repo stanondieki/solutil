@@ -271,12 +271,12 @@ export default function DashboardPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('user')
-    router.push('/login')
+    router.push('/')
   }
 
   const handleServiceClick = (service: Service) => {
-    setSelectedService(service)
-    setShowBookingModal(true)
+    // Navigate to booking page with pre-selected service
+    router.push(`/booking?service=${encodeURIComponent(service.name.toLowerCase())}`)
   }
 
   const handleBookingComplete = (bookingData: any) => {
@@ -303,13 +303,12 @@ export default function DashboardPage() {
   }
 
   const handleQuickBooking = (serviceName?: string) => {
+    // Navigate to booking page, optionally with pre-selected service
     if (serviceName) {
-      const service = services.find(s => s.name === serviceName)
-      if (service) {
-        setSelectedService(service)
-      }
+      router.push(`/booking?service=${encodeURIComponent(serviceName.toLowerCase())}`)
+    } else {
+      router.push('/booking')
     }
-    setShowBookingModal(true)
   }
 
   const markNotificationAsRead = (notificationId: string) => {

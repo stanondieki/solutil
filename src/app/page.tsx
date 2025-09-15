@@ -18,13 +18,13 @@ export default function HomePage() {
       subtitle: 'Reliable pipe repairs, installations, and maintenance'
     },
     {
-      image: '/images/services/electrical.jpg', 
+      image: '/images/services/elec.jpg', 
       alt: 'Professional Electrical Services',
       title: 'Safe Electrical Work',
       subtitle: 'Professional wiring, installations, and troubleshooting'
     },
     {
-      image: '/images/services/cleaning.jpg',
+      image: '/images/services/clean.jpg',
       alt: 'Professional Cleaning Services', 
       title: 'Professional Cleaning',
       subtitle: 'Deep cleaning and maintenance for homes and offices'
