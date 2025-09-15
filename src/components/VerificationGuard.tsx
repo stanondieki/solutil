@@ -37,7 +37,13 @@ export default function VerificationGuard({
       if (!userStr || !authToken) {
         // No user data, redirect to login
         if (requireVerification) {
+          setIsVerified(false)
+          setLoading(false)
           router.push('/auth/login')
+          return
+        } else {
+          setIsVerified(false)
+          setLoading(false)
           return
         }
       }
