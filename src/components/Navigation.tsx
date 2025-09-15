@@ -1,14 +1,30 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      setIsScrolled(scrollTop > 100) // Increased threshold to 100px
+    }
+
+    // Check initial scroll position
+    handleScroll()
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-black/90 backdrop-blur-sm shadow-lg' : 'bg-transparent  shadow-none'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -22,7 +38,7 @@ export default function Navigation() {
                   className="rounded-lg object-cover transition-transform group-hover:scale-105"
                 />
               </div>
-              {/* <span className="text-2xl font-bold text-gray-800 group-hover:text-orange-600 transition-colors">
+              {/* <span className="text-2xl font-bold text-white group-hover:text-orange-400 transition-colors">
                 Solutil
               </span> */}
             </Link>
@@ -30,24 +46,34 @@ export default function Navigation() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+            <Link href="/" className={`transition-colors font-medium ${
+              isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
+            }`}>
               Home
             </Link>
-            <Link href="/services" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+            <Link href="/services" className={`transition-colors font-medium ${
+              isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
+            }`}>
               Services
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+            <Link href="/about" className={`transition-colors font-medium ${
+              isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
+            }`}>
               About
             </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+            <Link href="/contact" className={`transition-colors font-medium ${
+              isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
+            }`}>
               Contact
             </Link>
-            <Link href="/auth/login" className="text-orange-600 hover:text-orange-800 transition-colors font-medium">
+            <Link href="/auth/login" className={`transition-colors font-medium ${
+              isScrolled ? 'text-orange-400 hover:text-orange-300' : 'text-orange-400 hover:text-orange-300'
+            }`}>
               Login
             </Link>
             <Link 
               href="/auth/register" 
-              className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-2 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all transform hover:scale-105 shadow-md font-medium"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md transition-all font-medium"
             >
               Sign Up
             </Link>
@@ -57,7 +83,9 @@ export default function Navigation() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 p-2"
+              className={`focus:outline-none focus:ring-2 focus:ring-orange-500 p-2 transition-colors ${
+                isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
+              }`}
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -72,46 +100,68 @@ export default function Navigation() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
+          <div className={`md:hidden border-t transition-colors ${
+            isScrolled ? 'bg-black/95 border-gray-600' : 'bg-transparent border-gray-600'
+          }`}>
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link 
                 href="/" 
-                className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                className={`block px-3 py-2 rounded-md transition-colors ${
+                  isScrolled 
+                    ? 'text-white hover:text-orange-400 hover:bg-gray-800' 
+                    : 'text-white hover:text-orange-400 hover:bg-gray-800'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link 
                 href="/services" 
-                className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                className={`block px-3 py-2 rounded-md transition-colors ${
+                  isScrolled 
+                    ? 'text-white hover:text-orange-400 hover:bg-gray-800' 
+                    : 'text-white hover:text-orange-400 hover:bg-gray-800'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Services
               </Link>
               <Link 
                 href="/about" 
-                className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                className={`block px-3 py-2 rounded-md transition-colors ${
+                  isScrolled 
+                    ? 'text-white hover:text-orange-400 hover:bg-gray-800' 
+                    : 'text-white hover:text-orange-400 hover:bg-gray-800'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
               </Link>
               <Link 
                 href="/contact" 
-                className="block px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                className={`block px-3 py-2 rounded-md transition-colors ${
+                  isScrolled 
+                    ? 'text-white hover:text-orange-400 hover:bg-gray-800' 
+                    : 'text-white hover:text-orange-400 hover:bg-gray-800'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
               </Link>
               <Link 
                 href="/auth/login" 
-                className="block px-3 py-2 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-md transition-colors font-medium"
+                className={`block px-3 py-2 rounded-md transition-colors font-medium ${
+                  isScrolled 
+                    ? 'text-orange-400 hover:text-orange-300 hover:bg-gray-800' 
+                    : 'text-orange-400 hover:text-orange-300 hover:bg-gray-800'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
               </Link>
               <Link 
                 href="/auth/register" 
-                className="block px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors mx-3 mt-2 text-center"
+                className="block px-3 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors mx-3 mt-2 text-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sign Up
