@@ -37,15 +37,34 @@ export default function AdminProvidersPage() {
   const fetchProviders = async () => {
     try {
       const token = localStorage.getItem('adminToken')
-      const response = await fetch('/api/admin/providers', {
+      // Use new backend endpoint for provider applications
+      const response = await fetch('http://localhost:5000/api/provider/applications', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
-      
       if (response.ok) {
         const data = await response.json()
-        setProviders(data.providers)
+        // Map backend provider data to frontend format
+        const mappedProviders = (data.data.providers || []).map((p: any) => ({
+          id: p._id,
+          name: p.name,
+          email: p.email,
+          phone: p.phone,
+          services: p.providerProfile?.skills || [],
+          rating: p.providerProfile?.rating || 0,
+          totalJobs: p.providerProfile?.completedJobs || 0,
+          status: p.providerStatus || 'pending',
+          joinDate: p.createdAt,
+          location: p.address?.city ? `${p.address.city}, ${p.address.country || 'Kenya'}` : '',
+          experience: p.providerProfile?.experience || '',
+          verification: {
+            idVerified: p.providerDocuments?.nationalId?.verified || false,
+            phoneVerified: !!p.phone,
+            emailVerified: !!p.email
+          }
+        }))
+        setProviders(mappedProviders)
       } else {
         // Mock data for demo
         setProviders([

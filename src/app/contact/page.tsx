@@ -510,7 +510,7 @@ export default function ContactPage() {
                       
                       <motion.div className="relative">
                         <Link
-                          href="/booking"
+                          href="/services/all"
                           className="block"
                         >
                           <motion.div

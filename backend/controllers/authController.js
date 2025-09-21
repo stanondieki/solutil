@@ -105,6 +105,17 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Your account has been deactivated. Please contact support.', 401));
   }
 
+  // Check if email is verified
+  if (!user.isVerified) {
+    return next(new AppError('Please verify your email address before logging in. Check your inbox for the verification link.', 401));
+  }
+
+  // Set default providerStatus for existing provider users who don't have it
+  if (user.userType === 'provider' && !user.providerStatus) {
+    user.providerStatus = 'pending';
+    await user.save({ validateBeforeSave: false });
+  }
+
   // Update last login
   user.lastLogin = new Date();
   await user.save({ validateBeforeSave: false });

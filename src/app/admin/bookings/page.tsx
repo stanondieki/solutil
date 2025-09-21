@@ -40,15 +40,37 @@ export default function AdminBookingsPage() {
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('adminToken')
-      const response = await fetch('/api/admin/bookings', {
+      // Use backend endpoint for bookings
+      const response = await fetch('http://localhost:5000/api/bookings', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
-      
       if (response.ok) {
         const data = await response.json()
-        setBookings(data.bookings)
+        // Map backend booking data to frontend format
+        const mappedBookings = (data.data.bookings || []).map((b: any) => ({
+          id: b._id,
+          customer: {
+            name: b.client?.name || '',
+            email: b.client?.email || '',
+            phone: b.client?.phone || ''
+          },
+          provider: {
+            name: b.provider?.name || '',
+            email: b.provider?.email || '',
+            phone: b.provider?.phone || ''
+          },
+          service: b.service?.name || '',
+          description: b.service?.description || '',
+          scheduledDate: b.scheduledDate,
+          status: b.status,
+          amount: b.pricing?.totalAmount || 0,
+          location: b.location?.address || '',
+          createdAt: b.createdAt,
+          paymentStatus: b.payment?.status || 'pending'
+        }))
+        setBookings(mappedBookings)
       } else {
         // Mock data for demo
         setBookings([

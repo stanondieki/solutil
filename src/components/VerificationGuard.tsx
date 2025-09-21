@@ -30,16 +30,22 @@ export default function VerificationGuard({
 
   const checkVerificationStatus = () => {
     try {
+      console.log('VerificationGuard: Checking verification status...')
+      
       // Check if user is authenticated and verified
       const userStr = localStorage.getItem('user')
       const authToken = localStorage.getItem('authToken')
 
+      console.log('VerificationGuard: userStr exists:', !!userStr)
+      console.log('VerificationGuard: authToken exists:', !!authToken)
+
       if (!userStr || !authToken) {
+        console.log('VerificationGuard: Missing user data or token, redirecting to login')
         // No user data, redirect to login
         if (requireVerification) {
           setIsVerified(false)
           setLoading(false)
-          router.push('/auth/login')
+          router.push('/login')
           return
         } else {
           setIsVerified(false)
@@ -49,9 +55,12 @@ export default function VerificationGuard({
       }
 
       const user: User = JSON.parse(userStr || '{}')
+      console.log('VerificationGuard: User data:', user)
+      console.log('VerificationGuard: User verified status:', user.verified)
 
       // If user is already verified, allow access
       if (user.verified) {
+        console.log('VerificationGuard: User is verified, allowing access')
         setIsVerified(true)
         setLoading(false)
         return
@@ -70,22 +79,25 @@ export default function VerificationGuard({
       // If no pending registration and not verified, treat as regular user
       // This handles cases where verification data was cleared
       if (requireVerification && !user.verified) {
+        console.log('VerificationGuard: User not verified, applying backward compatibility')
         // For existing users without verification flag, mark as verified
         // This is for backward compatibility
         const updatedUser = { ...user, verified: true }
         localStorage.setItem('user', JSON.stringify(updatedUser))
+        console.log('VerificationGuard: Updated user with verified=true')
         setIsVerified(true)
         setLoading(false)
         return
       }
 
+      console.log('VerificationGuard: Allowing access')
       setIsVerified(true)
       setLoading(false)
 
     } catch (error) {
       console.error('Verification check error:', error)
       if (requireVerification) {
-        router.push('/auth/login')
+        router.push('/login')
       } else {
         setIsVerified(false)
         setLoading(false)

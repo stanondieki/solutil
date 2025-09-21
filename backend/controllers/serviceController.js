@@ -7,54 +7,57 @@ const logger = require('../utils/logger');
 // @route   GET /api/services
 // @access  Public
 exports.getServices = catchAsync(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-  // Build filter object
-  const filters = { isActive: true };
-  
-  if (req.query.category) {
-    filters.category = req.query.category;
-  }
-  
-  if (req.query.minPrice || req.query.maxPrice) {
-    filters.basePrice = {};
-    if (req.query.minPrice) filters.basePrice.$gte = parseFloat(req.query.minPrice);
-    if (req.query.maxPrice) filters.basePrice.$lte = parseFloat(req.query.maxPrice);
-  }
-
-  // Build sort object
-  let sort = {};
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(',').join(' ');
-    sort = sortBy;
-  } else {
-    sort = { isPopular: -1, 'rating.average': -1, createdAt: -1 };
-  }
-
-  // Execute query
-  const services = await Service.find(filters)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .populate('reviews', 'rating comment user createdAt', null, { limit: 3 });
-
-  const total = await Service.countDocuments(filters);
-
-  res.status(200).json({
-    status: 'success',
-    results: services.length,
-    pagination: {
-      page,
-      pages: Math.ceil(total / limit),
-      total,
-      limit
-    },
-    data: {
-      services
+    // Build filter object
+    const filters = { isActive: true };
+    if (req.query.category) {
+      filters.category = req.query.category;
     }
-  });
+    if (req.query.minPrice || req.query.maxPrice) {
+      filters.basePrice = {};
+      if (req.query.minPrice) filters.basePrice.$gte = parseFloat(req.query.minPrice);
+      if (req.query.maxPrice) filters.basePrice.$lte = parseFloat(req.query.maxPrice);
+    }
+
+    // Build sort object
+    let sort = {};
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      sort = sortBy;
+    } else {
+      sort = { isPopular: -1, 'rating.average': -1, createdAt: -1 };
+    }
+
+    // Execute query
+    const services = await Service.find(filters)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate('reviews', 'rating comment user createdAt', null, { limit: 3 });
+
+    const total = await Service.countDocuments(filters);
+
+    res.status(200).json({
+      status: 'success',
+      results: services.length,
+      pagination: {
+        page,
+        pages: Math.ceil(total / limit),
+        total,
+        limit
+      },
+      data: {
+        services
+      }
+    });
+  } catch (err) {
+    logger.error('Service fetch error:', err);
+    res.status(500).json({ status: 'error', message: err.message, stack: err.stack });
+  }
 });
 
 // @desc    Get single service

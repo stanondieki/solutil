@@ -230,7 +230,7 @@ export default function ServicesPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    href={`/booking?service=${service.id}`}
+                    href={`/booking/${service.title.toLowerCase()}`}
                     className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 text-white text-center px-6 py-3 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105 font-medium"
                   >
                     Book {service.title}
@@ -334,7 +334,7 @@ export default function ServicesPage() {
             </p>
             
             <Link
-              href="/booking"
+              href="/services/all"
               className="bg-white text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               Book a Service Now

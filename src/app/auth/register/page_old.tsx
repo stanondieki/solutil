@@ -123,7 +123,7 @@ export default function RegisterPage() {
         >
           {/* <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-6 shadow-xl">
             <Image 
-              src="/images/logo.jpg" 
+              src="/images/logo.png" 
               alt="Solutil Logo" 
               width={60}
               height={60}
