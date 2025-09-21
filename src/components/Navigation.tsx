@@ -5,12 +5,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FaUser, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa'
+import { useAuth } from '@/contexts/AuthContext'
+import { RoleManager } from '@/lib/roles'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -26,41 +27,9 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    // Check authentication status
-    const checkAuthStatus = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        const authToken = localStorage.getItem('authToken')
-        
-        if (userStr && (authToken || JSON.parse(userStr).isAuthenticated)) {
-          const userData = JSON.parse(userStr)
-          setIsLoggedIn(true)
-          setUser(userData)
-        } else {
-          setIsLoggedIn(false)
-          setUser(null)
-        }
-      } catch (error) {
-        setIsLoggedIn(false)
-        setUser(null)
-      }
-    }
-
-    checkAuthStatus()
-    
-    // Listen for storage changes to update auth status
-    window.addEventListener('storage', checkAuthStatus)
-    return () => window.removeEventListener('storage', checkAuthStatus)
-  }, [])
-
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('authToken')
-    setIsLoggedIn(false)
-    setUser(null)
+    logout()
     setIsMenuOpen(false)
-    router.push('/')
   }
 
   return (
@@ -109,43 +78,88 @@ export default function Navigation() {
               Contact
             </Link>
             
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               // Logged-in user navigation
               <>
-                <Link href="/dashboard" className={`transition-colors font-medium flex items-center space-x-2 ${
-                  isScrolled ? 'text-orange-400 hover:text-orange-300' : 'text-orange-400 hover:text-orange-300'
-                }`}>
-                  <FaTachometerAlt className="text-sm" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link href="/bookings" className={`transition-colors font-medium ${
-                  isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
-                }`}>
-                  My Bookings
-                </Link>
+                {/* Role-based navigation items */}
+                {user && RoleManager.getNavigationItems(user.userType, user.providerStatus).map((item) => (
+                  <Link 
+                    key={item.href}
+                    href={item.href} 
+                    className={`transition-colors font-medium ${
+                      item.href === '/dashboard' 
+                        ? `flex items-center space-x-2 ${isScrolled ? 'text-orange-400 hover:text-orange-300' : 'text-orange-400 hover:text-orange-300'}`
+                        : `${isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'}`
+                    }`}
+                  >
+                    {item.href === '/dashboard' && <FaTachometerAlt className="text-sm" />}
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+                
                 <div className="relative group">
                   <button className={`transition-colors font-medium flex items-center space-x-2 ${
                     isScrolled ? 'text-white hover:text-orange-400' : 'text-white hover:text-orange-400'
                   }`}>
                     <FaUser className="text-sm" />
                     <span>{user?.name || user?.email?.split('@')[0] || 'Profile'}</span>
+                    {/* Role badge */}
+                    {user && (
+                      <span className={`ml-2 px-2 py-1 text-xs rounded-full ${RoleManager.getRoleColor(user.userType)}`}>
+                        {RoleManager.getRoleDisplayName(user.userType)}
+                      </span>
+                    )}
+                    {/* Provider status badge */}
+                    {user?.userType === 'provider' && user.providerStatus && (
+                      <span className={`ml-1 px-2 py-1 text-xs rounded-full border ${
+                        RoleManager.getProviderStatusConfig(user.providerStatus as any).color
+                      }`}>
+                        {RoleManager.getProviderStatusConfig(user.providerStatus as any).icon}
+                      </span>
+                    )}
                   </button>
                   
                   {/* Dropdown Menu */}
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
+                      {/* User info */}
+                      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className={`px-2 py-1 text-xs rounded-full ${RoleManager.getRoleColor(user?.userType || 'client')}`}>
+                            {RoleManager.getRoleDisplayName(user?.userType || 'client')}
+                          </span>
+                          {user?.userType === 'provider' && user.providerStatus && (
+                            <span className={`px-2 py-1 text-xs rounded-full border ${
+                              RoleManager.getProviderStatusConfig(user.providerStatus as any).color
+                            }`}>
+                              {RoleManager.getProviderStatusConfig(user.providerStatus as any).label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
                       <Link 
-                        href="/dashboard" 
+                        href="/profile" 
                         className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       >
-                        Dashboard
+                        My Profile
                       </Link>
-                      <Link 
-                        href="/bookings" 
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        My Bookings
-                      </Link>
+                      
+                      {/* Role-specific menu items */}
+                      {user && RoleManager.getNavigationItems(user.userType, user.providerStatus).map((item) => (
+                        item.href !== '/profile' && (
+                          <Link 
+                            key={item.href}
+                            href={item.href} 
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        )
+                      ))}
+                      
                       <button 
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
@@ -245,7 +259,7 @@ export default function Navigation() {
                 Contact
               </Link>
               
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 // Logged-in user mobile navigation
                 <>
                   <Link 

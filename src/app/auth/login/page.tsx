@@ -1,28 +1,51 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
   FaEye, 
   FaEyeSlash, 
   FaEnvelope, 
-  FaLock, 
-  FaGoogle, 
-  FaFacebookF
+  FaLock
 } from 'react-icons/fa'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { login, isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showResendVerification, setShowResendVerification] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, router])
+
+  // Check for query parameters
+  useEffect(() => {
+    const verified = searchParams.get('verified')
+    const registered = searchParams.get('registered')
+    
+    if (verified === 'true') {
+      setSuccess('Email verified successfully! You can now log in.')
+    } else if (registered === 'true') {
+      setSuccess('Registration successful! Please check your email to verify your account before logging in.')
+    }
+  }, [searchParams])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -31,6 +54,7 @@ export default function LoginPage() {
       [name]: value
     }))
     setError('')
+    setSuccess('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,50 +63,117 @@ export default function LoginPage() {
     setError('')
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      if (formData.email && formData.password) {
-        const userData = {
-          isAuthenticated: true,
+      // Call backend login API
+      console.log('Attempting login with email:', formData.email);
+      
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: formData.email,
-          name: formData.email.split('@')[0],
-          verified: true, // Mark existing users as verified
-          loginTime: new Date().toISOString()
+          password: formData.password
+        }),
+      })
+
+      console.log('Login response status:', loginResponse.status);
+      const loginData = await loginResponse.json()
+      console.log('Login response data:', loginData);
+
+      if (loginResponse.ok && loginData.status === 'success') {
+        console.log('Login successful - using auth context')
+        console.log('Full response data:', JSON.stringify(loginData, null, 2))
+        
+        const token = loginData.token || loginData.data?.token || loginData.accessToken || loginData.data?.accessToken
+        const userData = {
+          ...loginData.data.user,
+          isAuthenticated: true,
+          verified: true
         }
         
-        // Generate a simple auth token (in a real app, this would come from the backend)
-        const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        
-        localStorage.setItem('user', JSON.stringify(userData))
-        localStorage.setItem('authToken', authToken)
-        
-        router.push('/dashboard')
+        if (token) {
+          // Use auth context login method
+          await login(formData.email, formData.password)
+          console.log('Login completed via auth context')
+          
+          // Smart redirect based on user role and status
+          const user = loginData.data.user
+          let redirectPath = '/dashboard' // default
+          
+          if (user.userType === 'admin') {
+            redirectPath = '/admin'
+          } else if (user.userType === 'provider') {
+            // Check provider verification status
+            if (user.providerStatus === 'pending' || user.providerStatus === 'under_review') {
+              redirectPath = '/upload-documents'
+            } else if (user.providerStatus === 'rejected') {
+              redirectPath = '/dashboard' // Dashboard will show rejection alert
+            } else {
+              redirectPath = '/dashboard' // Approved or other status
+            }
+          } else {
+            // Client or default
+            redirectPath = '/dashboard'
+          }
+          
+          console.log(`Redirecting ${user.userType} (${user.providerStatus || 'N/A'}) to: ${redirectPath}`)
+          router.push(redirectPath)
+        } else {
+          console.log('No token found in response. Available keys:', Object.keys(loginData))
+          setError('Login failed: No authentication token received')
+        }
       } else {
-        setError('Please fill in all fields')
+        console.error('Login failed:', loginData);
+        const errorMessage = loginData.message || 'Invalid email or password'
+        setError(errorMessage)
+        
+        // Show resend verification option if email is not verified
+        if (errorMessage.toLowerCase().includes('verify your email') || errorMessage.toLowerCase().includes('email verification')) {
+          setShowResendVerification(true)
+        }
       }
     } catch (err) {
-      setError('Login failed. Please try again.')
+      console.error('Login error:', err);
+      setError('Login failed. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSocialLogin = (provider: string) => {
-    const userData = {
-      isAuthenticated: true,
-      email: `user@${provider}.com`,
-      name: `${provider} User`,
-      verified: true,
-      loginTime: new Date().toISOString()
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      setError('Please enter your email address first')
+      return
     }
-    
-    // Generate a simple auth token (in a real app, this would come from the backend)
-    const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    localStorage.setItem('user', JSON.stringify(userData))
-    localStorage.setItem('authToken', authToken)
-    
-    router.push('/dashboard')
+
+    setResendLoading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch('/api/auth/resend-email-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: formData.email })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSuccess('Verification email sent! Please check your inbox.')
+        setShowResendVerification(false)
+      } else {
+        setError(data.message || 'Failed to send verification email')
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error)
+      setError('Network error. Please try again.')
+    } finally {
+      setResendLoading(false)
+    }
   }
 
   return (
@@ -100,7 +191,7 @@ export default function LoginPage() {
           <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-br from-orange-50 to-white">
             <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={64}
                 height={64}
@@ -176,6 +267,27 @@ export default function LoginPage() {
                   className="bg-red-50 border border-red-200 rounded-xl p-3"
                 >
                   <p className="text-red-600 text-sm text-center">{error}</p>
+                  {showResendVerification && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendLoading}
+                      className="mt-3 w-full bg-orange-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {resendLoading ? 'Sending...' : 'Resend Verification Email'}
+                    </button>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Success Message */}
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-green-50 border border-green-200 rounded-xl p-3"
+                >
+                  <p className="text-green-600 text-sm text-center">{success}</p>
                 </motion.div>
               )}
 
@@ -198,42 +310,6 @@ export default function LoginPage() {
                   'Sign In'
                 )}
               </button>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
-                </div>
-              </div>
-
-              {/* Social Login Buttons */}
-              <div className="grid grid-cols-2 gap-3">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSocialLogin('google')}
-                  className="flex items-center justify-center py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all"
-                >
-                  <FaGoogle className="text-red-500 mr-2" />
-                  <span className="text-gray-700 font-medium">Google</span>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSocialLogin('facebook')}
-                  className="flex items-center justify-center py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all"
-                >
-                  <FaFacebookF className="text-blue-600 mr-2" />
-                  <span className="text-gray-700 font-medium">Facebook</span>
-                </motion.button>
-              </div>
-
               {/* Sign Up Link */}
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">

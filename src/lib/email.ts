@@ -73,8 +73,8 @@ Code: ${code}
             body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
             .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .header { text-align: center; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: bold; color: #f97316; }
-            .code-box { background: #f97316; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 30px 0; }
+            .logo { font-size: 24px; font-weight: bold; color: #A56000; }
+            .code-box { background: #A56000; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 30px 0; }
             .code { font-size: 36px; font-weight: bold; letter-spacing: 8px; }
             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px; text-align: center; }
           </style>
@@ -163,9 +163,9 @@ Subject: Welcome to Solutil!
             body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
             .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .header { text-align: center; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: bold; color: #f97316; }
-            .welcome-box { background: linear-gradient(135deg, #f97316, #fb923c); color: white; padding: 30px; border-radius: 8px; text-align: center; margin: 30px 0; }
-            .btn { display: inline-block; background: #f97316; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; margin: 20px 0; }
+            .logo { font-size: 24px; font-weight: bold; color: #A56000; }
+            .welcome-box { background: linear-gradient(135deg, #A56000, #C77A00); color: white; padding: 30px; border-radius: 8px; text-align: center; margin: 30px 0; }
+            .btn { display: inline-block; background: #A56000; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; margin: 20px 0; }
             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px; text-align: center; }
           </style>
         </head>

@@ -11,8 +11,6 @@ import {
   FaEnvelope, 
   FaLock, 
   FaUser,
-  FaGoogle, 
-  FaFacebookF,
   FaCheck
 } from 'react-icons/fa'
 
@@ -28,6 +26,7 @@ export default function RegisterPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
 
@@ -38,6 +37,7 @@ export default function RegisterPage() {
       [name]: value
     }))
     setError('')
+    setSuccess('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,52 +67,62 @@ export default function RegisterPage() {
         return
       }
 
-      // Send verification code
-      const verificationResponse = await fetch('/api/auth/send-verification', {
+      // Register user directly to backend database
+      console.log('Attempting registration with data:', {
+        name: formData.name,
+        email: formData.email,
+        userType: formData.userType,
+        phone: formData.phone
+      });
+
+      const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: formData.email,
-          phone: formData.phone,
           name: formData.name,
-          type: formData.verificationType
+          email: formData.email,
+          password: formData.password,
+          userType: formData.userType,
+          phone: formData.phone
         }),
       })
 
-      const verificationData = await verificationResponse.json()
+      console.log('Response status:', registerResponse.status);
+      const registerData = await registerResponse.json()
+      console.log('Response data:', registerData);
 
-      if (verificationResponse.ok && verificationData.success) {
-        // Store registration data temporarily
-        localStorage.setItem('pendingRegistration', JSON.stringify({
-          ...formData,
-          registrationTime: new Date().toISOString()
-        }))
-
-        // Redirect to verification page
-        const verifyUrl = `/auth/verify?token=${verificationData.token}&type=${formData.verificationType}&contact=${formData.verificationType === 'email' ? formData.email : formData.phone}`
-        router.push(verifyUrl)
+      if (registerResponse.ok && registerData.status === 'success') {
+        console.log('Registration successful');
+        
+        // Show success message about email verification
+        setSuccess('Registration successful! Please check your email to verify your account before logging in.')
+        
+        // Clear form
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          userType: 'client',
+          phone: '',
+          verificationType: 'email'
+        })
+        
+        // Optionally redirect to login page after showing success message
+        setTimeout(() => {
+          router.push('/auth/login?registered=true')
+        }, 3000)
       } else {
-        setError(verificationData.message || 'Failed to send verification code')
+        console.error('Registration failed:', registerData);
+        setError(registerData.message || 'Registration failed')
       }
     } catch (err) {
-      setError('Registration failed. Please try again.')
+      console.error('Registration error:', err);
+      setError('Registration failed. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleSocialLogin = (provider: string) => {
-    const userData = {
-      isAuthenticated: true,
-      email: `user@${provider}.com`,
-      name: `${provider} User`,
-      userType: 'client',
-      registrationTime: new Date().toISOString()
-    }
-    localStorage.setItem('user', JSON.stringify(userData))
-    router.push('/dashboard')
   }
 
   return (
@@ -130,7 +140,7 @@ export default function RegisterPage() {
           <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-br from-orange-50 to-white">
             <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={64}
                 height={64}
@@ -299,7 +309,7 @@ export default function RegisterPage() {
                   className="w-full py-3.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all text-gray-900"
                 >
                   <option value="client">Client - Book Services</option>
-                  <option value="worker">Service Provider - Offer Services</option>
+                  <option value="provider">Service Provider - Offer Services</option>
                 </select>
               </div>
 
@@ -349,6 +359,17 @@ export default function RegisterPage() {
                 </motion.div>
               )}
 
+              {/* Success Message */}
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-green-50 border border-green-200 rounded-xl p-3"
+                >
+                  <p className="text-green-600 text-sm text-center">{success}</p>
+                </motion.div>
+              )}
+
               {/* Sign Up Button */}
               <button
                 type="submit"
@@ -368,41 +389,6 @@ export default function RegisterPage() {
                   'Create Account'
                 )}
               </button>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500 font-medium">Or sign up with</span>
-                </div>
-              </div>
-
-              {/* Social Login Buttons */}
-              <div className="grid grid-cols-2 gap-3">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSocialLogin('google')}
-                  className="flex items-center justify-center py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all"
-                >
-                  <FaGoogle className="text-red-500 mr-2" />
-                  <span className="text-gray-700 font-medium">Google</span>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSocialLogin('facebook')}
-                  className="flex items-center justify-center py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all"
-                >
-                  <FaFacebookF className="text-blue-600 mr-2" />
-                  <span className="text-gray-700 font-medium">Facebook</span>
-                </motion.button>
-              </div>
 
               {/* Sign In Link */}
               <div className="text-center pt-4 border-t border-gray-100">

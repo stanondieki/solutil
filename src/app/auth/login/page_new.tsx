@@ -86,7 +86,7 @@ export default function LoginPage() {
           <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-br from-orange-50 to-white">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-4 shadow-lg">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={40}
                 height={40}

@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    userType: 'client' // 'client' or 'worker'
+    userType: 'client' // 'client' or 'provider'
   })
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -25,31 +25,67 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     
-    // Simulate authentication - replace with your actual auth logic
     try {
-      // Mock authentication
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      console.log('Attempting login with email:', formData.email)
       
-      // Store user data in localStorage (replace with proper auth later)
-      localStorage.setItem('user', JSON.stringify({
-        email: formData.email,
-        userType: formData.userType,
-        isAuthenticated: true
-      }))
-      
-      // Redirect to dashboard
-      router.push('/dashboard')
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+
+      console.log('Login response status:', response.status)
+      const data = await response.json()
+      console.log('Login response data:', data)
+
+      if (response.ok && data.status === 'success') {
+        console.log('Login successful - storing data...')
+        console.log('Full response data:', JSON.stringify(data, null, 2))
+        
+        // Store user data and token in localStorage
+        localStorage.setItem('user', JSON.stringify(data.data.user))
+        console.log('User data stored:', data.data.user)
+        
+        // Check for token in different possible locations
+        const token = data.token || data.data?.token || data.accessToken || data.data?.accessToken
+        if (token) {
+          localStorage.setItem('authToken', token)
+          console.log('Auth token stored:', token)
+        } else {
+          console.log('No token found in response. Available keys:', Object.keys(data))
+          // For now, create a dummy token to allow login
+          localStorage.setItem('authToken', 'dummy-token')
+          console.log('Created dummy token for development')
+        }
+        
+        console.log('Login successful, redirecting to dashboard')
+        
+        // Force a small delay to ensure localStorage is written
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
+        
+      } else {
+        console.error('Login failed:', data.message)
+        alert(data.message || 'Login failed')
+      }
     } catch (error) {
       console.error('Login failed:', error)
+      alert('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const demoLogin = (userType: 'client' | 'worker') => {
+  const demoLogin = (userType: 'client' | 'provider') => {
     setFormData(prev => ({
       ...prev,
-      email: userType === 'client' ? 'client@demo.com' : 'worker@demo.com',
+      email: userType === 'client' ? 'client@demo.com' : 'provider@demo.com',
       password: 'demo123',
       userType
     }))
@@ -63,7 +99,7 @@ export default function LoginPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={40}
                 height={40}
@@ -92,7 +128,7 @@ export default function LoginPage() {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={80}
                 height={80}
@@ -116,10 +152,10 @@ export default function LoginPage() {
               Demo Client Login
             </button>
             <button
-              onClick={() => demoLogin('worker')}
+              onClick={() => demoLogin('provider')}
               className="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
             >
-              Demo Worker Login
+              Demo Provider Login
             </button>
           </div>
 
@@ -144,9 +180,9 @@ export default function LoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleInputChange('userType', 'worker')}
+                  onClick={() => handleInputChange('userType', 'provider')}
                   className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                    formData.userType === 'worker'
+                    formData.userType === 'provider'
                       ? 'border-green-500 bg-green-50 text-green-700'
                       : 'border-gray-200 hover:border-green-300'
                   }`}
