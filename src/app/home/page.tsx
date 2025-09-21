@@ -18,7 +18,7 @@ export default function InfoPage() {
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start mb-6">
                 <Image 
-                  src="/images/logo.jpg" 
+                  src="/images/logo.png" 
                   alt="Solutil Logo" 
                   width={80}
                   height={80}

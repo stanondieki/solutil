@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={40}
                 height={40}
@@ -62,7 +62,7 @@ export default function Footer() {
             <ul className="space-y-2 text-gray-300">
               <li><Link href="/about" className="hover:text-orange-500 transition-colors">About Us</Link></li>
               <li><Link href="/contact" className="hover:text-orange-500 transition-colors">Contact</Link></li>
-              <li><Link href="/booking" className="hover:text-orange-500 transition-colors">Book Service</Link></li>
+              <li><Link href="/services/all" className="hover:text-orange-500 transition-colors">Book Service</Link></li>
               <li><Link href="#" className="hover:text-orange-500 transition-colors">Privacy Policy</Link></li>
               <li><Link href="#" className="hover:text-orange-500 transition-colors">Terms of Service</Link></li>
             </ul>

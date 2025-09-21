@@ -85,6 +85,8 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null)
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
+  const [availableSlots, setAvailableSlots] = useState<string[]>([])
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const [bookingDetails, setBookingDetails] = useState({
     location: '',
     description: '',
@@ -100,6 +102,40 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
     '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM',
     '04:00 PM', '05:00 PM', '06:00 PM'
   ]
+
+  // Fetch available time slots when date changes
+  const fetchAvailableSlots = async (date: string, providerId: string) => {
+    setIsLoadingSlots(true)
+    setAvailableSlots([])
+    
+    try {
+      // This would call a real API to get provider availability
+      // For now, simulate with filtered time slots
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Simulate some slots being unavailable
+      const allSlots = timeSlots
+      const unavailableSlots = ['10:00 AM', '02:00 PM', '05:00 PM'] // Mock unavailable slots
+      const available = allSlots.filter(slot => !unavailableSlots.includes(slot))
+      
+      setAvailableSlots(available)
+    } catch (error) {
+      console.error('Failed to fetch available slots:', error)
+      setAvailableSlots(timeSlots) // Fallback to all slots
+    } finally {
+      setIsLoadingSlots(false)
+    }
+  }
+
+  // Handle date selection
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date)
+    setSelectedTime('') // Reset time when date changes
+    
+    if (selectedProvider && date) {
+      fetchAvailableSlots(date, selectedProvider.id)
+    }
+  }
 
   const getNextWeekDates = () => {
     const dates = []
@@ -117,30 +153,101 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
   const handleSubmitBooking = async () => {
     setIsSubmitting(true)
     
-    // Simulate booking API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // Get user data and auth token
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      const authToken = localStorage.getItem('authToken')
+      
+      if (!authToken) {
+        throw new Error('Authentication required')
+      }
+
+      // Create booking data with modern structure
+      const bookingData = {
+        provider: selectedProvider?.id, // This should be a real provider ID
+        service: '507f1f77bcf86cd799439011', // This should be the actual service ID
+        scheduledDate: new Date(selectedDate).toISOString(),
+        scheduledTime: {
+          start: selectedTime,
+          end: getEndTime(selectedTime) // Calculate end time based on service duration
+        },
+        location: {
+          address: bookingDetails.location,
+          coordinates: {
+            lat: 0, // These should be real coordinates from geocoding
+            lng: 0
+          },
+          instructions: bookingDetails.description
+        },
+        pricing: {
+          basePrice: selectedProvider?.price || 2500,
+          totalAmount: selectedProvider?.price || 2500,
+          currency: 'KES'
+        },
+        payment: {
+          method: 'mpesa', // Default to M-Pesa for Kenya
+          status: 'pending'
+        },
+        notes: bookingDetails.description
+      }
+
+      console.log('Creating booking with data:', bookingData)
+      console.log('Auth token:', authToken)
+
+      // Call the booking API
+      console.log('Sending request to /api/bookings...')
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingData,
+          authToken
+        }),
+      })
+      
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
+      const result = await response.json()
+      console.log('Booking response:', result)
+      console.log('Full response data:', JSON.stringify(result, null, 2))
+
+      if (response.ok) {
+        setBookingComplete(true)
+        
+        // Call the completion callback with the actual booking data
+        if (onBookingComplete) {
+          setTimeout(() => {
+            onBookingComplete(result.data.booking)
+          }, 2000)
+        }
+      } else {
+        throw new Error(result.message || 'Failed to create booking')
+      }
+
+    } catch (error) {
+      console.error('Booking creation error:', error)
+      alert(`Booking failed: ${error.message}`)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Helper function to calculate end time based on start time
+  const getEndTime = (startTime: string) => {
+    const [hours, minutes] = startTime.split(':')
+    const startHour = parseInt(hours)
+    const period = startTime.includes('PM') ? 'PM' : 'AM'
     
-    const bookingData = {
-      service: service?.name,
-      provider: selectedProvider?.name,
-      date: selectedDate,
-      time: selectedTime,
-      location: bookingDetails.location,
-      description: bookingDetails.description,
-      urgency: bookingDetails.urgency,
-      contactPhone: bookingDetails.contactPhone,
-      contactEmail: bookingDetails.contactEmail
+    // Default to 2-hour service duration
+    let endHour = startHour + 2
+    if (endHour > 12 && period === 'AM') {
+      endHour = endHour - 12
     }
     
-    setBookingComplete(true)
-    setIsSubmitting(false)
-    
-    // Call the completion callback if provided
-    if (onBookingComplete) {
-      setTimeout(() => {
-        onBookingComplete(bookingData)
-      }, 2000) // Wait 2 seconds to show the success screen first
-    }
+    return `${endHour.toString().padStart(2, '0')}:${minutes}`
   }
 
   const resetModal = () => {
@@ -346,24 +453,51 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
 
                         {/* Time Selection */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-3">Choose Time</label>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {timeSlots.map((time) => (
-                              <motion.button
-                                key={time}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedTime(time)}
-                                className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                                  selectedTime === time
-                                    ? 'border-orange-500 bg-orange-50 text-orange-600'
-                                    : 'border-gray-200 hover:border-orange-300'
-                                }`}
-                              >
-                                {time}
-                              </motion.button>
-                            ))}
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700 mb-3">
+                            Choose Time
+                            {isLoadingSlots && (
+                              <span className="text-xs text-gray-500 ml-2">(Loading availability...)</span>
+                            )}
+                          </label>
+                          {selectedDate ? (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                              {isLoadingSlots ? (
+                                // Loading skeleton
+                                Array.from({ length: 8 }).map((_, index) => (
+                                  <div key={index} className="p-3 rounded-lg bg-gray-100 animate-pulse h-10"></div>
+                                ))
+                              ) : (
+                                (availableSlots.length > 0 ? availableSlots : timeSlots).map((time) => {
+                                  const isAvailable = availableSlots.length === 0 || availableSlots.includes(time)
+                                  return (
+                                    <motion.button
+                                      key={time}
+                                      whileHover={isAvailable ? { scale: 1.05 } : {}}
+                                      whileTap={isAvailable ? { scale: 0.95 } : {}}
+                                      onClick={() => isAvailable && setSelectedTime(time)}
+                                      disabled={!isAvailable}
+                                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                                        selectedTime === time
+                                          ? 'border-orange-500 bg-orange-50 text-orange-600'
+                                          : isAvailable
+                                          ? 'border-gray-200 hover:border-orange-300'
+                                          : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      {time}
+                                      {!isAvailable && (
+                                        <div className="text-xs mt-1">Unavailable</div>
+                                      )}
+                                    </motion.button>
+                                  )
+                                })
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-gray-500 text-sm py-4">
+                              Please select a date first to see available time slots
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>

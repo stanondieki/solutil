@@ -40,59 +40,7 @@ export default function AdminUsersPage() {
         const data = await response.json()
         setUsers(data.users)
       } else {
-        // Mock data for demo
-        setUsers([
-          {
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            phone: '+254712345678',
-            role: 'customer',
-            status: 'active',
-            joinDate: '2024-01-15',
-            totalBookings: 12
-          },
-          {
-            id: '2',
-            name: 'Sarah Wilson',
-            email: 'sarah@example.com',
-            phone: '+254723456789',
-            role: 'provider',
-            status: 'active',
-            joinDate: '2024-02-10',
-            totalBookings: 45
-          },
-          {
-            id: '3',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            phone: '+254734567890',
-            role: 'customer',
-            status: 'suspended',
-            joinDate: '2024-01-20',
-            totalBookings: 3
-          },
-          {
-            id: '4',
-            name: 'Emma Davis',
-            email: 'emma@example.com',
-            phone: '+254745678901',
-            role: 'provider',
-            status: 'pending',
-            joinDate: '2024-03-05',
-            totalBookings: 0
-          },
-          {
-            id: '5',
-            name: 'Alex Chen',
-            email: 'alex@example.com',
-            phone: '+254756789012',
-            role: 'customer',
-            status: 'active',
-            joinDate: '2024-02-28',
-            totalBookings: 8
-          }
-        ])
+    setUsers([])
       }
     } catch (error) {
       console.error('Error fetching users:', error)

@@ -5,14 +5,14 @@ const logger = require('./logger');
 const createTransporter = () => {
   if (process.env.NODE_ENV === 'development') {
     // For development, log emails to console
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       streamTransport: true,
       newline: 'unix',
       buffer: true
     });
   } else {
     // For production, use actual SMTP
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: false, // true for 465, false for other ports

@@ -112,7 +112,7 @@ export default function AboutPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-700 rounded-2xl blur-lg opacity-20"></div>
                 <Image 
-                  src="/images/logo.jpg" 
+                  src="/images/logo.png" 
                   alt="Solutil Logo" 
                   width={100}
                   height={100}
@@ -483,7 +483,7 @@ export default function AboutPage() {
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
-                  href="/booking"
+                  href="/services/all"
                   className="group bg-white text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-100 transition-all duration-300 shadow-2xl flex items-center space-x-3"
                 >
                   <span>Book a Service Now</span>

@@ -24,7 +24,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken')
-    router.push('/admin/login')
+    // Force redirect to admin login with full page reload
+    window.location.href = '/admin/login'
   }
 
   const menuItems = [

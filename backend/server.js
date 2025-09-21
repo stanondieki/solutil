@@ -1,35 +1,68 @@
+// Global error handlers for uncaught exceptions and unhandled promise rejections
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+// --- CLEANED UP SERVER.JS ---
+console.log('Starting server.js...');
 const express = require('express');
+console.log('Loaded express');
+require('./models/Review');
+console.log('Loaded Review model');
 const cors = require('cors');
+console.log('Loaded cors');
 const helmet = require('helmet');
+console.log('Loaded helmet');
 const compression = require('compression');
+console.log('Loaded compression');
 const cookieParser = require('cookie-parser');
+console.log('Loaded cookie-parser');
 const rateLimit = require('express-rate-limit');
+console.log('Loaded express-rate-limit');
 const mongoose = require('mongoose');
+console.log('Loaded mongoose');
 const { createServer } = require('http');
+console.log('Loaded http');
 const { Server } = require('socket.io');
+console.log('Loaded socket.io');
 require('dotenv').config();
+console.log('Loaded dotenv');
 
-// Import routes
 const authRoutes = require('./routes/auth');
+console.log('Loaded authRoutes');
 const userRoutes = require('./routes/users');
+console.log('Loaded userRoutes');
 const serviceRoutes = require('./routes/services');
+console.log('Loaded serviceRoutes');
 const bookingRoutes = require('./routes/bookings');
+console.log('Loaded bookingRoutes');
 const providerRoutes = require('./routes/providers');
+console.log('Loaded providerRoutes');
 const reviewRoutes = require('./routes/reviews');
+console.log('Loaded reviewRoutes');
 const paymentRoutes = require('./routes/payments');
+console.log('Loaded paymentRoutes');
 const uploadRoutes = require('./routes/upload');
+console.log('Loaded uploadRoutes');
 const adminRoutes = require('./routes/admin');
+console.log('Loaded adminRoutes');
 const mpesaRoutes = require('./routes/mpesa');
+console.log('Loaded mpesaRoutes');
 
-// Import middleware
 const errorHandler = require('./middleware/errorHandler');
+console.log('Loaded errorHandler');
 const logger = require('./utils/logger');
+console.log('Loaded logger');
 
-// Create Express app
+console.log('Creating Express app...');
 const app = express();
 const server = createServer(app);
-
-// Initialize Socket.IO
+console.log('Initializing Socket.IO...');
 const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:3000",
@@ -37,10 +70,9 @@ const io = new Server(server, {
   }
 });
 
-// Trust proxy for accurate IP addresses
+console.log('Setting up routes and middleware...');
 app.set('trust proxy', 1);
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000, // 15 minutes
   max: process.env.RATE_LIMIT_MAX || 100,
@@ -51,14 +83,13 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(compression());
 app.use(limiter);
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: ["http://localhost:3000", "http://192.168.56.1:3000"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -67,13 +98,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Request logging
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.originalUrl} - ${req.ip}`);
   next();
 });
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -84,7 +113,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
@@ -96,7 +124,6 @@ app.use('/api/payments/mpesa', mpesaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
@@ -104,61 +131,85 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
 app.use(errorHandler);
 
-// Socket.IO connection handling
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.id}`);
-
-  // Join user to their personal room
   socket.on('join', (userId) => {
     socket.join(`user_${userId}`);
     logger.info(`User ${userId} joined their room`);
   });
-
-  // Handle booking updates
   socket.on('booking_update', (data) => {
-    // Emit to specific users involved in the booking
     io.to(`user_${data.clientId}`).emit('booking_status_update', data);
     io.to(`user_${data.providerId}`).emit('booking_status_update', data);
   });
-
-  // Handle real-time chat
   socket.on('send_message', (data) => {
     io.to(`user_${data.recipientId}`).emit('new_message', data);
   });
-
-  // Handle provider location updates
   socket.on('provider_location_update', (data) => {
     socket.broadcast.emit('provider_location', data);
   });
-
   socket.on('disconnect', () => {
     logger.info(`User disconnected: ${socket.id}`);
   });
 });
 
-// Database connection
+let dbConnected = false;
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/solutil', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    
+    console.log('Attempting to connect to MongoDB...');
+    const localUri = 'mongodb://localhost:27017/solutil';
+    const atlasUri = process.env.MONGODB_URI;
+    let conn;
+    try {
+      console.log('Trying local MongoDB...');
+      conn = await Promise.race([
+        mongoose.connect(localUri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          serverSelectionTimeoutMS: 3000,
+          connectTimeoutMS: 3000
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Local connection timeout')), 5000))
+      ]);
+      console.log(`✅ Local MongoDB Connected: ${conn.connection.host}`);
+      dbConnected = true;
+    } catch (localError) {
+      console.log('Local MongoDB failed, trying Atlas...');
+      try {
+        conn = await Promise.race([
+          mongoose.connect(atlasUri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            connectTimeoutMS: 5000
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Atlas connection timeout')), 8000))
+        ]);
+        console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host}`);
+        dbConnected = true;
+      } catch (atlasError) {
+        throw atlasError;
+      }
+    }
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    logger.error('Database connection failed:', error);
-    process.exit(1);
+    console.error('❌ MongoDB connection failed:', error.message);
+    console.warn('⚠️  Starting in FALLBACK MODE without database connection');
+    console.warn('⚠️  Mock data will be served until database is available');
+    logger.warn('Database connection failed, running in fallback mode:', error);
+    dbConnected = false;
   }
 };
 
-// Graceful shutdown
+global.isDbConnected = () => dbConnected;
+
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received. Shutting down gracefully...');
   server.close(() => {
-    mongoose.connection.close();
+    if (dbConnected) {
+      mongoose.connection.close();
+    }
     process.exit(0);
   });
 });
@@ -166,22 +217,33 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   logger.info('SIGINT received. Shutting down gracefully...');
   server.close(() => {
-    mongoose.connection.close();
+    if (dbConnected) {
+      mongoose.connection.close();
+    }
     process.exit(0);
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
-
+console.log('Starting Solutil API Server...');
 const startServer = async () => {
-  await connectDB();
-  
+  console.log('Calling connectDB...');
+  try {
+    await connectDB();
+    console.log('connectDB finished, starting server.listen...');
+  } catch (err) {
+    console.error('Error in connectDB:', err);
+  }
+  console.log('About to call server.listen...');
   server.listen(PORT, () => {
+    console.log(`🚀 Solutil API Server running on port ${PORT}`);
+    console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 CORS Origin: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
+    console.log(`💾 Database Status: ${dbConnected ? 'Connected' : 'Fallback Mode (Mock Data)'}`);
     logger.info(`🚀 Solutil API Server running on port ${PORT}`);
     logger.info(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`🌐 CORS Origin: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
-    
+    logger.info(`💾 Database Status: ${dbConnected ? 'Connected' : 'Fallback Mode'}`);
     if (process.env.NODE_ENV === 'development') {
       logger.info(`📋 API Documentation: http://localhost:${PORT}/api/health`);
     }
@@ -190,7 +252,18 @@ const startServer = async () => {
 
 startServer().catch(error => {
   logger.error('Failed to start server:', error);
-  process.exit(1);
+  server.listen(PORT, () => {
+    console.log(`🚀 Solutil API Server running on port ${PORT} (Emergency Mode)`);
+    logger.info(`🚀 Solutil API Server running on port ${PORT} (Emergency Mode)`);
+  });
 });
 
 module.exports = { app, io };
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  logger.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error('Unhandled Rejection:', reason);
+});

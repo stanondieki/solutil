@@ -93,6 +93,69 @@ const userSchema = new mongoose.Schema({
       default: 'KES'
     }
   },
+  // Provider-specific fields
+  providerStatus: {
+    type: String,
+    enum: ['pending', 'under_review', 'approved', 'rejected', 'suspended'],
+    default: function() {
+      return this.userType === 'provider' ? 'pending' : undefined;
+    }
+  },
+  providerDocuments: {
+    nationalId: {
+      url: String,
+      public_id: String,
+      uploaded: { type: Date },
+      verified: { type: Boolean, default: false }
+    },
+    businessLicense: {
+      url: String,
+      public_id: String,
+      uploaded: { type: Date },
+      verified: { type: Boolean, default: false }
+    },
+    certificate: {
+      url: String,
+      public_id: String,
+      uploaded: { type: Date },
+      verified: { type: Boolean, default: false }
+    },
+    portfolio: [{
+      url: String,
+      public_id: String,
+      description: String,
+      uploaded: { type: Date }
+    }]
+  },
+  providerProfile: {
+    experience: String,
+    skills: [String],
+    hourlyRate: Number,
+    availability: {
+      days: [String], // ['monday', 'tuesday', etc.]
+      hours: {
+        start: String, // '09:00'
+        end: String    // '17:00'
+      }
+    },
+    serviceAreas: [String], // Cities/areas they serve
+    bio: String,
+    completedJobs: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 }
+  },
+  adminNotes: [{
+    note: String,
+    admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    date: { type: Date, default: Date.now },
+    type: { type: String, enum: ['approval', 'rejection', 'warning', 'general'] }
+  }],
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approvedAt: Date,
+  rejectedAt: Date,
   socialLogins: {
     google: {
       id: String,
@@ -114,14 +177,6 @@ userSchema.virtual('bookings', {
   ref: 'Booking',
   localField: '_id',
   foreignField: 'client'
-});
-
-// Virtual for provider profile
-userSchema.virtual('providerProfile', {
-  ref: 'Provider',
-  localField: '_id',
-  foreignField: 'user',
-  justOne: true
 });
 
 // Pre-save middleware to hash password

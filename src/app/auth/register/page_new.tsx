@@ -103,7 +103,7 @@ export default function RegisterPage() {
           <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-br from-orange-50 to-white">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-4 shadow-lg">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Solutil Logo" 
                 width={40}
                 height={40}
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                   className="w-full py-3.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all text-gray-900"
                 >
                   <option value="client">Client - Book Services</option>
-                  <option value="worker">Service Provider - Offer Services</option>
+                  <option value="provider">Service Provider - Offer Services</option>
                 </select>
               </div>
 

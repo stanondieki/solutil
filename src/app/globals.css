@@ -4,15 +4,15 @@
   --background: #0a0a0a;
   --foreground: #ededed;
   
-  /* Solutil Brand Colors - Orange Theme */
-  --primary: #fb923c;           /* orange-400 for better contrast on dark */
-  --primary-dark: #ea580c;      /* orange-600 */
-  --primary-light: #fdba74;     /* orange-300 */
-  --primary-lighter: #fed7aa;   /* orange-200 */
-  --primary-lightest: #fff7ed;  /* orange-50 */
+  /* Solutil Brand Colors - Custom #A56000 Theme */
+  --primary: #A56000;           /* Main brand color */
+  --primary-dark: #8B4D00;      /* Darker shade for emphasis */
+  --primary-light: #C77A00;     /* Lighter shade for subtlety */
+  --primary-lighter: #E8B366;   /* Very light for backgrounds */
+  --primary-lightest: #FDF5E6;  /* Lightest for subtle backgrounds */
   
-  --secondary: #f97316;         /* orange-500 */
-  --accent: #fdba74;           /* orange-300 */
+  --secondary: #A56000;         /* Secondary uses same main color */
+  --accent: #C77A00;           /* Accent uses lighter shade */
   
   /* Semantic Colors */
   --success: #16a34a;          /* green-600 */
@@ -43,9 +43,9 @@
     --foreground: #ededed;
     
     /* Adjust colors for dark mode */
-    --primary: #fb923c;          /* orange-400 for better contrast */
-    --primary-dark: #ea580c;     /* orange-600 */
-    --primary-light: #fdba74;    /* orange-300 */
+    --primary: #C77A00;          /* Lighter for better contrast on dark */
+    --primary-dark: #A56000;     /* Main color for dark mode emphasis */
+    --primary-light: #E8B366;    /* Light color for dark mode */
   }
 }
 
@@ -101,12 +101,12 @@ body {
 .from-blue-600 { --tw-gradient-from: var(--primary) !important; }
 .to-blue-700 { --tw-gradient-to: var(--primary-dark) !important; }
 .to-indigo-600 { --tw-gradient-to: var(--primary-dark) !important; }
-.to-indigo-700 { --tw-gradient-to: #b45309 !important; } /* orange-800 */
+.to-indigo-700 { --tw-gradient-to: #8B4D00 !important; } /* Custom dark shade */
 
 /* Hover states */
 .hover\:from-blue-700:hover { --tw-gradient-from: var(--primary-dark) !important; }
-.hover\:to-blue-800:hover { --tw-gradient-to: #b45309 !important; } /* orange-800 */
-.hover\:to-indigo-700:hover { --tw-gradient-to: #b45309 !important; }
+.hover\:to-blue-800:hover { --tw-gradient-to: #8B4D00 !important; } /* Custom dark shade */
+.hover\:to-indigo-700:hover { --tw-gradient-to: #8B4D00 !important; }
 
 .hover\:bg-blue-700:hover { background-color: var(--primary-dark) !important; }
 .hover\:bg-blue-600:hover { background-color: var(--primary) !important; }
@@ -185,9 +185,9 @@ select:focus {
 
 /* Glass morphism effect with orange tint */
 .glass {
-  background: rgba(254, 215, 170, 0.1); /* orange-200 with opacity */
+  background: rgba(232, 179, 102, 0.1); /* Updated to match new light color */
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(251, 146, 60, 0.2); /* orange-400 with opacity */
+  border: 1px solid rgba(199, 122, 0, 0.2); /* Updated to match new color */
 }
 
 /* Loading animation */
@@ -211,7 +211,7 @@ select:focus {
 
 .hover-lift:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(234, 88, 12, 0.1), 0 10px 10px -5px rgba(234, 88, 12, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(165, 96, 0, 0.1), 0 10px 10px -5px rgba(165, 96, 0, 0.04);
 }
 
 /* Button animations with orange theme */
@@ -224,7 +224,7 @@ select:focus {
 .btn-primary:hover {
   background-position: right center;
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(234, 88, 12, 0.3);
+  box-shadow: 0 10px 20px rgba(165, 96, 0, 0.3);
 }
 
 /* Card styles with orange accents */
@@ -234,7 +234,7 @@ select:focus {
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(165, 96, 0, 0.1);
 }
 
 /* Service card hover effects */
@@ -247,7 +247,7 @@ select:focus {
   border-color: var(--primary);
   background: var(--primary-lightest);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(234, 88, 12, 0.15);
+  box-shadow: 0 10px 30px rgba(165, 96, 0, 0.15);
 }
 
 /* Provider card styles */
@@ -261,7 +261,7 @@ select:focus {
   background: linear-gradient(135deg, var(--primary-lighter) 0%, var(--primary-lightest) 100%);
   border-color: var(--primary-light);
   transform: translateY(-3px);
-  box-shadow: 0 15px 35px rgba(234, 88, 12, 0.15);
+  box-shadow: 0 15px 35px rgba(165, 96, 0, 0.15);
 }
 
 /* Form input styles */
@@ -274,7 +274,7 @@ select:focus {
 .form-input:focus {
   border-color: var(--primary);
   background: white;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+  box-shadow: 0 0 0 3px rgba(165, 96, 0, 0.1);
 }
 
 /* Typography */
@@ -299,14 +299,14 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Custom orange-themed components */
 .solutil-banner {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #d97706 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #8B4D00 100%);
 }
 
 .solutil-card {
   background: white;
   border: 1px solid var(--primary-lighter);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(165, 96, 0, 0.1);
 }
 
 .solutil-button {
@@ -323,7 +323,7 @@ h1, h2, h3, h4, h5, h6 {
 .solutil-button:hover {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(234, 88, 12, 0.3);
+  box-shadow: 0 8px 25px rgba(165, 96, 0, 0.3);
 }
 
 .solutil-input {
@@ -339,5 +339,5 @@ h1, h2, h3, h4, h5, h6 {
   background: white;
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+  box-shadow: 0 0 0 3px rgba(165, 96, 0, 0.1);
 }
