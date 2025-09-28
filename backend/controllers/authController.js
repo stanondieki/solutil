@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
-const { sendEmail } = require('../utils/email');
+const { sendEmail, sendWelcomeEmail } = require('../utils/email');
 const logger = require('../utils/logger');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const mockDataService = require('../utils/mockDataService');
 
 // Helper function to generate JWT token
 const generateToken = (userId) => {
@@ -46,38 +47,76 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
 exports.register = catchAsync(async (req, res, next) => {
   const { name, email, password, userType, phone } = req.body;
 
-  // Check if user already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return next(new AppError('User with this email already exists', 400));
+  let existingUser, user, verificationToken;
+
+  // Check if database is connected
+  if (global.isDbConnected && global.isDbConnected()) {
+    // Database is connected - use normal Mongoose operations
+    existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return next(new AppError('User with this email already exists', 400));
+    }
+
+    user = await User.create({
+      name,
+      email,
+      password,
+      userType: userType || 'client',
+      phone
+    });
+
+    // Generate email verification token
+    verificationToken = user.generateEmailVerificationToken();
+    await user.save({ validateBeforeSave: false });
+  } else {
+    // Database not connected - use mock data
+    logger.warn('Using mock data for user registration (database not connected)');
+    
+    existingUser = await mockDataService.findUserByEmail(email);
+    if (existingUser) {
+      return next(new AppError('User with this email already exists', 400));
+    }
+
+    user = await mockDataService.createUser({
+      name,
+      email,
+      password,
+      userType: userType || 'client',
+      phone
+    });
+
+    // Generate a simple verification token for mock mode
+    verificationToken = crypto.randomBytes(32).toString('hex');
   }
-
-  // Create user
-  const user = await User.create({
-    name,
-    email,
-    password,
-    userType: userType || 'client',
-    phone
-  });
-
-  // Generate email verification token
-  const verificationToken = user.generateEmailVerificationToken();
-  await user.save({ validateBeforeSave: false });
 
   // Send verification email
   try {
     const verificationURL = `${process.env.CLIENT_URL}/auth/verify-email/${verificationToken}`;
     
-    await sendEmail({
-      email: user.email,
-      subject: 'Welcome to Solutil - Verify Your Email',
-      template: 'welcome',
-      data: {
-        name: user.name,
-        verificationURL
-      }
-    });
+    // Use the enhanced welcome email function that respects USE_REAL_SMTP
+    await sendWelcomeEmail(user.email, user.name, verificationURL);
+
+    // Send additional welcome email for providers
+    if (user.userType === 'provider') {
+      const providerEmailTemplates = require('../utils/providerEmailTemplates');
+      const template = providerEmailTemplates.welcome;
+      
+      let htmlContent = template.html;
+      let textContent = template.text;
+      
+      const completeOnboardingUrl = `${process.env.CLIENT_URL}/provider/onboarding`;
+      htmlContent = htmlContent.replace(/\{\{completeOnboardingUrl\}\}/g, completeOnboardingUrl);
+      textContent = textContent.replace(/\{\{completeOnboardingUrl\}\}/g, completeOnboardingUrl);
+      
+      await sendEmail({
+        email: user.email,
+        subject: template.subject,
+        html: htmlContent,
+        text: textContent
+      });
+      
+      logger.info(`Provider welcome email sent to ${user.email}`);
+    }
 
     logger.info(`Verification email sent to ${user.email}`);
   } catch (error) {
@@ -94,31 +133,51 @@ exports.register = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Find user and include password
-  const user = await User.findOne({ email }).select('+password');
+  let user;
 
-  if (!user || !(await user.comparePassword(password))) {
-    return next(new AppError('Invalid email or password', 401));
-  }
+  // Check if database is connected
+  if (global.isDbConnected && global.isDbConnected()) {
+    // Database is connected - use normal Mongoose operations
+    user = await User.findOne({ email }).select('+password');
 
-  if (!user.isActive) {
-    return next(new AppError('Your account has been deactivated. Please contact support.', 401));
-  }
+    if (!user || !(await user.comparePassword(password))) {
+      return next(new AppError('Invalid email or password', 401));
+    }
 
-  // Check if email is verified
-  if (!user.isVerified) {
-    return next(new AppError('Please verify your email address before logging in. Check your inbox for the verification link.', 401));
-  }
+    if (!user.isActive) {
+      return next(new AppError('Your account has been deactivated. Please contact support.', 401));
+    }
 
-  // Set default providerStatus for existing provider users who don't have it
-  if (user.userType === 'provider' && !user.providerStatus) {
-    user.providerStatus = 'pending';
-    await user.save({ validateBeforeSave: false });
+    // Check if email is verified
+    if (!user.isVerified) {
+      return next(new AppError('Please verify your email address before logging in. Check your inbox for the verification link.', 401));
+    }
+
+    // Set default providerStatus for existing provider users who don't have it
+    if (user.userType === 'provider' && !user.providerStatus) {
+      user.providerStatus = 'pending';
+      await user.save({ validateBeforeSave: false });
+    }
+  } else {
+    // Database not connected - use mock data
+    logger.warn('Using mock data for user login (database not connected)');
+    
+    user = await mockDataService.findUserByEmail(email);
+    
+    if (!user || password !== 'password123') { // Simple password check for mock mode
+      return next(new AppError('Invalid email or password', 401));
+    }
+
+    // In mock mode, we'll assume users are verified and active
   }
 
   // Update last login
   user.lastLogin = new Date();
-  await user.save({ validateBeforeSave: false });
+  
+  // Only save if database is connected
+  if (global.isDbConnected && global.isDbConnected()) {
+    await user.save({ validateBeforeSave: false });
+  }
 
   sendTokenResponse(user, 200, res, 'Login successful');
 });

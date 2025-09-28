@@ -22,8 +22,18 @@ exports.protect = catchAsync(async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if user still exists
-    const user = await User.findById(decoded.userId);
+    let user;
+    
+    // Check if database is connected
+    if (global.isDbConnected && global.isDbConnected()) {
+      // Database is connected - use normal Mongoose queries
+      user = await User.findById(decoded.userId);
+    } else {
+      // Database not connected - use mock data
+      const mockDataService = require('../utils/mockDataService');
+      user = await mockDataService.findUserById(decoded.userId);
+    }
+
     if (!user) {
       return next(new AppError('User belonging to this token no longer exists.', 401));
     }

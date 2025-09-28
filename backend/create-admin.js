@@ -16,9 +16,12 @@ async function createAdminUser() {
     
     if (existingAdmin) {
       console.log('Admin user already exists!');
-      console.log('Email: admin@solutil.com');
+      console.log('ID:', existingAdmin._id);
+      console.log('Email:', existingAdmin.email);
+      console.log('UserType:', existingAdmin.userType);
+      console.log('IsActive:', existingAdmin.isActive);
       console.log('You can update the password by deleting the user and running this script again.');
-      process.exit(0);
+      return existingAdmin;
     }
 
     // Create admin user
