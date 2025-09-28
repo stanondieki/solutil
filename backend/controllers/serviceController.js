@@ -2,6 +2,7 @@ const Service = require('../models/Service');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
+const mockDataService = require('../utils/mockDataService');
 
 // @desc    Get all services with filtering, sorting, and pagination
 // @route   GET /api/services
@@ -23,23 +24,29 @@ exports.getServices = catchAsync(async (req, res, next) => {
       if (req.query.maxPrice) filters.basePrice.$lte = parseFloat(req.query.maxPrice);
     }
 
-    // Build sort object
-    let sort = {};
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      sort = sortBy;
+    let services, total;
+
+    // Check if database is connected
+    if (global.isDbConnected && global.isDbConnected()) {
+      // Database is connected - use normal Mongoose queries
+      const sort = req.query.sort 
+        ? req.query.sort.split(',').join(' ')
+        : { isPopular: -1, 'rating.average': -1, createdAt: -1 };
+
+      services = await Service.find(filters)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate('reviews', 'rating comment user createdAt', null, { limit: 3 });
+
+      total = await Service.countDocuments(filters);
     } else {
-      sort = { isPopular: -1, 'rating.average': -1, createdAt: -1 };
+      // Database not connected - use mock data
+      logger.warn('Using mock data for services (database not connected)');
+      const result = await mockDataService.findServices(filters, { skip, limit, sort: true });
+      services = result.services;
+      total = result.total;
     }
-
-    // Execute query
-    const services = await Service.find(filters)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .populate('reviews', 'rating comment user createdAt', null, { limit: 3 });
-
-    const total = await Service.countDocuments(filters);
 
     res.status(200).json({
       status: 'success',
@@ -64,9 +71,19 @@ exports.getServices = catchAsync(async (req, res, next) => {
 // @route   GET /api/services/:id
 // @access  Public
 exports.getService = catchAsync(async (req, res, next) => {
-  const service = await Service.findById(req.params.id)
-    .populate('reviews', 'rating comment user createdAt')
-    .populate('providers', 'businessName user rating location');
+  let service;
+
+  // Check if database is connected
+  if (global.isDbConnected && global.isDbConnected()) {
+    // Database is connected - use normal Mongoose queries
+    service = await Service.findById(req.params.id)
+      .populate('reviews', 'rating comment user createdAt')
+      .populate('providers', 'businessName user rating location');
+  } else {
+    // Database not connected - use mock data
+    logger.warn('Using mock data for service details (database not connected)');
+    service = await mockDataService.findServiceById(req.params.id);
+  }
 
   if (!service) {
     return next(new AppError('Service not found', 404));
@@ -92,11 +109,21 @@ exports.createService = catchAsync(async (req, res, next) => {
     // Add any additional fields based on user context
   };
 
-  const service = await Service.create(serviceData);
+  let service;
+
+  // Check if database is connected
+  if (global.isDbConnected && global.isDbConnected()) {
+    // Database is connected - use normal Mongoose queries
+    service = await Service.create(serviceData);
+  } else {
+    // Database not connected - use mock data
+    logger.warn('Using mock data for service creation (database not connected)');
+    service = await mockDataService.createService(serviceData);
+  }
 
   logger.info(`New service created: ${service.name}`, {
     serviceId: service._id,
-    createdBy: req.user.id
+    createdBy: req.user ? req.user.id : 'unknown'
   });
 
   res.status(201).json({

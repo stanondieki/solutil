@@ -47,6 +47,24 @@ router.post('/update-documents', catchAsync(async (req, res, next) => {
   });
 }));
 
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
+router.get('/profile', protect, catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('-password');
+  
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user
+    }
+  });
+}));
+
 // Placeholder routes - to be implemented
 router.get('/', protect, (req, res) => {
   res.json({ message: 'Users route - Coming soon' });

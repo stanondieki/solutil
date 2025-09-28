@@ -140,6 +140,50 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     { path: 'provider', select: 'businessName' }
   ]);
 
+  // Send booking confirmation emails
+  try {
+    const { sendBookingConfirmationEmail } = require('../utils/email');
+    
+    // Send confirmation to client
+    if (req.user.email) {
+      await sendBookingConfirmationEmail(req.user.email, {
+        customerName: req.user.name,
+        bookingNumber: booking.bookingNumber,
+        serviceName: booking.service.name,
+        providerName: booking.provider?.businessName || 'Provider',
+        scheduledDate: new Date(booking.scheduledDate).toLocaleDateString(),
+        scheduledTime: `${booking.scheduledTime.start} - ${booking.scheduledTime.end}`,
+        totalAmount: booking.pricing?.total || 0,
+        location: booking.location?.address || 'Location TBD',
+        bookingURL: `${process.env.CLIENT_URL || 'http://localhost:3000'}/bookings/${booking._id}`
+      });
+    }
+
+    // Send notification to provider
+    if (booking.provider) {
+      const providerUser = await User.findById(booking.provider);
+      if (providerUser && providerUser.email) {
+        await sendBookingConfirmationEmail(providerUser.email, {
+          customerName: providerUser.name,
+          bookingNumber: booking.bookingNumber,
+          serviceName: booking.service.name,
+          providerName: booking.provider?.businessName || 'Your Business',
+          scheduledDate: new Date(booking.scheduledDate).toLocaleDateString(),
+          scheduledTime: `${booking.scheduledTime.start} - ${booking.scheduledTime.end}`,
+          totalAmount: booking.pricing?.total || 0,
+          location: booking.location?.address || 'Location TBD',
+          bookingURL: `${process.env.CLIENT_URL || 'http://localhost:3000'}/provider/bookings`,
+          isProvider: true
+        });
+      }
+    }
+
+    logger.info(`Booking confirmation emails sent for booking: ${booking.bookingNumber}`);
+  } catch (emailError) {
+    logger.error('Failed to send booking confirmation emails:', emailError.message);
+    // Don't fail the request if email fails
+  }
+
   logger.info(`New booking created: ${booking.bookingNumber}`, {
     bookingId: booking._id,
     client: req.user.id,
@@ -195,6 +239,53 @@ exports.updateBookingStatus = catchAsync(async (req, res, next) => {
   });
 
   await booking.save();
+
+  // Send email notifications for status updates
+  try {
+    const { sendBookingStatusUpdateEmail } = require('../utils/email');
+    
+    // Populate necessary fields for email
+    await booking.populate([
+      { path: 'client', select: 'name email' },
+      { path: 'provider', select: 'businessName user' },
+      { path: 'service', select: 'name' }
+    ]);
+
+    // Send email to client
+    if (booking.client && booking.client.email) {
+      await sendBookingStatusUpdateEmail(booking.client.email, {
+        customerName: booking.client.name,
+        bookingNumber: booking.bookingNumber,
+        serviceName: booking.service.name,
+        status: status.charAt(0).toUpperCase() + status.slice(1),
+        providerName: booking.provider?.businessName || 'Provider',
+        notes: notes || '',
+        bookingURL: `${process.env.CLIENT_URL || 'http://localhost:3000'}/bookings/${booking._id}`
+      });
+    }
+
+    // Send email to provider if different from the user making the update
+    if (booking.provider && booking.provider.user && 
+        booking.provider.user.toString() !== req.user.id) {
+      const providerUser = await User.findById(booking.provider.user);
+      if (providerUser && providerUser.email) {
+        await sendBookingStatusUpdateEmail(providerUser.email, {
+          customerName: providerUser.name,
+          bookingNumber: booking.bookingNumber,
+          serviceName: booking.service.name,
+          status: status.charAt(0).toUpperCase() + status.slice(1),
+          providerName: booking.provider.businessName,
+          notes: notes || '',
+          bookingURL: `${process.env.CLIENT_URL || 'http://localhost:3000'}/provider/bookings`
+        });
+      }
+    }
+
+    logger.info(`Booking status update emails sent for booking: ${booking.bookingNumber}`);
+  } catch (emailError) {
+    logger.error('Failed to send booking status update emails:', emailError.message);
+    // Don't fail the request if email fails
+  }
 
   logger.info(`Booking status updated: ${booking.bookingNumber}`, {
     bookingId: booking._id,

@@ -120,6 +120,12 @@ const userSchema = new mongoose.Schema({
       uploaded: { type: Date },
       verified: { type: Boolean, default: false }
     },
+    goodConductCertificate: {
+      url: String,
+      public_id: String,
+      uploaded: { type: Date },
+      verified: { type: Boolean, default: false }
+    },
     portfolio: [{
       url: String,
       public_id: String,
@@ -156,6 +162,8 @@ const userSchema = new mongoose.Schema({
   },
   approvedAt: Date,
   rejectedAt: Date,
+  submittedAt: Date,
+  rejectionReason: String,
   socialLogins: {
     google: {
       id: String,

@@ -53,6 +53,12 @@ const adminRoutes = require('./routes/admin');
 console.log('Loaded adminRoutes');
 const mpesaRoutes = require('./routes/mpesa');
 console.log('Loaded mpesaRoutes');
+const providerOnboardingRoutes = require('./routes/provider');
+console.log('Loaded providerOnboardingRoutes');
+const providerServiceRoutes = require('./routes/providerServices');
+console.log('Loaded providerServiceRoutes');
+const providerBookingRoutes = require('./routes/providerBookings');
+console.log('Loaded providerBookingRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 console.log('Loaded errorHandler');
@@ -123,6 +129,9 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/payments/mpesa', mpesaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/provider', providerOnboardingRoutes);
+app.use('/api/provider-services', providerServiceRoutes);
+app.use('/api/provider-bookings', providerBookingRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({
