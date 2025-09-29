@@ -7,7 +7,7 @@ import { useEffect, ReactNode } from 'react';
 
 interface RoleGuardProps {
   children: ReactNode;
-  requiredPermission?: keyof Permission;
+  requiredPermission?: string;
   requiredRole?: UserRole;
   fallbackRoute?: string;
   showAccessDenied?: boolean;

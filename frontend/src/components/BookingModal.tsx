@@ -229,7 +229,7 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
 
     } catch (error) {
       console.error('Booking creation error:', error)
-      alert(`Booking failed: ${error.message}`)
+      alert(`Booking failed: ${(error as any)?.message || 'Unknown error'}`)
     } finally {
       setIsSubmitting(false)
     }

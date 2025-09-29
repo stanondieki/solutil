@@ -93,7 +93,7 @@ export default function Navigation() {
                     }`}
                   >
                     {item.href === '/dashboard' && <FaTachometerAlt className="text-sm" />}
-                    <span>{item.label}</span>
+                    <span>{item.name}</span>
                   </Link>
                 ))}
                 
@@ -155,7 +155,7 @@ export default function Navigation() {
                             href={item.href} 
                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           >
-                            {item.label}
+                            {item.name}
                           </Link>
                         )
                       ))}

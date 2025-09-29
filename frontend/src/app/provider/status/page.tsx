@@ -202,23 +202,23 @@ export default function ProviderStatusPage() {
                         {docType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                       </h4>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        docInfo.verified 
+                        (docInfo as any).verified 
                           ? 'bg-green-100 text-green-800' 
-                          : docInfo.uploaded 
+                          : (docInfo as any).uploaded 
                             ? 'bg-yellow-100 text-yellow-800' 
                             : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {docInfo.verified ? 'Verified' : docInfo.uploaded ? 'Under Review' : 'Not Uploaded'}
+                        {(docInfo as any).verified ? 'Verified' : (docInfo as any).uploaded ? 'Under Review' : 'Not Uploaded'}
                       </span>
                     </div>
                     
-                    {docInfo.uploaded && (
+                    {(docInfo as any).uploaded && (
                       <p className="text-gray-600 text-sm">
-                        Uploaded: {new Date(docInfo.uploaded).toLocaleDateString()}
+                        Uploaded: {new Date((docInfo as any).uploaded).toLocaleDateString()}
                       </p>
                     )}
                     
-                    {!docInfo.uploaded && (
+                    {!(docInfo as any).uploaded && (
                       <p className="text-gray-500 text-sm">Document required for verification</p>
                     )}
                   </div>

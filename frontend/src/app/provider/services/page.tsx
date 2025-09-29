@@ -163,7 +163,7 @@ const MyServicesPage: React.FC = () => {
             ? response.data.service
             : service
         ))
-        alert(getSuccessMessage('toggle', 'Service'))
+        alert(getSuccessMessage('Service toggled successfully'))
       } else {
         throw new Error('Failed to toggle service status')
       }
@@ -180,7 +180,7 @@ const MyServicesPage: React.FC = () => {
         
         if (response.status === 'success') {
           setServices(prev => prev.filter(service => service._id !== serviceId))
-          alert(getSuccessMessage('delete', 'Service'))
+          alert(getSuccessMessage('Service deleted successfully'))
           // Reload to refresh stats
           loadServices()
         } else {
@@ -785,7 +785,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
 
       if (response.status === 'success') {
         onSave(response.data.service)
-        alert(getSuccessMessage(service?._id ? 'update' : 'create', 'Service'))
+        alert(getSuccessMessage(service?._id ? 'Service updated successfully' : 'Service created successfully'))
       } else {
         throw new Error('Failed to save service')
       }

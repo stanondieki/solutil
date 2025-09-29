@@ -117,7 +117,7 @@ export default function AuthenticationTest() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {RoleManager.getNavigationItems(user.userType, user.providerStatus).map((item) => (
                   <div key={item.href} className="p-3 bg-gray-50 rounded-md">
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium">{item.name}</span>
                     <div className="text-sm text-gray-600">{item.href}</div>
                   </div>
                 ))}

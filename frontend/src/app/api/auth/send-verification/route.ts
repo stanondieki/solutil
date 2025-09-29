@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Send verification code
     let sendResult
     if (type === 'email') {
-      sendResult = await sendVerificationEmail(email, code, name)
+      sendResult = await sendVerificationEmail(email, code)
     } else {
       sendResult = await sendVerificationSMS(phone, code)
     }

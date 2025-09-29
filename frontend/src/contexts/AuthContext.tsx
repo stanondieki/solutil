@@ -234,7 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('✅ Backend logout successful')
         } catch (fetchError) {
           clearTimeout(timeoutId)
-          console.warn('⚠️ Backend logout failed, proceeding with local logout:', fetchError.message)
+          console.warn('⚠️ Backend logout failed, proceeding with local logout:', (fetchError as any)?.message || 'Unknown error')
         }
       }
     } catch (error) {

@@ -246,3 +246,8 @@
 //     </div>
 //   )
 // }
+
+// Placeholder export to prevent build errors
+export default function TestBookingPlaceholder() {
+  return <div>Test booking functionality is currently disabled.</div>
+}

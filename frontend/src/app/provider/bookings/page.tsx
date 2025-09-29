@@ -151,8 +151,7 @@ const BookingsPage: React.FC = () => {
       const response = await providerBookingsAPI.getBookings({
         status: statusFilter,
         date: dateFilter,
-        limit: '50',
-        page: '1'
+        limit: 50
       })
       
       if (response.status === 'success') {
@@ -339,7 +338,7 @@ const BookingsPage: React.FC = () => {
             ? response.data.booking
             : booking
         ))
-        alert(getSuccessMessage('status_update', 'Booking'))
+        alert(getSuccessMessage('Booking status update'))
         loadBookings() // Refresh stats
       } else {
         throw new Error('Failed to update booking status')

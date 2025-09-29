@@ -242,7 +242,7 @@ export default function DashboardPage() {
     if (RoleManager.isProvider(user.userType)) {
       if (user.providerStatus !== 'approved') {
         return [
-          { label: 'Application Status', value: RoleManager.getProviderStatusConfig(user.providerStatus).label, icon: FaClock, color: 'bg-yellow-500' },
+          { label: 'Application Status', value: RoleManager.getProviderStatusConfig(user.providerStatus || 'pending').label, icon: FaClock, color: 'bg-yellow-500' },
           { label: 'Documents', value: 'Required', icon: FaUpload, color: 'bg-orange-500' },
           { label: 'Next Step', value: 'Complete Setup', icon: FaCheck, color: 'bg-orange-600' },
           { label: 'Support', value: 'Available', icon: FaUser, color: 'bg-orange-400' }
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                     href={item.href}
                     className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200"
                   >
-                    {item.label}
+                    {item.name}
                   </Link>
                 ))}
               </div>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                 href={item.href}
                 className="flex-shrink-0 px-3 py-2 text-sm font-medium text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 whitespace-nowrap"
               >
-                {item.label}
+                {item.name}
               </Link>
             ))}
           </div>

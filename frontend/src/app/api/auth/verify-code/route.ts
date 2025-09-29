@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the code
-    const verificationResult = verifyCode(token, code)
+    const verificationResult = await verifyCode(token, code)
 
     if (!verificationResult.success) {
       return NextResponse.json(

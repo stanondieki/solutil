@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const authHeader = request.headers.get('authorization')
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-    const response = await fetch(`${backendUrl}/api/admin/services/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/admin/services/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -38,15 +39,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const authHeader = request.headers.get('authorization')
     const body = await request.json()
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-    const response = await fetch(`${backendUrl}/api/admin/services/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/admin/services/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -76,14 +78,15 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const authHeader = request.headers.get('authorization')
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-    const response = await fetch(`${backendUrl}/api/admin/services/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/admin/services/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

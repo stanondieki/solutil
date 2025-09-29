@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const authHeader = request.headers.get('authorization')
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-    const response = await fetch(`${backendUrl}/api/admin/services/${params.id}/toggle-active`, {
+    const response = await fetch(`${backendUrl}/api/admin/services/${id}/toggle-active`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

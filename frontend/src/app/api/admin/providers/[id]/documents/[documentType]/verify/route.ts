@@ -4,9 +4,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; documentType: string } }
+  { params }: { params: Promise<{ id: string; documentType: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const body = await request.json()
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
 
@@ -16,7 +17,7 @@ export async function PUT(
 
     // Forward the request to backend
     const response = await fetch(
-      `${API_BASE_URL}/api/admin/providers/${params.id}/documents/${params.documentType}/verify`,
+      `${API_BASE_URL}/api/admin/providers/${resolvedParams.id}/documents/${resolvedParams.documentType}/verify`,
       {
         method: 'PUT',
         headers: {
