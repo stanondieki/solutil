@@ -19,8 +19,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify token with fallback for JWT_SECRET
+    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+    const decoded = jwt.verify(token, jwtSecret);
 
     let user;
     
@@ -78,7 +79,8 @@ exports.optionalAuth = catchAsync(async (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+      const decoded = jwt.verify(token, jwtSecret);
       const user = await User.findById(decoded.userId);
       
       if (user && user.isActive) {

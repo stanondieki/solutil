@@ -9,7 +9,8 @@ const mockDataService = require('../utils/mockDataService');
 
 // Helper function to generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+  const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+  return jwt.sign({ userId }, jwtSecret, {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
@@ -358,7 +359,8 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+    const decoded = jwt.verify(token, jwtSecret);
     const user = await User.findById(decoded.userId);
 
     if (!user) {

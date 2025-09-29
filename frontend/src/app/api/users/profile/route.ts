@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authorization.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+    const decoded = jwt.verify(token, jwtSecret) as any;
     
     if (!decoded.id) {
       return NextResponse.json(
@@ -67,7 +68,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     const token = authorization.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
+    const decoded = jwt.verify(token, jwtSecret) as any;
     
     if (!decoded.userId) {
       return NextResponse.json(

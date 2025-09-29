@@ -64,7 +64,7 @@ const sendAdminWelcomeEmail = async (adminUser) => {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="http://localhost:3000/admin/login" 
+            <a href="https://www.solutilconnect.com/admin/login" 
                style="background: #ea580c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
               🚀 Access Admin Panel
             </a>
@@ -149,8 +149,8 @@ async function createRealAdminUser() {
     console.log('🏷️  Role: Administrator');
     console.log('✅ Status: Active & Verified');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🌐 Frontend Login: http://localhost:3000/auth/login');
-    console.log('🎛️  Admin Panel: http://localhost:3000/admin');
+    console.log('🌐 Frontend Login: https://www.solutilconnect.com/auth/login');
+    console.log('🎛️  Admin Panel: https://www.solutilconnect.com/admin');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // Send welcome email
