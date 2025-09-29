@@ -99,7 +99,9 @@ const allowedOrigins = [
   "http://localhost:3000", // Development frontend
   "http://192.168.56.1:3000", // Local network
   process.env.CLIENT_URL, // Production frontend URL
-  "https://your-frontend-app.vercel.app" // Replace with your actual Vercel URL
+  "https://www.solutilconnect.com", // Main production domain
+  "https://solutil-git-main-stanondieckis-projects.vercel.app", // Vercel deployment
+  "https://solutil-1hdie2qqg-stanondieckis-projects.vercel.app" // Vercel deployment
 ].filter(Boolean); // Remove any undefined values
 
 app.use(cors({
