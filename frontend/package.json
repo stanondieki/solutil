@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
     "@headlessui/react": "^2.2.7",
     "@types/jsonwebtoken": "^9.0.10",
     "cloudinary": "^1.41.3",
