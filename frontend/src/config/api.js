@@ -79,8 +79,8 @@ const getApiConfig = () => {
   
   // Environment-specific overrides
   if (isProduction) {
-    config.API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://your-backend-app.azurewebsites.net';
-    config.SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://your-backend-app.azurewebsites.net';
+    config.API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+    config.SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
   }
   
   return config;
