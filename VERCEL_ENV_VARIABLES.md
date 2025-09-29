@@ -1,18 +1,50 @@
-# Frontend Environment Variables for Vercel
-# Add these in your Vercel Dashboard under Environment Variables
+# ✅ Correct Vercel Environment Variables for Solutil
 
-# API Configuration
-NEXT_PUBLIC_API_URL=https://your-backend-app.azurewebsites.net
-NEXT_PUBLIC_SOCKET_URL=https://your-backend-app.azurewebsites.net
-NEXT_PUBLIC_ENVIRONMENT=production
+## 📋 Required Environment Variables
 
-# Site Configuration
-NEXT_PUBLIC_SITE_URL=https://your-frontend-app.vercel.app
-NEXT_PUBLIC_SITE_NAME=Solutil
+Based on your Azure backend URL, these are the **exact values** your Vercel environment variables should have:
 
-# Cloudinary (Replace with your production values)
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_production_cloud_name
-NEXT_PUBLIC_CLOUDINARY_API_KEY=your_production_api_key
+### **NEXT_PUBLIC_API_URL**
+```
+https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net
+```
+
+### **NEXT_PUBLIC_SOCKET_URL**
+```
+https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net
+```
+
+### **NEXT_PUBLIC_ENVIRONMENT**  
+```
+production
+```
+
+### **NEXT_PUBLIC_SITE_URL**
+```
+https://www.solutilconnect.com
+```
+
+### **NEXT_PUBLIC_SITE_NAME**
+```
+Solutil Connect
+```
+
+### **NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME**
+```
+dhniojmt6
+```
+✅ This looks correct in your screenshot
+
+### **NEXT_PUBLIC_CLOUDINARY_API_KEY**
+```
+362978357312836
+```
+✅ This looks correct in your screenshot
+
+### **NODE_ENV**
+```
+production
+```
 
 # Stripe (Replace with LIVE keys for production)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_publishable_key

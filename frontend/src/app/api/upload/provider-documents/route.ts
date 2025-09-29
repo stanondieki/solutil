@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
     const fileUrl = `/uploads/documents/${filename}`
 
     // Update user document in database
-    const updateResponse = await fetch('http://localhost:5000/api/users/update-documents', {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+    const updateResponse = await fetch(`${backendUrl}/api/users/update-documents`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

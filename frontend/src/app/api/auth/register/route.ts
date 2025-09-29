@@ -5,7 +5,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     
     // Forward the request to your backend
-    const backendResponse = await fetch('http://localhost:5000/api/auth/register', {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+    const backendResponse = await fetch(`${backendUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
