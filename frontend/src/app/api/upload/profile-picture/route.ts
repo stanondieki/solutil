@@ -18,7 +18,7 @@ console.log('Cloudinary Config:', {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
+    // Verify authentication - use same secret as backend
     const authorization = request.headers.get('authorization');
     if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
@@ -28,16 +28,29 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authorization.substring(7);
+    
+    // Use the same JWT_SECRET as backend for consistency
     const jwtSecret = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_very_long_and_secure_production_key_123456789';
-    const decoded = jwt.verify(token, jwtSecret) as any;
+    
+    let decoded;
+    try {
+      decoded = jwt.verify(token, jwtSecret) as any;
+    } catch (jwtError) {
+      console.error('JWT verification failed:', jwtError);
+      return NextResponse.json(
+        { status: 'error', message: 'Invalid token signature' },
+        { status: 401 }
+      );
+    }
     
     if (!decoded.userId) {
       return NextResponse.json(
-        { status: 'error', message: 'Invalid token' },
+        { status: 'error', message: 'Invalid token structure' },
         { status: 401 }
       );
     }
 
+    // Get image from form data
     const formData = await request.formData();
     const image = formData.get('image') as File;
 
@@ -48,15 +61,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert image to buffer and upload to YOUR Cloudinary
     const bytes = await image.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Convert buffer to base64 data URL
+    // Convert buffer to base64 data URL for Cloudinary
     const base64String = `data:${image.type};base64,${buffer.toString('base64')}`;
     
+    console.log('Uploading to Cloudinary...');
     const result = await cloudinary.uploader.upload(base64String, {
       folder: 'solutil/profiles',
-      resource_type: 'image'
+      resource_type: 'image',
+      transformation: [
+        { width: 400, height: 400, crop: 'fill' },
+        { quality: 'auto' }
+      ]
     });
 
     const imageData = {
@@ -66,15 +85,18 @@ export async function POST(request: NextRequest) {
         original: result.secure_url,
         thumbnail: result.secure_url.replace('/upload/', '/upload/c_fill,w_100,h_100/'),
         medium: result.secure_url.replace('/upload/', '/upload/c_fill,w_200,h_200/'),
-        large: result.secure_url.replace('/upload/', '/upload/c_fill,w_300,h_300/')
+        large: result.secure_url.replace('/upload/', '/upload/c_fill,w_400,h_400/')
       }
     };
 
+    console.log('Cloudinary upload successful:', result.public_id);
+
     return NextResponse.json({
       status: 'success',
-      message: 'Profile picture uploaded successfully',
+      message: 'Profile picture uploaded successfully to your Cloudinary',
       data: {
-        image: imageData
+        image: imageData,
+        userId: decoded.userId
       }
     });
 
