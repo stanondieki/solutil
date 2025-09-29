@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
 export async function POST(request: NextRequest) {
@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
       await writeFile(filePath, buffer)
     } catch (error) {
       // Try to create directory and retry
-      const { mkdir } = await import('fs/promises')
       await mkdir(uploadsDir, { recursive: true })
       await writeFile(filePath, buffer)
     }
