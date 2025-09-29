@@ -312,3 +312,913 @@
 {"level":"error","message":"Access denied. No token provided.","request":{"ip":"::1","method":"GET","url":"/api/users","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","statusCode":401,"timestamp":"2025-09-19 02:45:25"}
 {"level":"error","message":"Access denied. No token provided.","request":{"ip":"::1","method":"GET","url":"/api/users","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","statusCode":401,"timestamp":"2025-09-19 03:04:24"}
 {"level":"error","message":"Service validation failed: duration.estimated: Path `duration.estimated` is required.","request":{"ip":"::1","method":"POST","url":"/api/bookings","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0","userId":"68cb52ddb5ced392435af4c7"},"service":"solutil-api","statusCode":500,"timestamp":"2025-09-19 03:05:36"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-24 10:02:16"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:04:32"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-24 10:04:33"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:05:31"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:05:32"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 10:06:46"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 10:07:34"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 10:07:35","to":"hunjakenneth@gmail.com"}
+{"level":"info","message":"Verification email sent to hunjakenneth@gmail.com","service":"solutil-api","timestamp":"2025-09-24 10:07:35"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 10:13:14"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 10:13:15","to":"edgarmomanyi18@gmail.com"}
+{"level":"info","message":"Verification email sent to edgarmomanyi18@gmail.com","service":"solutil-api","timestamp":"2025-09-24 10:13:15"}
+{"level":"info","message":"GET /api/auth/verify-email/795d96888f5ec256e06244e273b16d082eb3fb94dcb18cee0fa931ced09c6517 - ::1","service":"solutil-api","timestamp":"2025-09-24 10:14:15"}
+{"level":"info","message":"GET /api/auth/verify-email/795d96888f5ec256e06244e273b16d082eb3fb94dcb18cee0fa931ced09c6517 - ::1","service":"solutil-api","timestamp":"2025-09-24 10:14:56"}
+{"level":"error","message":"Invalid or expired verification token","request":{"ip":"::1","method":"GET","url":"/api/auth/verify-email/795d96888f5ec256e06244e273b16d082eb3fb94dcb18cee0fa931ced09c6517","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid or expired verification token\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:233:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":400,"timestamp":"2025-09-24 10:14:56"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:15:15"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:15:16"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 10:18:09"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:18:32"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:18:33"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 10:19:03"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 10:19:04"}
+{"level":"info","message":"PUT /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 10:19:31"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 10:23:23"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 10:29:35"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 10:29:36","to":"fostershelly593@gmail.com"}
+{"level":"info","message":"Verification email sent to fostershelly593@gmail.com","service":"solutil-api","timestamp":"2025-09-24 10:29:36"}
+{"level":"info","message":"GET /api/auth/verify-email/c9d5787dad49196007b860d71cb104bc02329c8cad7ab06b09bb9ee107bffc4a - ::1","service":"solutil-api","timestamp":"2025-09-24 10:30:07"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:30:27"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:30:28"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 10:31:08"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 10:31:27"}
+{"level":"error","message":"Please verify your email address before logging in. Check your inbox for the verification link.","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Please verify your email address before logging in. Check your inbox for the verification link.\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:110:17","statusCode":401,"timestamp":"2025-09-24 10:31:27"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-24 10:33:20"}
+{"level":"info","message":"GET /api/provider/applications - ::1","service":"solutil-api","timestamp":"2025-09-24 10:33:59"}
+{"level":"info","message":"GET /api/provider/applications - ::1","service":"solutil-api","timestamp":"2025-09-24 10:33:59"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 11:23:55"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 11:23:56","to":"geeosiemo@gmail.com"}
+{"level":"info","message":"Verification email sent to geeosiemo@gmail.com","service":"solutil-api","timestamp":"2025-09-24 11:23:56"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 11:24:54"}
+{"level":"error","message":"Please verify your email address before logging in. Check your inbox for the verification link.","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Please verify your email address before logging in. Check your inbox for the verification link.\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:110:17","statusCode":401,"timestamp":"2025-09-24 11:24:55"}
+{"level":"info","message":"GET /api/auth/verify-email/a0e1c6fd5aefdfda659c1729a78153130ff0ebe2860bf1d048a9bd32329a4387 - ::1","service":"solutil-api","timestamp":"2025-09-24 11:25:31"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 11:25:48"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 11:25:50"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 11:28:10"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 11:28:11"}
+{"level":"info","message":"PUT /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 11:28:49"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 11:32:13"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 11:33:14"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 11:33:16","to":"johnjustic766@gmail.com"}
+{"level":"info","message":"Verification email sent to johnjustic766@gmail.com","service":"solutil-api","timestamp":"2025-09-24 11:33:16"}
+{"level":"info","message":"GET /api/auth/verify-email/4ff7e8e63d26de4a91052e49a866498a470f480b54af81b30c035e860cd7dca4 - ::1","service":"solutil-api","timestamp":"2025-09-24 11:33:48"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 11:34:34"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 11:34:36"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 14:11:09"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 14:13:10"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 14:13:14","to":"johnjusticee766@gmail.com"}
+{"level":"info","message":"Verification email sent to johnjusticee766@gmail.com","service":"solutil-api","timestamp":"2025-09-24 14:13:14"}
+{"level":"info","message":"GET /api/auth/verify-email/c51ee2ac4caac6382ab6a00c85f4b800a5e185361425ed8d0f487595e36fdfd9 - ::1","service":"solutil-api","timestamp":"2025-09-24 14:14:08"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:15:09"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:15:11"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 14:18:30"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:19:42"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:19:45"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-24 14:35:30"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-24 14:36:28"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-24 14:36:31","to":"allanmuchiri@gmail.com"}
+{"level":"info","message":"Verification email sent to allanmuchiri@gmail.com","service":"solutil-api","timestamp":"2025-09-24 14:36:31"}
+{"level":"info","message":"GET /api/auth/verify-email/bebb70f2a024525f56604f4342022a611d9f4d4239cc87b874de47cdd63f539c - ::1","service":"solutil-api","timestamp":"2025-09-24 14:37:02"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:37:38"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-24 14:37:41"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 15:22:02"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 15:22:05"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 16:07:00"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-24 16:07:03"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-24 16:07:23"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-25 14:03:52"}
+{"level":"info","message":"POST /api/auth/refresh-token - ::1","service":"solutil-api","timestamp":"2025-09-25 14:27:43"}
+{"level":"error","message":"No token provided","request":{"ip":"::1","method":"POST","url":"/api/auth/refresh-token","userAgent":"node"},"service":"solutil-api","stack":"Error: No token provided\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:298:17\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-25 14:27:43"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:27:55"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:27:58"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:28:21"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:28:22"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-25 14:33:09"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:45:35"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:45:36"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:45:51"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:45:53"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:45:58"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:45:59"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:46:05"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:46:06"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:46:21"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:101:17","statusCode":401,"timestamp":"2025-09-25 14:46:22"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-25 14:47:12"}
+{"level":"error","message":"User with this email already exists","request":{"ip":"::1","method":"POST","url":"/api/auth/register","userAgent":"node"},"service":"solutil-api","stack":"Error: User with this email already exists\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:52:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":400,"timestamp":"2025-09-25 14:47:12"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:50:20"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-25 14:50:22"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-25 18:53:07"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 17:56:39"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-26 17:57:07"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 17:57:37"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 17:58:03"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 17:58:23"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 17:58:24","to":"test@example.com"}
+{"level":"info","message":"Verification email sent to test@example.com","service":"solutil-api","timestamp":"2025-09-26 17:58:24"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-26 18:01:04"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:01:05"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:01:09"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:01:14"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:01:20"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 18:01:22","to":"testfrontend@example.com"}
+{"level":"info","message":"Verification email sent to testfrontend@example.com","service":"solutil-api","timestamp":"2025-09-26 18:01:22"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 18:01:23","to":"testdiagnostic@example.com"}
+{"level":"info","message":"Verification email sent to testdiagnostic@example.com","service":"solutil-api","timestamp":"2025-09-26 18:01:23"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:28"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:29"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:33"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:35"}
+{"level":"error","message":"User with this email already exists","request":{"ip":"::1","method":"POST","url":"/api/auth/register"},"service":"solutil-api","stack":"Error: User with this email already exists\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:52:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":400,"timestamp":"2025-09-26 18:06:35"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:36"}
+{"level":"error","message":"User with this email already exists","request":{"ip":"::1","method":"POST","url":"/api/auth/register","userAgent":"node"},"service":"solutil-api","stack":"Error: User with this email already exists\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:52:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":400,"timestamp":"2025-09-26 18:06:36"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:06:56"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 18:06:58","to":"newtest@example.com"}
+{"level":"info","message":"Verification email sent to newtest@example.com","service":"solutil-api","timestamp":"2025-09-26 18:06:58"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:07:29"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:08:53"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:08:58"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 18:09:03"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 18:09:04","to":"test1758899343423@example.com"}
+{"level":"info","message":"Verification email sent to test1758899343423@example.com","service":"solutil-api","timestamp":"2025-09-26 18:09:04"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:09:16"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:10:08"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:13:35"}
+{"level":"warn","message":"Database connection failed, running in fallback mode: Atlas connection timeout","service":"solutil-api","stack":"Error: Atlas connection timeout\n    at Timeout._onTimeout (D:\\projects\\solutil\\backend\\server.js:187:62)\n    at listOnTimeout (node:internal/timers:594:17)\n    at process.processTimers (node:internal/timers:529:7)","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:14:58"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 18:15:02"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:15:17"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 18:16:20"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:16:32"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-26 18:16:40"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:16:53"}
+{"level":"error","message":"Access denied. No token provided.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Access denied. No token provided.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:18:17\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:16:53"}
+{"cause":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":30,"maxElectionId":null,"maxSetVersion":null,"servers":{"ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017":{"$clusterTime":null,"address":"ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":[],"iscryptd":false,"lastUpdateTime":284078694,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"},"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017":{"$clusterTime":{"clusterTime":{"$timestamp":{"i":9,"t":1758899874}},"signature":{"hash":{"0":73,"1":106,"10":136,"11":162,"12":76,"13":3,"14":152,"15":74,"16":98,"17":73,"18":142,"19":65,"2":201,"3":90,"4":187,"5":147,"6":182,"7":144,"8":68,"9":98},"keyId":7519511807057199000}},"address":"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":["ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017","ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017"],"iscryptd":false,"lastUpdateTime":284080256,"lastWriteDate":{"$date":"2025-09-26T15:17:54Z"},"logicalSessionTimeoutMinutes":30,"maxBsonObjectSize":16777216,"maxMessageSizeBytes":48000000,"maxWireVersion":25,"maxWriteBatchSize":100000,"me":"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017","roundTripTime":216,"setName":"atlas-nxd0hk-shard-0","setVersion":8,"tags":{"availabilityZone":"mes1-az2","diskState":"READY","nodeType":"ELECTABLE","provider":"AWS","region":"ME_SOUTH_1","workloadType":"OPERATIONAL"},"topologyVersion":{"counter":3,"processId":{"$oid":"68d18b39c652d5caf3016e6f"}},"type":"RSSecondary"},"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017":{"$clusterTime":null,"address":"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":[],"iscryptd":false,"lastUpdateTime":284078694,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":"atlas-nxd0hk-shard-0","stale":false,"type":"ReplicaSetNoPrimary"},"errorLabelSet":{},"level":"warn","message":"Database connection failed, running in fallback mode: Server selection timed out after 5000 ms","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":30,"maxElectionId":null,"maxSetVersion":null,"servers":{"ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017":{"$clusterTime":null,"address":"ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":[],"iscryptd":false,"lastUpdateTime":284078694,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"},"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017":{"$clusterTime":{"clusterTime":{"$timestamp":{"i":9,"t":1758899874}},"signature":{"hash":{"0":73,"1":106,"10":136,"11":162,"12":76,"13":3,"14":152,"15":74,"16":98,"17":73,"18":142,"19":65,"2":201,"3":90,"4":187,"5":147,"6":182,"7":144,"8":68,"9":98},"keyId":7519511807057199000}},"address":"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":["ac-by0be10-shard-00-00.w1ryhxw.mongodb.net:27017","ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017"],"iscryptd":false,"lastUpdateTime":284080256,"lastWriteDate":{"$date":"2025-09-26T15:17:54Z"},"logicalSessionTimeoutMinutes":30,"maxBsonObjectSize":16777216,"maxMessageSizeBytes":48000000,"maxWireVersion":25,"maxWriteBatchSize":100000,"me":"ac-by0be10-shard-00-01.w1ryhxw.mongodb.net:27017","minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017","roundTripTime":216,"setName":"atlas-nxd0hk-shard-0","setVersion":8,"tags":{"availabilityZone":"mes1-az2","diskState":"READY","nodeType":"ELECTABLE","provider":"AWS","region":"ME_SOUTH_1","workloadType":"OPERATIONAL"},"topologyVersion":{"counter":3,"processId":{"$oid":"68d18b39c652d5caf3016e6f"}},"type":"RSSecondary"},"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017":{"$clusterTime":null,"address":"ac-by0be10-shard-00-02.w1ryhxw.mongodb.net:27017","arbiters":[],"electionId":null,"error":null,"hosts":[],"iscryptd":false,"lastUpdateTime":284078694,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":"atlas-nxd0hk-shard-0","stale":false,"type":"ReplicaSetNoPrimary"},"service":"solutil-api","stack":"MongooseServerSelectionError: Server selection timed out after 5000 ms\n    at _handleConnectionErrors (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1165:11)\n    at NativeConnection.openUri (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1096:11)\n    at async connectDB (D:\\projects\\solutil\\backend\\server.js:180:16)\n    at async startServer (D:\\projects\\solutil\\backend\\server.js:232:5)","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:17:58"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:18:17"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:18:42"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:18:42"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:19:54"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:19:57"}
+{"level":"error","message":"User belonging to this token no longer exists.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: User belonging to this token no longer exists.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:38:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-26 18:19:58"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:20:45"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:20:56"}
+{"level":"error","message":"User belonging to this token no longer exists.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: User belonging to this token no longer exists.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:38:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-26 18:20:56"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:22:35"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:23:06"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:23:24"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:25:12"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:25:12"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:25:49"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:25:49"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:25:49"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:25:49"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-26 18:29:22"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 18:29:44"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 18:29:55"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:29:57"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:30:30"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/admin/services","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 18:30:30"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 18:30:48"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:30:53"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:30:54"}
+{"level":"info","message":"POST /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:32:51"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:32:51"}
+{"level":"info","message":"GET /api/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:33:53"}
+{"level":"info","message":"GET /api/admin/services?limit=50 - ::1","service":"solutil-api","timestamp":"2025-09-26 18:34:12"}
+{"level":"info","message":"GET /api/services?limit=50 - ::1","service":"solutil-api","timestamp":"2025-09-26 18:34:41"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:35:50"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:37:16"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:40:58"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:41:30"}
+{"level":"info","message":"POST /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:42:28"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:42:29"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:49:13"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 18:49:15"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 18:50:49"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:51:38"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 18:52:21"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 18:52:33"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 18:56:21"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 18:56:33"}
+{"level":"info","message":"PUT /api/admin/users/68d398b63273160ccc061439 - ::1","service":"solutil-api","timestamp":"2025-09-26 19:01:54"}
+{"level":"info","message":"PUT /api/admin/users/68d398b63273160ccc061439 - ::1","service":"solutil-api","timestamp":"2025-09-26 19:02:03"}
+{"level":"info","message":"PUT /api/admin/users/68d398b63273160ccc061439 - ::1","service":"solutil-api","timestamp":"2025-09-26 19:02:08"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 19:02:47"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 19:02:58"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 19:02:59"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 19:03:10"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 19:03:16"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 19:06:02"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 19:06:05"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 19:32:13"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:34:17"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:34:22"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:34:28"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 19:37:07"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:37:11"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:39:48"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:40:18"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:40:37"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:41:08"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:13"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:15"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:33"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:43"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:46"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:42:59"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:43:01"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 19:43:16"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 19:43:37"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:43:45"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:43:47"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:05"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:06"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:10"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:13"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:27"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:45"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 19:44:47"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:45:27"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 19:45:31"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 21:38:56"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 21:38:59"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 21:40:10"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 21:40:14"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 21:49:10"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 21:49:24"}
+{"level":"info","message":"PUT /api/admin/users/68d3d7bd3273160ccc06148a - ::1","service":"solutil-api","timestamp":"2025-09-26 21:50:27"}
+{"level":"info","message":"PUT /api/admin/users/68d6aabe99b87552496bc392 - ::1","service":"solutil-api","timestamp":"2025-09-26 21:50:32"}
+{"level":"info","message":"PUT /api/admin/users/68d6aabe99b87552496bc392 - ::1","service":"solutil-api","timestamp":"2025-09-26 21:50:43"}
+{"level":"info","message":"PUT /api/admin/users/68d6aabe99b87552496bc392 - ::1","service":"solutil-api","timestamp":"2025-09-26 21:50:53"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 21:51:36"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 21:51:37"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 22:02:01"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 22:04:35"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 22:45:28"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 22:45:36"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 22:45:58"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 22:47:31"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 22:48:28"}
+{"level":"info","message":"GET /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 22:57:19"}
+{"level":"error","message":"Access denied. No token provided.","request":{"ip":"::1","method":"GET","url":"/api/auth/register","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Access denied. No token provided.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:18:17\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)","statusCode":401,"timestamp":"2025-09-26 22:57:19"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 22:57:37"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:151:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-26 22:57:37"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-26 22:58:23"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-26 22:58:24","to":"22080488@students.kcau.ac.ke"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Complete Your Provider Setup","text":"No text","timestamp":"2025-09-26 22:58:24","to":"22080488@students.kcau.ac.ke"}
+{"level":"info","message":"Provider welcome email sent to 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 22:58:24"}
+{"level":"info","message":"Verification email sent to 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 22:58:24"}
+{"level":"info","message":"GET /api/auth/verify-email/801a901aaa9393897cc1ce5363aaf00fa5a55ced57d077dba6a37c22babc235c - ::1","service":"solutil-api","timestamp":"2025-09-26 22:59:37"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 22:59:57"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-26 22:59:59"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-26 23:00:24"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-26 23:00:25"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:01:43"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"POST","url":"/api/provider/upload-document","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 23:01:43"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:01:50"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"POST","url":"/api/provider/upload-document","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 23:01:50"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:01:55"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"POST","url":"/api/provider/upload-document","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 23:01:55"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:01:58"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"POST","url":"/api/provider/upload-document","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-26 23:01:58"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:15:07"}
+{"level":"info","message":"Document uploaded: nationalId for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:15:09"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:15:28"}
+{"level":"info","message":"Document uploaded: businessLicense for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:15:29"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:15:45"}
+{"level":"info","message":"Document uploaded: certificate for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:15:46"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:15:55"}
+{"level":"info","message":"Document uploaded: goodConductCertificate for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:15:55"}
+{"level":"info","message":"PUT /api/provider/profile - ::1","service":"solutil-api","timestamp":"2025-09-26 23:18:01"}
+{"level":"info","message":"Provider profile updated for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:18:02"}
+{"level":"info","message":"POST /api/provider/submit-application - ::1","service":"solutil-api","timestamp":"2025-09-26 23:18:02"}
+{"level":"info","message":"Application submitted for review: 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:18:04"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Application Submitted - Under Review","text":"No text","timestamp":"2025-09-26 23:18:04","to":"22080488@students.kcau.ac.ke"}
+{"level":"info","message":"Application submitted email sent to 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:18:04"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 23:24:10"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 23:24:24"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 23:24:27"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:00"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:09"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:11"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:22"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:24"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:44"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-26 23:25:45"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 23:27:59"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-26 23:28:00"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 23:28:09"}
+{"level":"info","message":"GET /api/admin/bookings - ::1","service":"solutil-api","timestamp":"2025-09-26 23:28:10"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 23:28:55"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-26 23:28:57"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 23:41:13"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 23:42:15"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 23:43:37"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 23:43:49"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-26 23:44:10"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-26 23:44:26"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:57:04"}
+{"level":"info","message":"Document uploaded: nationalId for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:57:05"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:57:14"}
+{"level":"info","message":"Document uploaded: businessLicense for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:57:15"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:57:26"}
+{"level":"info","message":"Document uploaded: certificate for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:57:27"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-26 23:57:37"}
+{"level":"info","message":"Document uploaded: goodConductCertificate for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:57:37"}
+{"level":"info","message":"PUT /api/provider/profile - ::1","service":"solutil-api","timestamp":"2025-09-26 23:58:29"}
+{"level":"info","message":"Provider profile updated for user 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-26 23:58:29"}
+{"level":"info","message":"POST /api/provider/submit-application - ::1","service":"solutil-api","timestamp":"2025-09-26 23:58:30"}
+{"level":"error","message":"Your application is already under review. Please wait for the admin decision before resubmitting.","request":{"ip":"::1","method":"POST","url":"/api/provider/submit-application","userAgent":"node","userId":"68d6f05f5de305483c7e4b26"},"service":"solutil-api","stack":"Error: Your application is already under review. Please wait for the admin decision before resubmitting.\n    at D:\\projects\\solutil\\backend\\routes\\provider.js:201:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":409,"timestamp":"2025-09-26 23:58:30"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 00:01:00"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:01:17"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:01:19"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 00:08:36"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:08:50"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:08:51"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-27 00:15:23"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:15:29"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:15:30"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:37"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:39"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:44"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:45"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/documents/nationalId/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:57"}
+{"level":"info","message":"Document nationalId for provider 22080488@students.kcau.ac.ke verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:16:57"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:16:58"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/documents/businessLicense/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 00:17:01"}
+{"level":"info","message":"Document businessLicense for provider 22080488@students.kcau.ac.ke verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:17:02"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:17:02"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/status - ::1","service":"solutil-api","timestamp":"2025-09-27 00:17:09"}
+{"level":"info","message":"Provider 22080488@students.kcau.ac.ke status updated to approved by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:17:10"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"🎉 Congratulations! Your Provider Application is Approved","text":"No text","timestamp":"2025-09-27 00:17:10","to":"22080488@students.kcau.ac.ke"}
+{"level":"info","message":"Provider status change email sent to 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-27 00:17:10"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:17:10"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/status - ::1","service":"solutil-api","timestamp":"2025-09-27 00:21:37"}
+{"level":"info","message":"Provider 22080488@students.kcau.ac.ke status updated to approved by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:21:38"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"🎉 Congratulations! Your Provider Application is Approved","text":"No text","timestamp":"2025-09-27 00:21:38","to":"22080488@students.kcau.ac.ke"}
+{"level":"info","message":"Provider status change email sent to 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-27 00:21:38"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:21:38"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-27 00:21:55"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-27 00:21:57"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:01"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:03"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:03"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:04"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/documents/certificate/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:17"}
+{"level":"info","message":"Document certificate for provider 22080488@students.kcau.ac.ke verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:22:18"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:18"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/documents/goodConductCertificate/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:24"}
+{"level":"info","message":"Document goodConductCertificate for provider 22080488@students.kcau.ac.ke verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 00:22:24"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:22:25"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 00:30:59"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 00:31:16"}
+{"level":"info","message":"GET /api/users/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 00:32:42"}
+{"level":"error","message":"Access denied. No token provided.","request":{"ip":"::1","method":"GET","url":"/api/users/profile","userAgent":"node"},"service":"solutil-api","stack":"Error: Access denied. No token provided.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:18:17\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 00:32:42"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 00:34:19"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 00:39:35"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 00:39:50"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 00:45:34"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:45:45"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 00:45:46"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 00:53:59"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 00:54:00"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 01:25:03"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:25:29"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:25:29"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 01:26:02"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 01:26:02"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:26:43"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:26:43"}
+{"level":"info","message":"POST /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:28:32"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 01:31:01"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 01:31:25"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 01:32:20"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 01:32:35"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:32:48"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 01:32:48"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:40:58"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.104.1 Chrome/138.0.7204.235 Electron/37.3.1 Safari/537.36"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 01:40:58"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 01:41:50"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 01:42:03"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 01:42:06"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:42:15"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 01:42:15"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:42:15"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 01:42:15"}
+{"level":"info","message":"POST /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:43:32"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"POST","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 01:43:32"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 01:46:43"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 01:47:00"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 01:48:01"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 01:48:24"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:48:34"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 01:49:24"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 01:49:46"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 01:49:48"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:49:56"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:49:56"}
+{"level":"info","message":"POST /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:50:57"}
+{"level":"info","message":"New service created: Bulb Fix by provider 22080488@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-27 01:50:58"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 01:50:58"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 01:52:18"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"","request":{"ip":"::1","method":"GET","url":"/api/provider-bookings/provider?status=all&date=all&limit=50&page=1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0","userId":"68d6f05f5de305483c7e4b26"},"service":"solutil-api","stack":"CastError: Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"\n    at SchemaDate.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:377:11)\n    at SchemaDate.handleSingle (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:389:15)\n    at SchemaDate.castForQuery (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:441:18)\n    at cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\cast.js:367:39)\n    at Query.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:5060:12)\n    at Query._castConditions (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2374:10)\n    at model.Query._find (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2401:8)\n    at model.Query.exec (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:4627:80)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async D:\\projects\\solutil\\backend\\routes\\providerBookings.js:45:20","statusCode":500,"timestamp":"2025-09-27 01:52:19"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 01:52:19"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"","request":{"ip":"::1","method":"GET","url":"/api/provider-bookings/provider?status=all&date=all&limit=50&page=1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0","userId":"68d6f05f5de305483c7e4b26"},"service":"solutil-api","stack":"CastError: Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"\n    at SchemaDate.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:377:11)\n    at SchemaDate.handleSingle (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:389:15)\n    at SchemaDate.castForQuery (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:441:18)\n    at cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\cast.js:367:39)\n    at Query.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:5060:12)\n    at Query._castConditions (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2374:10)\n    at model.Query._find (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2401:8)\n    at model.Query.exec (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:4627:80)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async D:\\projects\\solutil\\backend\\routes\\providerBookings.js:45:20","statusCode":500,"timestamp":"2025-09-27 01:52:19"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 11:20:42"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 11:22:07"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 11:23:01"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 11:23:01"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-27 11:23:53"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","text":"No text","timestamp":"2025-09-27 11:23:56","to":"beryl@gmail.com"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Welcome to Solutil - Complete Your Provider Setup","text":"No text","timestamp":"2025-09-27 11:23:56","to":"beryl@gmail.com"}
+{"level":"info","message":"Provider welcome email sent to beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:23:56"}
+{"level":"info","message":"Verification email sent to beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:23:56"}
+{"level":"info","message":"GET /api/auth/verify-email/f2afe4a46788aae1ef5e7f3137f01168422b5f7169f2e44a27fcb0a1e187250d - ::1","service":"solutil-api","timestamp":"2025-09-27 11:24:38"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 11:24:53"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 11:24:55"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-27 11:25:39"}
+{"level":"info","message":"Document uploaded: nationalId for user beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:25:39"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-27 11:25:48"}
+{"level":"info","message":"Document uploaded: businessLicense for user beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:25:48"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-27 11:25:56"}
+{"level":"info","message":"Document uploaded: certificate for user beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:25:56"}
+{"level":"info","message":"POST /api/provider/upload-document - ::1","service":"solutil-api","timestamp":"2025-09-27 11:26:03"}
+{"level":"info","message":"Document uploaded: goodConductCertificate for user beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:26:04"}
+{"level":"info","message":"PUT /api/provider/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 11:27:21"}
+{"level":"info","message":"Provider profile updated for user beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:27:22"}
+{"level":"info","message":"POST /api/provider/submit-application - ::1","service":"solutil-api","timestamp":"2025-09-27 11:27:23"}
+{"level":"info","message":"Application submitted for review: beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:27:24"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"Application Submitted - Under Review","text":"No text","timestamp":"2025-09-27 11:27:24","to":"beryl@gmail.com"}
+{"level":"info","message":"Application submitted email sent to beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:27:24"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 11:28:20"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-27 11:28:25"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:28:38"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:28:39"}
+{"level":"info","message":"PUT /api/admin/providers/68d79f1a59b1ed43ebea51ff/documents/nationalId/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:13"}
+{"level":"info","message":"PUT /api/admin/providers/68d79f1a59b1ed43ebea51ff/documents/businessLicense/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:14"}
+{"level":"info","message":"Document nationalId for provider beryl@gmail.com verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 11:29:14"}
+{"level":"info","message":"PUT /api/admin/providers/68d79f1a59b1ed43ebea51ff/documents/certificate/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:14"}
+{"level":"info","message":"Document businessLicense for provider beryl@gmail.com verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 11:29:15"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:15"}
+{"level":"info","message":"Document certificate for provider beryl@gmail.com verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 11:29:15"}
+{"level":"info","message":"PUT /api/admin/providers/68d79f1a59b1ed43ebea51ff/documents/goodConductCertificate/verify - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:15"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:16"}
+{"level":"info","message":"Document goodConductCertificate for provider beryl@gmail.com verified by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 11:29:16"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:17"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:19"}
+{"level":"info","message":"PUT /api/admin/providers/68d79f1a59b1ed43ebea51ff/status - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:28"}
+{"level":"info","message":"Provider beryl@gmail.com status updated to approved by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 11:29:28"}
+{"html":"HTML content included","level":"info","message":"📧 Email sent (Development Mode)","service":"solutil-api","subject":"🎉 Congratulations! Your Provider Application is Approved","text":"No text","timestamp":"2025-09-27 11:29:28","to":"beryl@gmail.com"}
+{"level":"info","message":"Provider status change email sent to beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:29:28"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 11:29:29"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 11:30:07"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 11:30:21"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 11:30:23"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 11:30:55"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 11:30:56"}
+{"level":"info","message":"POST /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 11:31:45"}
+{"level":"info","message":"New service created: Bulb repair by provider beryl@gmail.com","service":"solutil-api","timestamp":"2025-09-27 11:31:45"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 11:31:46"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 11:33:29"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"","request":{"ip":"::1","method":"GET","url":"/api/provider-bookings/provider?status=all&date=all&limit=50&page=1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0","userId":"68d79f1a59b1ed43ebea51ff"},"service":"solutil-api","stack":"CastError: Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"\n    at SchemaDate.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:377:11)\n    at SchemaDate.handleSingle (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:389:15)\n    at SchemaDate.castForQuery (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:441:18)\n    at cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\cast.js:367:39)\n    at Query.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:5060:12)\n    at Query._castConditions (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2374:10)\n    at model.Query._find (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2401:8)\n    at model.Query.exec (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:4627:80)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async D:\\projects\\solutil\\backend\\routes\\providerBookings.js:45:20","statusCode":500,"timestamp":"2025-09-27 11:33:30"}
+{"level":"info","message":"GET /api/provider-bookings/provider?status=all&date=all&limit=50&page=1 - ::1","service":"solutil-api","timestamp":"2025-09-27 11:33:30"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"","request":{"ip":"::1","method":"GET","url":"/api/provider-bookings/provider?status=all&date=all&limit=50&page=1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0","userId":"68d79f1a59b1ed43ebea51ff"},"service":"solutil-api","stack":"CastError: Cast to date failed for value \"Invalid Date\" (type Date) at path \"scheduledDate\" for model \"Booking\"\n    at SchemaDate.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:377:11)\n    at SchemaDate.handleSingle (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:389:15)\n    at SchemaDate.castForQuery (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\schema\\date.js:441:18)\n    at cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\cast.js:367:39)\n    at Query.cast (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:5060:12)\n    at Query._castConditions (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2374:10)\n    at model.Query._find (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:2401:8)\n    at model.Query.exec (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\query.js:4627:80)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async D:\\projects\\solutil\\backend\\routes\\providerBookings.js:45:20","statusCode":500,"timestamp":"2025-09-27 11:33:30"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 11:35:43"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 11:35:44"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:01:31"}
+{"level":"warn","message":"Database connection failed, running in fallback mode: Atlas connection timeout","service":"solutil-api","stack":"Error: Atlas connection timeout\n    at Timeout._onTimeout (D:\\projects\\solutil\\backend\\server.js:196:62)\n    at listOnTimeout (node:internal/timers:594:17)\n    at process.processTimers (node:internal/timers:529:7)","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:06:00"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:07:37"}
+{"level":"warn","message":"Database connection failed, running in fallback mode: Atlas connection timeout","service":"solutil-api","stack":"Error: Atlas connection timeout\n    at Timeout._onTimeout (D:\\projects\\solutil\\backend\\server.js:196:62)\n    at listOnTimeout (node:internal/timers:594:17)\n    at process.processTimers (node:internal/timers:529:7)","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:08:19"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:08:50"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:09:39"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:21:56"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 12:22:43"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:24:10"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:37:14"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","template":"welcome","timestamp":"2025-09-27 12:37:14","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:37:14"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Service Created Successfully - Solutil","template":"serviceCreated","timestamp":"2025-09-27 12:37:14","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:38:54"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","template":"welcome","timestamp":"2025-09-27 12:38:54","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:38:54"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Service Created Successfully - Solutil","template":"serviceCreated","timestamp":"2025-09-27 12:38:54","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:38:54"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Service Created Successfully - Solutil","template":"serviceCreated","timestamp":"2025-09-27 12:38:54","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:38:54"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Booking Confirmation - Solutil","template":"bookingConfirmation","timestamp":"2025-09-27 12:38:54","to":"test@example.com"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:38:54"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Booking Status Update - Solutil","template":"bookingStatusUpdate","timestamp":"2025-09-27 12:38:54","to":"test@example.com"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 12:41:49"}
+{"error":"nodemailer.createTransporter is not a function","level":"error","message":"❌ Failed to send email:","service":"solutil-api","subject":"SMTP Test Email - Solutil","timestamp":"2025-09-27 12:41:49","to":"infosolu31@gmail.com"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 12:42:26"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<9cd3f15c-f2be-6c8c-43ec-267a3b604629@gmail.com>","response":"250 2.0.0 OK  1758966149 ffacd0b85a97d-40fc7e2c6b3sm10885618f8f.54 - gsmtp","service":"solutil-api","subject":"SMTP Test Email - Solutil","timestamp":"2025-09-27 12:42:30","to":"infosolu31@gmail.com"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 12:46:02"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-27 12:48:45"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-27 12:48:48"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","template":"welcome","timestamp":"2025-09-27 12:48:48","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"Verification email sent to bed-artslmr112025@spu.ac.ke","service":"solutil-api","timestamp":"2025-09-27 12:48:48"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 12:52:32"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:54:16"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 12:56:33"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-27 12:56:46"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 12:56:48"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<99770943-b0c6-9def-b8fa-5971268487f6@gmail.com>","response":"250 2.0.0 OK  1758967010 ffacd0b85a97d-40fc749b8f9sm10147767f8f.50 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 12:56:50","to":"infosolu31@gmail.com"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-27 13:01:35"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:01:37"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<7aa7528e-9960-418d-9a5d-8621091092c7@gmail.com>","response":"250 2.0.0 OK  1758967299 ffacd0b85a97d-40fb72fb2eesm10627693f8f.12 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:01:40","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:01:40"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<6a4e7fab-0ab0-168f-6aa1-28763fed20d3@gmail.com>","response":"250 2.0.0 OK  1758967301 ffacd0b85a97d-40fb871d051sm10560325f8f.14 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Complete Your Provider Setup","timestamp":"2025-09-27 13:01:42","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"Provider welcome email sent to bed-artslmr112025@spu.ac.ke","service":"solutil-api","timestamp":"2025-09-27 13:01:42"}
+{"level":"info","message":"Verification email sent to bed-artslmr112025@spu.ac.ke","service":"solutil-api","timestamp":"2025-09-27 13:01:42"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 13:02:42"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:147:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-27 13:02:42"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 13:04:19"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:147:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-27 13:04:19"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 13:04:29"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:147:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-27 13:04:29"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-27 13:09:38"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:09:39"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<e9f1de11-1afd-bd6c-0594-7f776bd42e3b@gmail.com>","response":"250 2.0.0 OK  1758967781 5b1f17b1804b1-46e2a996c03sm149970905e9.3 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:09:42","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"Verification email sent to bed-artslmr112025@spu.ac.ke","service":"solutil-api","timestamp":"2025-09-27 13:09:42"}
+{"level":"info","message":"GET /api/health - ::1","service":"solutil-api","timestamp":"2025-09-27 13:12:04"}
+{"level":"info","message":"GET /api/auth/verify-email/test-token - ::1","service":"solutil-api","timestamp":"2025-09-27 13:12:21"}
+{"level":"error","message":"Invalid or expired verification token","request":{"ip":"::1","method":"GET","url":"/api/auth/verify-email/test-token","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.6584"},"service":"solutil-api","stack":"Error: Invalid or expired verification token\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:295:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":400,"timestamp":"2025-09-27 13:12:21"}
+{"level":"info","message":"GET /api/auth/verify-email/8d0a8f6c76a97348acf9920ddc88d2c861377f9006f5ba1b5b0d49d0624964b8 - ::1","service":"solutil-api","timestamp":"2025-09-27 13:14:43"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:15:39"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<ae6eac96-384a-1803-08b1-09012de8a7a6@gmail.com>","response":"250 2.0.0 OK  1758968143 ffacd0b85a97d-40fc749b8f9sm10201467f8f.50 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:15:44","to":"infosolu31@gmail.com"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-27 13:22:15"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:22:17"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<ca06907d-af3a-f7fb-2fb8-86d954bad2d8@gmail.com>","response":"250 2.0.0 OK  1758968538 ffacd0b85a97d-40fb7203b8asm10528068f8f.9 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:22:19","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"Verification email sent to bed-artslmr112025@spu.ac.ke","service":"solutil-api","timestamp":"2025-09-27 13:22:19"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 13:22:41"}
+{"level":"error","message":"Please verify your email address before logging in. Check your inbox for the verification link.","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Please verify your email address before logging in. Check your inbox for the verification link.\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:156:19","statusCode":401,"timestamp":"2025-09-27 13:22:42"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:28:18"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<a2223a6c-81b6-5482-e8b5-47413f20257b@gmail.com>","response":"250 2.0.0 OK  1758968900 5b1f17b1804b1-46e33105e58sm52195285e9.7 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:28:21","to":"infosolu31@gmail.com"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-27 13:30:18"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<9dd32e08-cc9a-6f99-5af8-47afa306636d@gmail.com>","response":"250 2.0.0 OK  1758969020 ffacd0b85a97d-40fb9d26ef7sm10635790f8f.26 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-27 13:30:21","to":"bed-artslmr112025@spu.ac.ke"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 18:26:21"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.104.1 Chrome/138.0.7204.235 Electron/37.3.1 Safari/537.36"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 18:26:21"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 18:27:38"}
+{"level":"error","message":"Please verify your email address before logging in. Check your inbox for the verification link.","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Please verify your email address before logging in. Check your inbox for the verification link.\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:156:19","statusCode":401,"timestamp":"2025-09-27 18:27:43"}
+{"level":"info","message":"GET /api/auth/verify-email/5519522a26a26c262f9802f57a4bc879e36e7f527a504dfbb606eab457a8e750 - ::1","service":"solutil-api","timestamp":"2025-09-27 18:28:06"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 18:28:23"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:147:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-27 18:28:24"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 18:32:57"}
+{"level":"error","message":"Invalid token.","request":{"ip":"::1","method":"GET","url":"/api/provider-services","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.104.1 Chrome/138.0.7204.235 Electron/37.3.1 Safari/537.36"},"service":"solutil-api","stack":"Error: Invalid token.\n    at D:\\projects\\solutil\\backend\\middleware\\auth.js:51:19\n    at D:\\projects\\solutil\\backend\\utils\\catchAsync.js:3:5\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\projects\\solutil\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)","statusCode":401,"timestamp":"2025-09-27 18:32:57"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 18:40:39"}
+{"level":"info","message":"PUT /api/admin/providers/68d6f05f5de305483c7e4b26/status - ::1","service":"solutil-api","timestamp":"2025-09-27 18:40:58"}
+{"level":"info","message":"Provider 22080488@students.kcau.ac.ke status updated to suspended by admin admin@solutil.com","service":"solutil-api","timestamp":"2025-09-27 18:41:00"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 18:41:00"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 18:41:29"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 18:41:32"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-27 20:01:47"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 20:01:49"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 20:01:55"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 20:01:57"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 20:02:30"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 20:02:32"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 20:03:50"}
+{"level":"info","message":"GET /api/provider-services - ::1","service":"solutil-api","timestamp":"2025-09-27 20:03:51"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-27 22:49:33"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 22:50:21"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-27 22:50:23"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 22:50:42"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 22:50:44"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-27 22:59:19"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-27 23:03:19"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-00.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-28 14:06:18"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:07:17"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:07:19"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-28 14:11:10"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-01.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-28 14:12:14"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:12:46"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:16:19"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-28 14:20:43"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-28 14:20:55"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:21:16"}
+{"level":"info","message":"GET /api/auth/profile - ::1","service":"solutil-api","timestamp":"2025-09-28 14:21:17"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-28 22:58:24"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-28 22:58:28"}
+{"level":"info","message":"MongoDB Connected: ac-by0be10-shard-00-02.w1ryhxw.mongodb.net","service":"solutil-api","timestamp":"2025-09-28 23:05:39"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-28 23:06:20"}
+{"level":"warn","message":"Database connection failed, running in fallback mode: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.","service":"solutil-api","stack":"MongooseError: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.\n    at NativeConnection.createClient (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\drivers\\node-mongodb-native\\connection.js:237:11)\n    at NativeConnection.openUri (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1071:34)\n    at Mongoose.connect (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\mongoose.js:450:15)\n    at connectDB (D:\\projects\\solutil\\backend\\server.js:190:20)\n    at async startServer (D:\\projects\\solutil\\backend\\server.js:241:5)","timestamp":"2025-09-29 00:38:21"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 00:38:21"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 00:38:21"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 00:38:21"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-29 00:38:21"}
+{"cause":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92245796,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"errorLabelSet":{},"level":"warn","message":"Database connection failed, running in fallback mode: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92245796,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"service":"solutil-api","stack":"MongooseServerSelectionError: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017\n    at _handleConnectionErrors (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1165:11)\n    at NativeConnection.openUri (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1096:11)\n    at async connectDB (D:\\projects\\solutil\\backend\\server.js:189:16)\n    at async startServer (D:\\projects\\solutil\\backend\\server.js:241:5)","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 00:42:41"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 00:45:00"}
+{"cause":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92426902,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"errorLabelSet":{},"level":"warn","message":"Database connection failed, running in fallback mode: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92426902,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"service":"solutil-api","stack":"MongooseServerSelectionError: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017\n    at _handleConnectionErrors (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1165:11)\n    at NativeConnection.openUri (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1096:11)\n    at async connectDB (D:\\projects\\solutil\\backend\\server.js:189:16)\n    at async startServer (D:\\projects\\solutil\\backend\\server.js:241:5)","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 00:45:42"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 00:46:03"}
+{"cause":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92494270,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"errorLabelSet":{},"level":"warn","message":"Database connection failed, running in fallback mode: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{"localhost:27017":{"$clusterTime":null,"address":"localhost:27017","arbiters":[],"electionId":null,"error":{"beforeHandshake":false,"errorLabelSet":{}},"hosts":[],"iscryptd":false,"lastUpdateTime":92494270,"lastWriteDate":0,"logicalSessionTimeoutMinutes":null,"maxBsonObjectSize":null,"maxMessageSizeBytes":null,"maxWireVersion":0,"maxWriteBatchSize":null,"me":null,"minRoundTripTime":0,"minWireVersion":0,"passives":[],"primary":null,"roundTripTime":-1,"setName":null,"setVersion":null,"tags":{},"topologyVersion":null,"type":"Unknown"}},"setName":null,"stale":false,"type":"Unknown"},"service":"solutil-api","stack":"MongooseServerSelectionError: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017\n    at _handleConnectionErrors (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1165:11)\n    at NativeConnection.openUri (D:\\projects\\solutil\\backend\\node_modules\\mongoose\\lib\\connection.js:1096:11)\n    at async connectDB (D:\\projects\\solutil\\backend\\server.js:189:16)\n    at async startServer (D:\\projects\\solutil\\backend\\server.js:241:5)","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"💾 Database Status: Fallback Mode","service":"solutil-api","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 00:46:49"}
+{"level":"info","message":"MongoDB Connected: ac-dkvthmk-shard-00-01.7o4tjqy.mongodb.net","service":"solutil-api","timestamp":"2025-09-29 00:48:44"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 00:48:45"}
+{"level":"info","message":"MongoDB Connected: ac-dkvthmk-shard-00-01.7o4tjqy.mongodb.net","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 00:49:14"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 00:50:05"}
+{"level":"error","message":"Invalid email or password","request":{"ip":"::1","method":"POST","url":"/api/auth/login","userAgent":"node"},"service":"solutil-api","stack":"Error: Invalid email or password\n    at D:\\projects\\solutil\\backend\\controllers\\authController.js:144:19\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","statusCode":401,"timestamp":"2025-09-29 00:50:05"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-29 00:53:23"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-29 00:53:24"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","template":"welcome","timestamp":"2025-09-29 00:53:24","to":"2208048@students.kcau.ac.ke"}
+{"level":"info","message":"📧 Using console transport for emails (development mode)","service":"solutil-api","timestamp":"2025-09-29 00:53:24"}
+{"level":"info","message":"📧 Email sent (Console Transport)","service":"solutil-api","subject":"Welcome to Solutil - Complete Your Provider Setup","template":"custom","timestamp":"2025-09-29 00:53:24","to":"2208048@students.kcau.ac.ke"}
+{"level":"info","message":"Provider welcome email sent to 2208048@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-29 00:53:24"}
+{"level":"info","message":"Verification email sent to 2208048@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-29 00:53:24"}
+{"level":"info","message":"GET /api/auth/verify-email/a48f92bf3b8063e27d7e0a4320663a869869e467b96154787cf88a77479cebe5 - ::1","service":"solutil-api","timestamp":"2025-09-29 00:54:12"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 00:54:25"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 00:54:26"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 01:02:15"}
+{"level":"info","message":"MongoDB Connected: ac-dkvthmk-shard-00-01.7o4tjqy.mongodb.net","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 01:02:35"}
+{"level":"info","message":"MongoDB Connected: ac-dkvthmk-shard-00-00.7o4tjqy.mongodb.net","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 01:02:59"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 01:03:28"}
+{"level":"info","message":"MongoDB Connected: ac-dkvthmk-shard-00-01.7o4tjqy.mongodb.net","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"🚀 Solutil API Server running on port 5000","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"📱 Environment: development","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"🌐 CORS Origin: http://localhost:3000","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"💾 Database Status: Connected","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"📋 API Documentation: http://localhost:5000/api/health","service":"solutil-api","timestamp":"2025-09-29 01:03:44"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:04:55"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"❌ Failed to send email:","service":"solutil-api","template":"emailVerification","timestamp":"2025-09-29 01:04:56","to":{"email":"infosolu31@gmail.com","name":"Test User","verificationToken":"test-token-123"}}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:05:25"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"❌ Failed to send email:","service":"solutil-api","template":"emailVerification","timestamp":"2025-09-29 01:05:26","to":{"email":"infosolu31@gmail.com","name":"Test User","verificationToken":"test-token-123"}}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:06:36"}
+{"error":"No recipients defined","level":"error","message":"❌ Failed to send email:","service":"solutil-api","template":"emailVerification","timestamp":"2025-09-29 01:06:37","to":{"email":"infosolu31@gmail.com","name":"Test User","verificationToken":"test-token-123"}}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:07:00"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<c4096dbd-4cb6-a6b6-02eb-b06878143125@gmail.com>","response":"250 2.0.0 OK  1759097220 ffacd0b85a97d-40fb89fb19fsm15904117f8f.21 - gsmtp","service":"solutil-api","subject":"Email Verification - Solutil","timestamp":"2025-09-29 01:07:02","to":"infosolu31@gmail.com"}
+{"level":"info","message":"POST /api/auth/logout - ::1","service":"solutil-api","timestamp":"2025-09-29 01:08:13"}
+{"level":"info","message":"POST /api/auth/register - ::1","service":"solutil-api","timestamp":"2025-09-29 01:08:31"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:08:33"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<77061b20-51a6-93dc-fe8e-47579264ef6b@gmail.com>","response":"250 2.0.0 OK  1759097313 ffacd0b85a97d-40fb72facf9sm16037295f8f.13 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Verify Your Email","timestamp":"2025-09-29 01:08:34","to":"2208048@students.kcau.ac.ke"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:08:34"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<fd47e301-6c37-2c73-3ea3-ec126068786c@gmail.com>","response":"250 2.0.0 OK  1759097315 ffacd0b85a97d-40fb9768bdesm15883684f8f.23 - gsmtp","service":"solutil-api","subject":"Welcome to Solutil - Complete Your Provider Setup","timestamp":"2025-09-29 01:08:37","to":"2208048@students.kcau.ac.ke"}
+{"level":"info","message":"Provider welcome email sent to 2208048@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-29 01:08:37"}
+{"level":"info","message":"Verification email sent to 2208048@students.kcau.ac.ke","service":"solutil-api","timestamp":"2025-09-29 01:08:37"}
+{"level":"info","message":"GET /api/auth/verify-email/09e62bc5aa437dee312ed16d08e978bb24d88b42db94ba4fe4d20fd238b709ee - ::1","service":"solutil-api","timestamp":"2025-09-29 01:08:52"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 01:09:06"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 01:09:08"}
+{"level":"info","message":"📧 Configuring SMTP with provider: gmail","service":"solutil-api","timestamp":"2025-09-29 01:12:37"}
+{"level":"info","message":"✅ Email sent successfully via SMTP","messageId":"<72b80c0a-917b-dccd-ed91-6bf826f2f892@gmail.com>","response":"250 2.0.0 OK  1759097557 5b1f17b1804b1-46e2ab48b40sm199418545e9.19 - gsmtp","service":"solutil-api","subject":"🎉 Welcome to Solutil Admin - Your Account is Ready!","timestamp":"2025-09-29 01:12:39","to":"infosolu31@gmail.com"}
+{"level":"info","message":"POST /api/auth/login - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:25"}
+{"level":"info","message":"GET /api/admin/stats - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:31"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:42"}
+{"level":"info","message":"GET /api/admin/users - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:43"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:58"}
+{"level":"info","message":"GET /api/admin/users?userType=provider& - ::1","service":"solutil-api","timestamp":"2025-09-29 01:14:59"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-29 01:15:14"}
+{"level":"info","message":"GET /api/admin/services - ::1","service":"solutil-api","timestamp":"2025-09-29 01:15:16"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"solutil-api","timestamp":"2025-09-29 05:44:21"}

@@ -53,6 +53,12 @@ const adminRoutes = require('./routes/admin');
 console.log('Loaded adminRoutes');
 const mpesaRoutes = require('./routes/mpesa');
 console.log('Loaded mpesaRoutes');
+const providerOnboardingRoutes = require('./routes/provider');
+console.log('Loaded providerOnboardingRoutes');
+const providerServiceRoutes = require('./routes/providerServices');
+console.log('Loaded providerServiceRoutes');
+const providerBookingRoutes = require('./routes/providerBookings');
+console.log('Loaded providerBookingRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 console.log('Loaded errorHandler');
@@ -88,11 +94,30 @@ app.use(helmet({
 }));
 app.use(compression());
 app.use(limiter);
+// Production-ready CORS configuration
+const allowedOrigins = [
+  "http://localhost:3000", // Development frontend
+  "http://192.168.56.1:3000", // Local network
+  process.env.CLIENT_URL, // Production frontend URL
+  "https://your-frontend-app.vercel.app" // Replace with your actual Vercel URL
+].filter(Boolean); // Remove any undefined values
+
 app.use(cors({
-  origin: ["http://localhost:3000", "http://192.168.56.1:3000"],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -123,6 +148,9 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/payments/mpesa', mpesaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/provider', providerOnboardingRoutes);
+app.use('/api/provider-services', providerServiceRoutes);
+app.use('/api/provider-bookings', providerBookingRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({
