@@ -1,13 +1,37 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleGuard from '@/components/RoleGuard'
+import { 
+  FaArrowLeft, 
+  FaIdCard, 
+  FaFileAlt, 
+  FaCertificate, 
+  FaCloudUploadAlt, 
+  FaCheck, 
+  FaExclamationTriangle 
+} from 'react-icons/fa'
+
+interface DocumentState {
+  nationalId: { file: File | null; uploaded: boolean; url?: string }
+  businessLicense: { file: File | null; uploaded: boolean; url?: string }
+  certificate: { file: File | null; uploaded: boolean; url?: string }
+}
 
 export default function UploadDocumentsPage() {
   const { user } = useAuth()
   const router = useRouter()
+  
+  const [documents, setDocuments] = useState<DocumentState>({
+    nationalId: { file: null, uploaded: false },
+    businessLicense: { file: null, uploaded: false },
+    certificate: { file: null, uploaded: false }
+  })
+  
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   useEffect(() => {
     // Redirect providers to the new onboarding flow
@@ -15,6 +39,13 @@ export default function UploadDocumentsPage() {
       router.push('/provider/onboarding')
     }
   }, [user, router])
+
+  const handleFileSelect = (docType: keyof DocumentState, file: File) => {
+    setDocuments(prev => ({
+      ...prev,
+      [docType]: { ...prev[docType], file }
+    }))
+  }
 
   const handleUpload = async (docType: keyof DocumentState) => {
     const document = documents[docType]
@@ -117,10 +148,8 @@ export default function UploadDocumentsPage() {
               
               {/* Status Badge */}
               {user?.providerStatus && (
-                <span className={`px-3 py-1 text-sm font-medium rounded-full border ${
-                  RoleManager.getProviderStatusConfig(user.providerStatus as any).color
-                }`}>
-                  {RoleManager.getProviderStatusConfig(user.providerStatus as any).icon} {RoleManager.getProviderStatusConfig(user.providerStatus as any).label}
+                <span className="px-3 py-1 text-sm font-medium rounded-full border border-yellow-300 bg-yellow-100 text-yellow-800">
+                  Pending Verification
                 </span>
               )}
             </div>

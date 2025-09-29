@@ -54,11 +54,11 @@ export default function ProviderProfile() {
       // For now, we'll use the user data directly
       // In production, you'd fetch extended profile data from API
       setProfile({
-        _id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-        phone: user.phone || '',
-        profilePicture: user.profilePicture || '',
+        phone: (user as any).phone || '',
+        profilePicture: (user as any).profilePicture || '',
         bio: 'Professional service provider committed to quality work.',
         location: 'Nairobi, Kenya',
         experience: '5+ years',

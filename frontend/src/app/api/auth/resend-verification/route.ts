@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get verification details
-    const details = getVerificationDetails(token)
+    const details = await getVerificationDetails(token)
     
     if (!details) {
       return NextResponse.json(
