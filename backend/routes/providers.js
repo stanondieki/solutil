@@ -1,9 +1,71 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const ProviderService = require('../models/ProviderService');
 const { protect } = require('../middleware/auth');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+// Helper function to convert onboarding services to ProviderServices
+const convertOnboardingServicesToProviderServices = async (provider) => {
+  // Check if provider has services from onboarding
+  const onboardingServices = provider.providerProfile?.services;
+  
+  if (!onboardingServices || !Array.isArray(onboardingServices) || onboardingServices.length === 0) {
+    console.log(`No onboarding services found for provider: ${provider.email}`);
+    return;
+  }
+
+  console.log(`Converting ${onboardingServices.length} onboarding services for provider: ${provider.email}`);
+
+  // Convert each onboarding service to a ProviderService
+  for (const service of onboardingServices) {
+    try {
+      // Check if service already exists to avoid duplicates
+      const existingService = await ProviderService.findOne({
+        providerId: provider._id,
+        title: service.title,
+        category: service.category
+      });
+
+      if (existingService) {
+        console.log(`Service already exists: ${service.title} for provider: ${provider.email}`);
+        continue;
+      }
+
+      // Create ProviderService from onboarding service data
+      const providerService = new ProviderService({
+        title: service.title,
+        description: service.description || `Professional ${service.category} service`,
+        category: service.category.toLowerCase(),
+        price: parseFloat(service.price) || 0,
+        priceType: service.priceType || 'hourly',
+        duration: 60, // Default 1 hour duration
+        images: [], // Will be populated later if provider uploads images
+        isActive: true,
+        serviceArea: provider.providerProfile?.serviceAreas || [],
+        availableHours: {
+          start: provider.providerProfile?.availability?.hours?.start || '08:00',
+          end: provider.providerProfile?.availability?.hours?.end || '18:00'
+        },
+        tags: [service.category, 'professional', 'verified'],
+        providerId: provider._id,
+        // Initialize stats
+        totalBookings: 0,
+        totalRevenue: 0,
+        rating: 0,
+        reviewCount: 0
+      });
+
+      await providerService.save();
+      console.log(`Created ProviderService: ${service.title} for provider: ${provider.email}`);
+
+    } catch (error) {
+      console.error(`Error creating service ${service.title} for provider ${provider.email}:`, error);
+      // Continue with next service even if one fails
+    }
+  }
+};
 
 // @desc    Get all approved providers
 // @route   GET /api/providers
@@ -47,14 +109,40 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
   const providers = await query;
   const total = await User.countDocuments(filter);
 
+  // Map providers to include profile picture and enhanced data
+  const mappedProviders = providers.map(provider => {
+    const providerInfo = provider.providerProfile || {};
+    
+    return {
+      _id: provider._id,
+      name: provider.name,
+      email: provider.email,
+      profilePicture: provider.profilePicture || null,
+      providerProfile: {
+        experience: providerInfo.experience,
+        skills: providerInfo.skills || [],
+        hourlyRate: providerInfo.hourlyRate,
+        availability: providerInfo.availability,
+        serviceAreas: providerInfo.serviceAreas || [],
+        bio: providerInfo.bio,
+        completedJobs: providerInfo.completedJobs || 0,
+        rating: providerInfo.rating || 0,
+        reviewCount: providerInfo.reviewCount || 0,
+        services: providerInfo.services || [] // Include onboarding services
+      },
+      providerStatus: provider.providerStatus,
+      createdAt: provider.createdAt
+    };
+  });
+
   res.status(200).json({
     status: 'success',
-    results: providers.length,
+    results: mappedProviders.length,
     total,
     totalPages: Math.ceil(total / limitNum),
     currentPage: pageNum,
     data: {
-      providers
+      providers: mappedProviders
     }
   });
 }));
@@ -178,6 +266,15 @@ router.post('/:id/approve', protect, catchAsync(async (req, res, next) => {
   }
 
   await provider.save();
+
+  // Convert onboarding services to actual ProviderServices
+  try {
+    await convertOnboardingServicesToProviderServices(provider);
+    logger.info(`Converted onboarding services for approved provider: ${provider.email}`);
+  } catch (error) {
+    logger.error(`Error converting onboarding services for ${provider.email}:`, error);
+    // Don't fail the approval if service conversion fails
+  }
 
   res.status(200).json({
     status: 'success',

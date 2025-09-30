@@ -146,6 +146,13 @@ const userSchema = new mongoose.Schema({
     },
     serviceAreas: [String], // Cities/areas they serve
     bio: String,
+    services: [{ // Services created during onboarding
+      title: String,
+      description: String,
+      category: String,
+      price: Number,
+      priceType: { type: String, enum: ['fixed', 'hourly', 'quote'], default: 'hourly' }
+    }],
     completedJobs: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 }

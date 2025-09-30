@@ -116,7 +116,7 @@ router.put('/profile', protect, catchAsync(async (req, res, next) => {
     return next(new AppError('Only providers can update provider profile', 403));
   }
 
-  const { experience, skills, hourlyRate, availability, serviceAreas, bio } = req.body;
+  const { experience, skills, hourlyRate, availability, serviceAreas, bio, services, profilePhoto } = req.body;
 
   // Validation
   if (!experience || !skills || !hourlyRate || !serviceAreas || !bio || !availability) {
@@ -144,16 +144,29 @@ router.put('/profile', protect, catchAsync(async (req, res, next) => {
   }
 
   try {
+    // Prepare update data
+    const updateData = {
+      'providerProfile.experience': experience,
+      'providerProfile.skills': skills,
+      'providerProfile.hourlyRate': parseFloat(hourlyRate),
+      'providerProfile.availability': availability,
+      'providerProfile.serviceAreas': serviceAreas,
+      'providerProfile.bio': bio
+    };
+
+    // Include services if provided (from onboarding)
+    if (services && Array.isArray(services) && services.length > 0) {
+      updateData['providerProfile.services'] = services;
+    }
+
+    // Include profile photo if provided (from onboarding)
+    if (profilePhoto && profilePhoto.url) {
+      updateData['profilePicture'] = profilePhoto.url;
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      {
-        'providerProfile.experience': experience,
-        'providerProfile.skills': skills,
-        'providerProfile.hourlyRate': parseFloat(hourlyRate),
-        'providerProfile.availability': availability,
-        'providerProfile.serviceAreas': serviceAreas,
-        'providerProfile.bio': bio
-      },
+      updateData,
       { new: true, runValidators: true }
     );
 
