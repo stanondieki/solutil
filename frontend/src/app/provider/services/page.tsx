@@ -240,13 +240,13 @@ const MyServicesPage: React.FC = () => {
                   <p className="text-gray-600 mt-1">Manage your service offerings</p>
                 </div>
               </div>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="bg-orange-600 text-white px-6 py-3 rounded-xl hover:bg-orange-700 font-medium transition-colors flex items-center space-x-2 shadow-lg hover:shadow-xl"
-              >
-                <FaPlus className="h-5 w-5" />
-                <span>Add Service</span>
-              </button>
+              <div className="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl border border-gray-300 flex items-center space-x-3">
+                <FaTools className="h-5 w-5" />
+                <div className="text-sm">
+                  <p className="font-medium">Services created during onboarding</p>
+                  <p className="text-xs">Contact admin to modify services</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
