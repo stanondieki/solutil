@@ -277,13 +277,50 @@ export default function ProviderOnboardingPage() {
   const saveProfile = async () => {
     setIsLoading(true)
     try {
+      let profilePhotoUrl = ''
+      
+      // Upload profile photo first if selected
+      if (profile.profilePhoto.file) {
+        const photoFormData = new FormData()
+        photoFormData.append('profilePicture', profile.profilePhoto.file)
+        
+        const photoResponse = await fetch('/api/upload/profile-picture', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          },
+          body: photoFormData
+        })
+
+        if (photoResponse.ok) {
+          const photoData = await photoResponse.json()
+          profilePhotoUrl = photoData.data?.url || ''
+          
+          // Update profile state with uploaded photo URL
+          setProfile(prev => ({
+            ...prev,
+            profilePhoto: {
+              ...prev.profilePhoto,
+              uploaded: true,
+              url: profilePhotoUrl
+            }
+          }))
+        }
+      }
+
+      // Prepare profile data including services and photo
+      const profileData = {
+        ...profile,
+        profilePhoto: profilePhotoUrl ? { url: profilePhotoUrl } : undefined
+      }
+
       const response = await fetch('/api/provider/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify(profile)
+        body: JSON.stringify(profileData)
       })
 
       if (!response.ok) {
