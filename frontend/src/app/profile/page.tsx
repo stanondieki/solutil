@@ -90,8 +90,10 @@ interface User {
   userType: 'client' | 'provider' | 'admin'
   isVerified: boolean
   providerStatus?: 'pending' | 'verified' | 'rejected'
-  avatar?: string
-  profilePicture?: string
+  avatar?: {
+    public_id?: string
+    url?: string
+  }
   createdAt: string
   lastLogin?: string
   preferences?: {
@@ -287,14 +289,14 @@ export default function ProfilePage() {
 
         if (response.ok) {
           // Update user state with new avatar
-          setUser(prev => prev ? { ...prev, avatar: urls[0] } : null)
+          setUser(prev => prev ? { ...prev, avatar: { url: urls[0] } } : null)
           toast.success('Profile picture updated successfully!')
           
           // Update localStorage
           const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
           localStorage.setItem('user', JSON.stringify({
             ...currentUser,
-            avatar: urls[0]
+            avatar: { url: urls[0] }
           }))
         } else {
           throw new Error('Failed to update profile picture')
@@ -309,14 +311,14 @@ export default function ProfilePage() {
   }
 
   const handleAvatarUploadComplete = (imageUrl: string) => {
-    // Update user state with new profile picture
-    setUser(prev => prev ? { ...prev, profilePicture: imageUrl } : null)
+    // Update user state with new avatar (matches User model schema)
+    setUser(prev => prev ? { ...prev, avatar: { url: imageUrl } } : null)
     
     // Update localStorage if needed
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
     localStorage.setItem('user', JSON.stringify({
       ...currentUser,
-      profilePicture: imageUrl
+      avatar: { url: imageUrl }
     }))
   }
 
@@ -404,7 +406,7 @@ export default function ProfilePage() {
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 px-6 py-8 text-center">
                 <div className="relative inline-block mb-4">
                   <ProfileImageUpload
-                    currentImage={getSafeAvatarUrl(user.avatar) || user.profilePicture}
+                    currentImage={getSafeAvatarUrl(user.avatar?.url)}
                     userName={user.name || 'User'}
                     onUploadComplete={handleAvatarUploadComplete}
                   />
