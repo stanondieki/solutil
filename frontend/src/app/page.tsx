@@ -14,19 +14,19 @@ export default function HomePage() {
   
   const slides = [
     {
-      image: '/images/service/cleaner.jpg',
+      image: '/service/cleaner.jpg',
       alt: 'Professional Plumbing Services',
       title: 'Expert Plumbing',
       subtitle: 'Reliable pipe repairs, installations, and emergency services'
     },
     {
-      image: '/images/services/electrical.jpg', 
+      image: '/images/services/elec.jpg', 
       alt: 'Professional Electrical Services',
       title: 'Safe Electrical Work',
       subtitle: 'Professional wiring, installations, and safety inspections'
     },
     {
-      image: '/images/services/movers.jpg',
+      image: '/service/movers.jpg',
       alt: 'Professional Cleaning Services', 
       title: 'Professional Cleaning',
       subtitle: 'Deep cleaning and maintenance for homes and offices'
@@ -38,7 +38,7 @@ export default function HomePage() {
       subtitle: 'Custom furniture, repairs, and woodworking solutions'
     },
     {
-      image: '/services/handyman.jpg',
+      image: '/service/handyman.jpg',
       alt: 'Handyman Services', 
       title: 'Handyman Solutions',
       subtitle: 'Quick fixes and general maintenance for your home'
@@ -218,10 +218,16 @@ export default function HomePage() {
       {/* Services Preview */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold text-center text-gray-900 mb-12"
+          >
             Our Professional Services
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          </motion.h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {[
               { 
                 image: '/images/services/plumbing.jpg', 
@@ -234,21 +240,36 @@ export default function HomePage() {
               { 
                 image: '/images/services/electrical.jpg', 
                 title: 'Electrical', 
-                desc: 'Safe and reliable electrical work', 
-                features: ['Wiring installation', 'Circuit repairs', 'Lighting setup'],
-                color: 'gray',
+                desc: 'Safe electrical work & TV mounting', 
+                features: ['Wiring installation', 'TV mounting', 'Circuit repairs', 'Lighting setup'],
+                color: 'blue',
                 price: 'From KES 2,000'
               },
               { 
-                image: '/images/services/cleaning.jpg', 
+                image: '/service/cleaner.jpg', 
                 title: 'Cleaning', 
                 desc: 'Professional home and office cleaning', 
                 features: ['Deep cleaning', 'Regular maintenance', 'Move-in/out cleaning'],
-                color: 'orange',
+                color: 'green',
                 price: 'From KES 1,000'
+              },
+              { 
+                image: '/service/movers.jpg', 
+                title: 'Moving', 
+                desc: 'Professional moving and relocation services', 
+                features: ['Home relocation', 'Office moving', 'Packing services', 'Secure transport'],
+                color: 'purple',
+                price: 'From KES 3,000'
               }
             ].map((service, index) => (
-              <div key={index} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-100 overflow-hidden">
+              <motion.div 
+                key={index} 
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-100 overflow-hidden"
+              >
                 <div className="relative h-48 overflow-hidden">
                   <Image 
                     src={service.image}
@@ -279,12 +300,17 @@ export default function HomePage() {
                   </ul>
                   <Link 
                     href="/auth/login"
-                    className={`w-full block text-center py-3 px-4 bg-gradient-to-r from-${service.color}-600 to-${service.color}-700 text-white rounded-lg hover:from-${service.color}-700 hover:to-${service.color}-800 transition-all font-semibold transform hover:scale-105 shadow-md`}
+                    className={`w-full block text-center py-3 px-4 text-white rounded-lg transition-all duration-300 font-semibold transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-offset-2 ${
+                      service.color === 'orange' ? 'bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 focus:ring-orange-300' :
+                      service.color === 'blue' ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-300' :
+                      service.color === 'green' ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-300' :
+                      'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 focus:ring-purple-300'
+                    }`}
                   >
                     Book Now →
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
