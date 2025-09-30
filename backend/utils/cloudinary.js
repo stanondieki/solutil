@@ -24,10 +24,10 @@ const createCloudinaryStorage = (folder, transformation = {}, allowedFormats = [
         }
       ],
       public_id: (req, file) => {
-        // Generate unique filename with document type for documents
+        // Generate unique filename
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 15);
-        const docType = req.body?.documentType || 'document';
+        const docType = req.body?.documentType || (folder === 'profiles' ? 'profile' : 'upload');
         const userId = req.user?._id || 'unknown';
         return `${folder}_${userId}_${docType}_${timestamp}_${randomString}`;
       }
