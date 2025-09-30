@@ -103,6 +103,8 @@ export default function DashboardPage() {
   const [filteredServices, setFilteredServices] = useState(services)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [dashboardData, setDashboardData] = useState<any>(null)
+  const [loadingStats, setLoadingStats] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -125,6 +127,7 @@ export default function DashboardPage() {
       if (isAuthenticated && user && !isLoading) {
         console.log('Auto-refreshing user data on dashboard mount...')
         await refreshUserData()
+        await fetchDashboardData()
       }
     }
     refreshOnMount()
@@ -135,11 +138,39 @@ export default function DashboardPage() {
     setIsRefreshing(true)
     try {
       await refreshUserData()
+      await fetchDashboardData()
       console.log('Manual refresh completed')
     } catch (error) {
       console.error('Failed to refresh user data:', error)
     } finally {
       setIsRefreshing(false)
+    }
+  }
+
+  // Fetch live dashboard data
+  const fetchDashboardData = async () => {
+    if (!user) return
+    
+    setLoadingStats(true)
+    try {
+      const token = localStorage.getItem('authToken')
+      const response = await fetch('/api/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setDashboardData(data.data)
+      } else {
+        console.error('Failed to fetch dashboard data')
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoadingStats(false)
     }
   }
 
@@ -228,40 +259,132 @@ export default function DashboardPage() {
     return baseActions
   }
 
-  // Role-based dashboard stats
+  // Role-based dashboard stats with live data
   const getDashboardStats = (): DashboardStat[] => {
     if (RoleManager.isClient(user.userType)) {
       return [
-        { label: 'Total Bookings', value: '12', icon: FaClipboardList, color: 'bg-orange-500', trend: '+2 this month' },
-        { label: 'Favorite Services', value: '5', icon: FaHeart, color: 'bg-orange-600', trend: '+1 this week' },
-        { label: 'Money Spent', value: 'KES 45,600', icon: FaCreditCard, color: 'bg-orange-700', trend: 'KES 8,200 this month' },
-        { label: 'Reviews Given', value: '8', icon: FaStar, color: 'bg-orange-400', trend: '3 pending' }
+        { 
+          label: 'Total Bookings', 
+          value: dashboardData?.totalBookings || '0', 
+          icon: FaClipboardList, 
+          color: 'bg-orange-500', 
+          trend: dashboardData?.bookingsTrend || 'No data yet' 
+        },
+        { 
+          label: 'Favorite Services', 
+          value: dashboardData?.favoriteServices || '0', 
+          icon: FaHeart, 
+          color: 'bg-orange-600', 
+          trend: dashboardData?.favoritesTrend || 'Start saving favorites' 
+        },
+        { 
+          label: 'Money Spent', 
+          value: dashboardData?.totalSpent ? `KES ${dashboardData.totalSpent.toLocaleString()}` : 'KES 0', 
+          icon: FaCreditCard, 
+          color: 'bg-orange-700', 
+          trend: dashboardData?.spendingTrend || 'No spending yet' 
+        },
+        { 
+          label: 'Reviews Given', 
+          value: dashboardData?.reviewsGiven || '0', 
+          icon: FaStar, 
+          color: 'bg-orange-400', 
+          trend: dashboardData?.reviewsTrend || 'No reviews yet' 
+        }
       ]
     }
 
     if (RoleManager.isProvider(user.userType)) {
       if (user.providerStatus !== 'approved') {
         return [
-          { label: 'Application Status', value: RoleManager.getProviderStatusConfig(user.providerStatus || 'pending').label, icon: FaClock, color: 'bg-yellow-500' },
-          { label: 'Documents', value: 'Required', icon: FaUpload, color: 'bg-orange-500' },
-          { label: 'Next Step', value: 'Complete Setup', icon: FaCheck, color: 'bg-orange-600' },
-          { label: 'Support', value: 'Available', icon: FaUser, color: 'bg-orange-400' }
+          { 
+            label: 'Application Status', 
+            value: RoleManager.getProviderStatusConfig(user.providerStatus || 'pending').label, 
+            icon: FaClock, 
+            color: 'bg-yellow-500' 
+          },
+          { 
+            label: 'Documents', 
+            value: dashboardData?.documentsUploaded ? `${dashboardData.documentsUploaded}/4` : 'Required', 
+            icon: FaUpload, 
+            color: 'bg-orange-500' 
+          },
+          { 
+            label: 'Profile Completion', 
+            value: dashboardData?.profileCompletion ? `${dashboardData.profileCompletion}%` : '0%', 
+            icon: FaCheck, 
+            color: 'bg-orange-600' 
+          },
+          { 
+            label: 'Support', 
+            value: 'Available', 
+            icon: FaUser, 
+            color: 'bg-orange-400' 
+          }
         ]
       }
       return [
-        { label: 'Total Bookings', value: '28', icon: FaClipboardList, color: 'bg-orange-500', trend: '+4 this week' },
-        { label: 'This Month', value: 'KES 156,000', icon: FaCreditCard, color: 'bg-orange-600', trend: '+12% from last month' },
-        { label: 'Rating', value: '4.9', icon: FaStar, color: 'bg-orange-400', trend: 'Based on 89 reviews' },
-        { label: 'Active Services', value: '6', icon: FaTools, color: 'bg-orange-700', trend: '2 pending approval' }
+        { 
+          label: 'Total Bookings', 
+          value: dashboardData?.totalBookings || '0', 
+          icon: FaClipboardList, 
+          color: 'bg-orange-500', 
+          trend: dashboardData?.bookingsTrend || 'No bookings yet' 
+        },
+        { 
+          label: 'This Month Earnings', 
+          value: dashboardData?.monthlyEarnings ? `KES ${dashboardData.monthlyEarnings.toLocaleString()}` : 'KES 0', 
+          icon: FaCreditCard, 
+          color: 'bg-orange-600', 
+          trend: dashboardData?.earningsTrend || 'No earnings yet' 
+        },
+        { 
+          label: 'Rating', 
+          value: dashboardData?.averageRating || '0.0', 
+          icon: FaStar, 
+          color: 'bg-orange-400', 
+          trend: dashboardData?.ratingTrend || 'No ratings yet' 
+        },
+        { 
+          label: 'Active Services', 
+          value: dashboardData?.activeServices || '0', 
+          icon: FaTools, 
+          color: 'bg-orange-700', 
+          trend: dashboardData?.servicesTrend || 'Add services' 
+        }
       ]
     }
 
     if (RoleManager.isAdmin(user.userType)) {
       return [
-        { label: 'Total Users', value: '2,847', icon: FaUsers, color: 'bg-orange-500', trend: '+127 this month' },
-        { label: 'Active Providers', value: '156', icon: FaTools, color: 'bg-orange-600', trend: '+12 this week' },
-        { label: 'Total Revenue', value: 'KES 890,000', icon: FaCreditCard, color: 'bg-orange-700', trend: '+8.2% this month' },
-        { label: 'Pending Reviews', value: '23', icon: FaClock, color: 'bg-orange-400', trend: '5 urgent' }
+        { 
+          label: 'Total Users', 
+          value: dashboardData?.totalUsers || '0', 
+          icon: FaUsers, 
+          color: 'bg-orange-500', 
+          trend: dashboardData?.usersTrend || 'No data' 
+        },
+        { 
+          label: 'Active Providers', 
+          value: dashboardData?.activeProviders || '0', 
+          icon: FaTools, 
+          color: 'bg-orange-600', 
+          trend: dashboardData?.providersTrend || 'No providers' 
+        },
+        { 
+          label: 'Total Revenue', 
+          value: dashboardData?.totalRevenue ? `KES ${dashboardData.totalRevenue.toLocaleString()}` : 'KES 0', 
+          icon: FaCreditCard, 
+          color: 'bg-orange-700', 
+          trend: dashboardData?.revenueTrend || 'No revenue' 
+        },
+        { 
+          label: 'Pending Reviews', 
+          value: dashboardData?.pendingReviews || '0', 
+          icon: FaClock, 
+          color: 'bg-orange-400', 
+          trend: dashboardData?.reviewsTrend || 'No pending reviews' 
+        }
       ]
     }
 
@@ -321,8 +444,20 @@ export default function DashboardPage() {
 
               {/* User Profile */}
               <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
+                  {(user as any).avatar?.url ? (
+                    <Image
+                      src={(user as any).avatar.url}
+                      alt={user.name || 'User'}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white font-semibold text-sm">
+                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-medium text-gray-900">{user.name}</p>
@@ -441,26 +576,44 @@ export default function DashboardPage() {
 
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {dashboardStats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
-            >
-              <div className="flex items-center">
-                <div className={`p-3 rounded-xl ${stat.color} text-white mr-4`}>
-                  <stat.icon className="h-6 w-6" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  {stat.trend && <p className="text-xs text-gray-500 mt-1">{stat.trend}</p>}
+          {loadingStats ? (
+            // Loading skeleton for stats
+            [...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-xl bg-gray-200 mr-4 animate-pulse">
+                    <div className="h-6 w-6 bg-gray-300 rounded"></div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                    <div className="h-6 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
+                    <div className="h-2 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            ))
+          ) : (
+            dashboardStats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
+              >
+                <div className="flex items-center">
+                  <div className={`p-3 rounded-xl ${stat.color} text-white mr-4`}>
+                    <stat.icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{stat.label}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                    {stat.trend && <p className="text-xs text-gray-500 mt-1">{stat.trend}</p>}
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
 
         {/* Quick Actions */}
