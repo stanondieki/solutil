@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'  # Changed from 22.x to 18.x for Azure compatibility
+          node-version: '22.x'  # Match Azure's detected version
 
       - name: Install dependencies
         working-directory: ./backend  # Specify backend directory
