@@ -180,7 +180,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ providerId, onClose }) 
   const viewDocument = async (documentType: string, portfolioIndex?: number) => {
     try {
       const token = localStorage.getItem('authToken')
-      let url = `/api/admin/providers/${providerId}/documents/${documentType}/view`
+      const url = `/api/admin/providers/${providerId}/documents/${documentType}/view`
       
       const response = await fetch(url, {
         headers: {

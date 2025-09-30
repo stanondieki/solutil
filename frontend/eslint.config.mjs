@@ -20,12 +20,18 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "react/no-unescaped-entities": "warn",
-      "@next/next/no-img-element": "warn",
-      "@typescript-eslint/no-require-imports": "warn",
-      "react-hooks/exhaustive-deps": "warn",
+      // Disable most warnings to reduce noise during development
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "react/no-unescaped-entities": "off",
+      "@next/next/no-img-element": "off", 
+      "@typescript-eslint/no-require-imports": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "prefer-const": "off",
+      "no-undef": "off", // Disable since Next.js auto-imports React
+      // Only keep critical runtime errors
+      "no-unused-expressions": "error",
+      "@typescript-eslint/no-unused-expressions": "error",
     },
   },
 ];

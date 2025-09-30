@@ -4,41 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/AdminLayout'
 import DocumentViewer from '../../../components/admin/DocumentViewer'
-
-interface ServiceProvider {
-  id: string
-  name: string
-  email: string
-  phone: string
-  services: string[]
-  rating: number
-  totalJobs: number
-  status: 'pending' | 'approved' | 'suspended' | 'under_review' | 'rejected'
-  joinDate: string
-  location: string
-  experience: string
-  hourlyRate: number
-  bio: string
-  availability: {
-    days: string[]
-    hours: { start: string; end: string }
-  }
-  serviceAreas: string[]
-  documents: {
-    nationalId: { uploaded: Date | null; verified: boolean; url?: string }
-    businessLicense: { uploaded: Date | null; verified: boolean; url?: string }
-    certificate: { uploaded: Date | null; verified: boolean; url?: string }
-    goodConductCertificate: { uploaded: Date | null; verified: boolean; url?: string }
-  }
-  verification: {
-    idVerified: boolean
-    businessVerified: boolean
-    certificateVerified: boolean
-    goodConductVerified: boolean
-    phoneVerified: boolean
-    emailVerified: boolean
-  }
-}
+import type { ServiceProvider, RawProvider, ProviderVerification } from '../../../types/admin'
 
 export default function AdminProvidersPage() {
   const [providers, setProviders] = useState<ServiceProvider[]>([])
@@ -68,8 +34,7 @@ export default function AdminProvidersPage() {
         const data = await response.json()
         // Map backend provider data to frontend format
         const providers = data.users || data.data?.users || []
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mappedProviders = providers.filter((p: any) => p.userType === 'provider').map((p: any) => ({
+        const mappedProviders = providers.filter((p: RawProvider) => p.userType === 'provider').map((p: RawProvider): ServiceProvider => ({
           id: p._id,
           name: p.name,
           email: p.email,
@@ -77,8 +42,8 @@ export default function AdminProvidersPage() {
           services: p.providerProfile?.skills || [],
           rating: p.providerProfile?.rating || 0,
           totalJobs: p.providerProfile?.completedJobs || 0,
-          status: p.providerStatus || 'pending',
-          joinDate: p.createdAt,
+          status: (p.providerStatus as ServiceProvider['status']) || 'pending',
+          joinDate: p.createdAt || new Date().toISOString(),
           location: p.address?.city ? `${p.address.city}, ${p.address.country || 'Kenya'}` : '',
           experience: p.providerProfile?.experience || '',
           hourlyRate: p.providerProfile?.hourlyRate || 0,
@@ -199,8 +164,7 @@ export default function AdminProvidersPage() {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getVerificationScore = (verification: any) => {
+  const getVerificationScore = (verification: ProviderVerification) => {
     // Focus on document verification (4 documents) + email verification
     const documentVerifications = [
       verification.idVerified,
