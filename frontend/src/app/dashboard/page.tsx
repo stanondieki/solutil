@@ -8,7 +8,6 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { RoleManager } from '@/lib/roles'
 import RoleGuard from '@/components/RoleGuard'
-import LogoutConfirmModal from '@/components/LogoutConfirmModal'
 import { 
   FaSearch,
   FaWrench,
@@ -32,7 +31,12 @@ import {
   FaUpload,
   FaSignOutAlt,
   FaHome,
-  FaArrowRight
+  FaArrowRight,
+  FaChevronDown,
+  FaShieldAlt,
+  FaPowerOff,
+  FaExclamationTriangle,
+  FaRocket
 } from 'react-icons/fa'
 
 // TypeScript interfaces
@@ -101,7 +105,8 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, logout, refreshUserData } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredServices, setFilteredServices] = useState(services)
-  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showLogoutDropdown, setShowLogoutDropdown] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [dashboardData, setDashboardData] = useState<any>(null)
   const [loadingStats, setLoadingStats] = useState(true)
@@ -145,6 +150,71 @@ export default function DashboardPage() {
     } finally {
       setIsRefreshing(false)
     }
+  }
+
+  // New Enhanced Logout Functions
+  const handleQuickLogout = async () => {
+    setIsLoggingOut(true)
+    setShowLogoutDropdown(false)
+    
+    try {
+      // Clear local data immediately for quick logout
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('user')
+      sessionStorage.clear()
+      
+      // Show logout success message
+      console.log('🚀 Quick logout completed')
+      
+      // Redirect to login
+      router.push('/auth/login')
+      
+      // Call logout API in background (fire and forget)
+      logout().catch(error => {
+        console.warn('Background logout API call failed:', error)
+      })
+    } catch (error) {
+      console.error('Quick logout failed:', error)
+      // Force redirect even if logout fails
+      window.location.replace('/auth/login')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const handleSecureLogout = async () => {
+    setIsLoggingOut(true)
+    setShowLogoutDropdown(false)
+    
+    try {
+      console.log('🔒 Secure logout initiated')
+      
+      // Call proper logout API first
+      await logout()
+      
+      console.log('✅ Secure logout completed successfully')
+    } catch (error) {
+      console.error('Secure logout failed:', error)
+      
+      // Emergency cleanup if API fails
+      localStorage.clear()
+      sessionStorage.clear()
+      window.location.replace('/auth/login')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const handleEmergencyLogout = async () => {
+    console.log('🚨 Emergency logout activated!')
+    setIsLoggingOut(true)
+    
+    // Force immediate cleanup
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    // Force redirect
+    window.location.replace('/auth/login')
   }
 
   // Fetch live dashboard data
@@ -212,7 +282,7 @@ export default function DashboardPage() {
         { name: 'Book Service', icon: FaCalendarAlt, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Schedule instantly', href: '/booking/plumbing' },
         { name: 'My Bookings', icon: FaClipboardList, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'View & manage bookings', href: '/bookings' },
         { name: 'Emergency', icon: FaFire, color: 'bg-gradient-to-r from-red-500 to-orange-600', description: '24/7 urgent services', href: '/services?emergency=true' },
-        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout securely', href: '#', onClick: () => setShowLogoutModal(true) }
+        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout options', href: '#', onClick: () => setShowLogoutDropdown(true) }
       ]
     }
 
@@ -241,7 +311,7 @@ export default function DashboardPage() {
       
       providerActions.push(
         { name: 'My Profile', icon: FaUser, color: 'bg-gradient-to-r from-gray-500 to-gray-600', description: 'Manage profile', href: '/profile' },
-        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout securely', href: '#', onClick: () => setShowLogoutModal(true) }
+        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout options', href: '#', onClick: () => setShowLogoutDropdown(true) }
       );
       return providerActions;
     }
@@ -252,7 +322,7 @@ export default function DashboardPage() {
         { name: 'Users', icon: FaUsers, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Manage users', href: '/admin/users' },
         { name: 'Providers', icon: FaTools, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'Provider management', href: '/admin/providers' },
         { name: 'Analytics', icon: FaChartLine, color: 'bg-gradient-to-r from-orange-600 to-red-600', description: 'System analytics', href: '/admin/analytics' },
-        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout securely', href: '#', onClick: () => setShowLogoutModal(true) }
+        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout options', href: '#', onClick: () => setShowLogoutDropdown(true) }
       ]
     }
 
@@ -468,25 +538,94 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Logout */}
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                onDoubleClick={async () => {
-                  console.log('🚨 Double-click detected - Emergency logout!')
-                  try {
-                    await logout()
-                  } catch (error) {
-                    console.error('Emergency logout failed:', error)
-                    localStorage.clear()
-                    sessionStorage.clear()
-                    window.location.replace('/auth/login')
-                  }
-                }}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Sign out (Double-click for immediate logout)"
-              >
-                <FaSignOutAlt className="h-5 w-5" />
-              </button>
+              {/* New Logout Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowLogoutDropdown(!showLogoutDropdown)}
+                  disabled={isLoggingOut}
+                  className={`p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 flex items-center space-x-1 ${
+                    isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${showLogoutDropdown ? 'bg-red-50 text-red-600' : ''}`}
+                  title="Logout Options"
+                >
+                  {isLoggingOut ? (
+                    <div className="animate-spin h-5 w-5 border-2 border-red-500 border-t-transparent rounded-full"></div>
+                  ) : (
+                    <>
+                      <FaSignOutAlt className="h-4 w-4" />
+                      <FaChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+
+                {/* Logout Dropdown Menu */}
+                {showLogoutDropdown && !isLoggingOut && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden"
+                  >
+                    <div className="p-3 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-900">Logout Options</h3>
+                      <p className="text-xs text-gray-500 mt-1">Choose how you want to sign out</p>
+                    </div>
+                    
+                    <div className="p-2">
+                      {/* Quick Logout */}
+                      <button
+                        onClick={handleQuickLogout}
+                        className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-orange-50 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                          <FaPowerOff className="h-4 w-4 text-orange-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Quick Logout</p>
+                          <p className="text-xs text-gray-500">Fast local cleanup & redirect</p>
+                        </div>
+                      </button>
+
+                      {/* Secure Logout */}
+                      <button
+                        onClick={handleSecureLogout}
+                        className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-blue-50 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                          <FaShieldAlt className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Secure Logout</p>
+                          <p className="text-xs text-gray-500">Proper server-side session cleanup</p>
+                        </div>
+                      </button>
+
+                      {/* Emergency Logout */}
+                      <button
+                        onClick={handleEmergencyLogout}
+                        className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-red-50 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                          <FaExclamationTriangle className="h-4 w-4 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Emergency Logout</p>
+                          <p className="text-xs text-gray-500">Force logout (if something's wrong)</p>
+                        </div>
+                      </button>
+                    </div>
+                    
+                    <div className="p-3 bg-gray-50 border-t border-gray-100">
+                      <button
+                        onClick={() => setShowLogoutDropdown(false)}
+                        className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -727,28 +866,64 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Logout Modal */}
-      <LogoutConfirmModal
-        isOpen={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
-        onConfirm={async () => {
-          console.log('🚪 User confirmed logout from dashboard')
-          setShowLogoutModal(false)
-          
-          try {
-            // The logout function now handles everything including redirect
-            await logout()
-          } catch (error) {
-            console.error('❌ Dashboard logout error:', error)
-            // Force redirect even if logout function fails
-            console.log('🚨 Forcing emergency logout redirect...')
-            localStorage.clear()
-            sessionStorage.clear()
-            window.location.replace('/auth/login')
-          }
-        }}
-        userName={user.name || user.email?.split('@')[0]}
-      />
+      {/* Logout Options Dropdown */}
+      {showLogoutDropdown && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <div className="flex items-center mb-4">
+              <FaSignOutAlt className="h-6 w-6 text-red-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Logout Options</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6">Choose your preferred logout method:</p>
+            
+            <div className="space-y-3">
+              {/* Quick Logout */}
+              <button
+                onClick={handleQuickLogout}
+                className="w-full flex items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors"
+              >
+                <FaRocket className="h-5 w-5 text-orange-600 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium text-gray-900">Quick Logout</div>
+                  <div className="text-sm text-gray-600">Fast logout (recommended)</div>
+                </div>
+              </button>
+
+              {/* Secure Logout */}
+              <button
+                onClick={handleSecureLogout}
+                className="w-full flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+              >
+                <FaShieldAlt className="h-5 w-5 text-blue-600 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium text-gray-900">Secure Logout</div>
+                  <div className="text-sm text-gray-600">Complete session cleanup</div>
+                </div>
+              </button>
+
+              {/* Emergency Logout */}
+              <button
+                onClick={handleEmergencyLogout}
+                className="w-full flex items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors"
+              >
+                <FaFire className="h-5 w-5 text-red-600 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium text-gray-900">Emergency Logout</div>
+                  <div className="text-sm text-gray-600">Force logout & clear all data</div>
+                </div>
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowLogoutDropdown(false)}
+              className="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
