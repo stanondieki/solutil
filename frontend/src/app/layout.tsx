@@ -17,9 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Solutil - Professional Home Services Made Simple",
+  title: "Solutil Connect - Professional Home Services Made Simple",
   description: "Professional home services including plumbing, electrical, cleaning, carpentry, and painting. Book trusted service providers in Kenya.",
   keywords: "home services, plumbing, electrical, cleaning, carpentry, painting, Kenya, Nairobi",
+  icons: {
+    icon: '/images/log.png',
+    shortcut: '/images/log.png',
+    apple: '/images/log.png',
+  },
 };
 
 export default function RootLayout({
@@ -30,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
       >
         <AuthProvider>
           {children}
@@ -39,9 +44,10 @@ export default function RootLayout({
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#1f2937',
-                color: '#fff',
-                border: '1px solid #374151'
+                background: '#ffffff',
+                color: '#1f2937',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }
             }}
           />

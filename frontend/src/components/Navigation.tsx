@@ -33,17 +33,15 @@ export default function Navigation() {
   }
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-100' : 'bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100'
-    }`}>
+    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="relative">
                 <Image 
-                  src="/images/logo.png" 
-                  alt="Solutil Logo" 
+                  src="/images/log.png" 
+                  alt="Solutil Connect Logo" 
                   width={60}
                   height={60}
                   className="rounded-lg object-contain transition-transform group-hover:scale-105"
@@ -57,24 +55,16 @@ export default function Navigation() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className={`transition-colors font-medium ${
-              isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-            }`}>
+            <Link href="/" className="transition-colors font-medium text-gray-900 hover:text-orange-600">
               Home
             </Link>
-            <Link href="/services" className={`transition-colors font-medium ${
-              isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-            }`}>
+            <Link href="/services" className="transition-colors font-medium text-gray-900 hover:text-orange-600">
               Services
             </Link>
-            <Link href="/about" className={`transition-colors font-medium ${
-              isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-            }`}>
+            <Link href="/about" className="transition-colors font-medium text-gray-900 hover:text-orange-600">
               About
             </Link>
-            <Link href="/contact" className={`transition-colors font-medium ${
-              isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-            }`}>
+            <Link href="/contact" className="transition-colors font-medium text-gray-900 hover:text-orange-600">
               Contact
             </Link>
             
@@ -89,7 +79,7 @@ export default function Navigation() {
                     className={`transition-colors font-medium ${
                       item.href === '/dashboard' 
                         ? `flex items-center space-x-2 ${isScrolled ? 'text-orange-400 hover:text-orange-300' : 'text-orange-400 hover:text-orange-300'}`
-                        : `${isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'}`
+                        : 'text-gray-900 hover:text-orange-600'
                     }`}
                   >
                     {item.href === '/dashboard' && <FaTachometerAlt className="text-sm" />}
@@ -98,9 +88,7 @@ export default function Navigation() {
                 ))}
                 
                 <div className="relative group">
-                  <button className={`transition-colors font-medium flex items-center space-x-2 ${
-                    isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-                  }`}>
+                  <button className="transition-colors font-medium flex items-center space-x-2 text-gray-900 hover:text-orange-600">
                     <FaUser className="text-sm" />
                     <span>{user?.name || user?.email?.split('@')[0] || 'Profile'}</span>
                     {/* Role badge */}
@@ -174,9 +162,7 @@ export default function Navigation() {
             ) : (
               // Guest navigation
               <>
-                <Link href="/auth/login" className={`transition-colors font-medium ${
-                  isScrolled ? 'text-orange-600 hover:text-orange-700' : 'text-orange-600 hover:text-orange-700'
-                }`}>
+                <Link href="/auth/login" className="transition-colors font-medium text-orange-600 hover:text-orange-700">
                   Login
                 </Link>
                 <Link 
@@ -193,9 +179,7 @@ export default function Navigation() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`focus:outline-none focus:ring-2 focus:ring-orange-500 p-2 transition-colors ${
-                isScrolled ? 'text-gray-900 hover:text-orange-600' : 'text-gray-900 hover:text-orange-600'
-              }`}
+              className="focus:outline-none focus:ring-2 focus:ring-orange-500 p-2 transition-colors text-gray-900 hover:text-orange-600"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -210,9 +194,7 @@ export default function Navigation() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className={`md:hidden border-t transition-colors ${
-            isScrolled ? 'bg-white/95 border-gray-200' : 'bg-white/90 border-gray-200'
-          }`}>
+          <div className="md:hidden border-t bg-white border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link 
                 href="/" 
@@ -227,11 +209,7 @@ export default function Navigation() {
               </Link>
               <Link 
                 href="/services" 
-                className={`block px-3 py-2 rounded-md transition-colors ${
-                  isScrolled 
-                    ? 'text-gray-900 hover:text-orange-600 hover:bg-orange-50' 
-                    : 'text-gray-900 hover:text-orange-600 hover:bg-orange-50'
-                }`}
+                className="block px-3 py-2 rounded-md transition-colors text-gray-900 hover:text-orange-600 hover:bg-orange-50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Services
@@ -264,11 +242,7 @@ export default function Navigation() {
                 <>
                   <Link 
                     href="/dashboard" 
-                    className={`block px-3 py-2 rounded-md transition-colors font-medium flex items-center space-x-2 ${
-                      isScrolled 
-                        ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50' 
-                        : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
-                    }`}
+                    className="block px-3 py-2 rounded-md transition-colors font-medium flex items-center space-x-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <FaTachometerAlt className="text-sm" />
@@ -276,11 +250,7 @@ export default function Navigation() {
                   </Link>
                   <Link 
                     href="/bookings" 
-                    className={`block px-3 py-2 rounded-md transition-colors ${
-                      isScrolled 
-                        ? 'text-gray-900 hover:text-orange-600 hover:bg-orange-50' 
-                        : 'text-gray-900 hover:text-orange-600 hover:bg-orange-50'
-                    }`}
+                    className="block px-3 py-2 rounded-md transition-colors text-gray-900 hover:text-orange-600 hover:bg-orange-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Bookings
@@ -301,11 +271,7 @@ export default function Navigation() {
                 <>
                   <Link 
                     href="/auth/login" 
-                    className={`block px-3 py-2 rounded-md transition-colors font-medium ${
-                      isScrolled 
-                        ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50' 
-                        : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
-                    }`}
+                    className="block px-3 py-2 rounded-md transition-colors font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login

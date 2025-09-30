@@ -9,25 +9,39 @@ import Footer from '../components/Footer'
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
   
   const slides = [
     {
-      image: '/images/services/plumb.jpg',
+      image: '/images/services/plumbing.jpg',
       alt: 'Professional Plumbing Services',
       title: 'Expert Plumbing',
-      subtitle: 'Reliable pipe repairs, installations, and maintenance'
+      subtitle: 'Reliable pipe repairs, installations, and emergency services'
     },
     {
-      image: '/images/services/elec.jpg', 
+      image: '/images/services/electrical.jpg', 
       alt: 'Professional Electrical Services',
       title: 'Safe Electrical Work',
-      subtitle: 'Professional wiring, installations, and troubleshooting'
+      subtitle: 'Professional wiring, installations, and safety inspections'
     },
     {
-      image: '/images/services/clean.jpg',
+      image: '/images/services/cleaning.jpg',
       alt: 'Professional Cleaning Services', 
       title: 'Professional Cleaning',
       subtitle: 'Deep cleaning and maintenance for homes and offices'
+    },
+    {
+      image: '/images/services/carpentry.jpg',
+      alt: 'Professional Carpentry Services', 
+      title: 'Expert Carpentry',
+      subtitle: 'Custom furniture, repairs, and woodworking solutions'
+    },
+    {
+      image: '/services/handyman.jpg',
+      alt: 'Handyman Services', 
+      title: 'Handyman Solutions',
+      subtitle: 'Quick fixes and general maintenance for your home'
     }
   ]
 
@@ -51,12 +65,37 @@ export default function HomePage() {
   const goToSlide = (index: number) => {
     setCurrentSlide(index)
   }
+
+  // Touch handlers for mobile swipe
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) nextSlide()
+    if (isRightSwipe) prevSlide()
+  }
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
 
       {/* Hero Slideshow Section - First Section */}
-      <section className="relative h-screen overflow-hidden">
+      <section 
+        className="relative h-screen overflow-hidden"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {/* Background Images with Slideshow */}
         <div className="absolute inset-0">
           <div className="relative w-full h-full">
@@ -72,43 +111,47 @@ export default function HomePage() {
                   alt={slide.alt}
                   fill
                   className="object-cover object-center"
-                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  style={{ 
+                    objectFit: 'cover', 
+                    objectPosition: '50% 40%' // Better centering for service images
+                  }}
                   priority={index === 0}
+                  sizes="100vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Content Overlay */}
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl">
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="max-w-4xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="text-center lg:text-left"
+                className="text-center"
               >
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
                   Services Made
                   <span className="text-orange-400 block">Simple</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-200 mb-12">
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-8 sm:mb-12 max-w-3xl mx-auto">
                   Professional home services you can trust. From plumbing to electrical work, 
                   and professional cleaning - we connect you with vetted professionals for your essential home needs.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
                   <Link 
                     href="/auth/login"
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-300"
+                    className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-xl text-lg sm:text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-300 text-center"
                   >
                     Book a Service Now
                   </Link>
                   <Link 
                     href="/services"
-                    className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-10 py-5 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/50"
+                    className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 sm:px-10 py-4 sm:py-5 rounded-xl text-lg sm:text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/50 text-center"
                   >
                     View Services
                   </Link>
@@ -119,21 +162,21 @@ export default function HomePage() {
         </div>
 
         {/* Navigation Arrows */}
-        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20">
+        <div className="hidden sm:block absolute right-4 sm:right-6 top-1/2 transform -translate-y-1/2 z-20">
           <div className="flex flex-col gap-4">
             <button 
               onClick={prevSlide}
-              className="w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
             >
-              <svg className="w-6 h-6 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
             <button 
               onClick={nextSlide}
-              className="w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -141,14 +184,16 @@ export default function HomePage() {
         </div>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex gap-2">
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex gap-2 sm:gap-3">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentSlide ? 'bg-orange-600' : 'bg-white/50 hover:bg-white/70'
+                className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                  index === currentSlide 
+                    ? 'bg-orange-600 scale-125' 
+                    : 'bg-white/50 hover:bg-white/70 hover:scale-110'
                 }`}
               />
             ))}
@@ -156,14 +201,14 @@ export default function HomePage() {
         </div>
 
         {/* Scroll Down Indicator */}
-        <div className="absolute bottom-8 left-8 z-20">
+        <div className="hidden md:block absolute bottom-6 left-4 sm:bottom-8 sm:left-8 z-20">
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
             className="text-white/80 flex flex-col items-center"
           >
-            <span className="text-sm mb-2">Scroll Down</span>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xs sm:text-sm mb-2">Scroll Down</span>
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </motion.div>
