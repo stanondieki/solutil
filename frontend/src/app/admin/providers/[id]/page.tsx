@@ -186,6 +186,42 @@ export default function ProviderDetailPage() {
     }
   }
 
+  const handleViewDocument = async (documentType: string) => {
+    if (!provider) return
+
+    try {
+      const response = await fetch(`/api/admin/providers/${provider._id}/documents/${documentType}/view`)
+      
+      if (response.ok) {
+        const contentType = response.headers.get('content-type')
+        
+        if (contentType && contentType.includes('application/json')) {
+          // JSON response with URL
+          const data = await response.json()
+          if (data.url) {
+            window.open(data.url, '_blank')
+          } else {
+            alert('Document URL not available')
+          }
+        } else {
+          // Direct file response - create blob URL and open
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          window.open(url, '_blank')
+          
+          // Clean up the blob URL after a delay
+          setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+        }
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to load document')
+      }
+    } catch (error) {
+      console.error('Error viewing document:', error)
+      alert(`Failed to view document: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
   if (loading) {
     return (
       <RoleGuard requiredRole="admin">
@@ -316,9 +352,9 @@ export default function ProviderDetailPage() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          {doc.uploaded && doc.url && (
+                          {doc.uploaded && (
                             <button
-                              onClick={() => window.open(doc.url, '_blank')}
+                              onClick={() => handleViewDocument(type)}
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"
                               title="View Document"
                             >
