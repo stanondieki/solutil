@@ -110,6 +110,8 @@ export default function DashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [dashboardData, setDashboardData] = useState<any>(null)
   const [loadingStats, setLoadingStats] = useState(true)
+  const [providers, setProviders] = useState<any[]>([])
+  const [loadingProviders, setLoadingProviders] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -133,6 +135,7 @@ export default function DashboardPage() {
         console.log('Auto-refreshing user data on dashboard mount...')
         await refreshUserData()
         await fetchDashboardData()
+        await fetchProviders()
       }
     }
     refreshOnMount()
@@ -144,6 +147,7 @@ export default function DashboardPage() {
     try {
       await refreshUserData()
       await fetchDashboardData()
+      await fetchProviders()
       console.log('Manual refresh completed')
     } catch (error) {
       console.error('Failed to refresh user data:', error)
@@ -244,6 +248,37 @@ export default function DashboardPage() {
     }
   }
 
+  // Fetch live providers data
+  const fetchProviders = async () => {
+    if (!user || !RoleManager.isClient(user.userType)) return
+    
+    setLoadingProviders(true)
+    try {
+      const token = localStorage.getItem('authToken')
+      const response = await fetch('/api/providers?featured=true&limit=3', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setProviders(data.data || data.providers || [])
+      } else {
+        console.error('Failed to fetch providers data')
+        // Keep empty array as fallback
+        setProviders([])
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error)
+      // Keep empty array as fallback
+      setProviders([])
+    } finally {
+      setLoadingProviders(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -281,6 +316,7 @@ export default function DashboardPage() {
         { name: 'Browse Services', icon: FaSearch, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Find the perfect service', href: '/services' },
         { name: 'Book Service', icon: FaCalendarAlt, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Schedule instantly', href: '/booking/plumbing' },
         { name: 'My Bookings', icon: FaClipboardList, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'View & manage bookings', href: '/bookings' },
+        { name: 'My Profile', icon: FaUser, color: 'bg-gradient-to-r from-blue-500 to-blue-600', description: 'Manage profile & settings', href: '/profile' },
         { name: 'Emergency', icon: FaFire, color: 'bg-gradient-to-r from-red-500 to-orange-600', description: '24/7 urgent services', href: '/services?emergency=true' },
         { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout options', href: '#', onClick: () => setShowLogoutDropdown(true) }
       ]
@@ -707,6 +743,224 @@ export default function DashboardPage() {
                       <div className="text-6xl">🔧</div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Client-specific sections */}
+        {user && RoleManager.isClient(user.userType) && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            {/* Provider Directory - Takes up 2/3 of the space */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Featured Providers</h3>
+                  <Link 
+                    href="/providers" 
+                    className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center"
+                  >
+                    View All <FaArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                </div>
+                
+                <div className="space-y-4">
+                  {loadingProviders ? (
+                    // Loading skeleton for providers
+                    [...Array(3)].map((_, index) => (
+                      <div key={index} className="flex items-center p-4 border border-gray-100 rounded-xl animate-pulse">
+                        <div className="w-16 h-16 bg-gray-200 rounded-full mr-4"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-40"></div>
+                        </div>
+                        <div className="w-20 h-8 bg-gray-200 rounded"></div>
+                      </div>
+                    ))
+                  ) : providers.length > 0 ? (
+                    providers.map((provider) => (
+                    <div key={provider._id || provider.id} className="flex items-center p-4 border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200 cursor-pointer">
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                          {provider.profilePicture ? (
+                            <Image
+                              src={provider.profilePicture}
+                              alt={provider.name}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-orange-100">
+                              <FaUser className="h-6 w-6 text-orange-600" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+                      </div>
+                      
+                      <div className="flex-1 ml-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold text-gray-900">{provider.name}</h4>
+                          <span className="text-sm font-medium text-orange-600">
+                            {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}/hr` : 'Contact for price'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {provider.providerProfile?.experience || 'Professional Service Provider'}
+                        </p>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center">
+                            <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
+                            <span className="text-sm font-medium text-gray-700">4.8</span>
+                            <span className="text-sm text-gray-500 ml-1">(Reviews)</span>
+                          </div>
+                          <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                            Available
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {provider.providerProfile?.skills?.slice(0, 2).map((skill: string, idx: number) => (
+                            <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                              {skill}
+                            </span>
+                          ))}
+                          {provider.providerProfile?.skills?.length > 2 && (
+                            <span className="text-xs text-gray-500">+{provider.providerProfile.skills.length - 2} more</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="ml-4">
+                        <Link 
+                          href={`/booking/${provider.id}`}
+                          className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+                        >
+                          Book Now
+                        </Link>
+                      </div>
+                    </div>
+                    ))
+                  ) : (
+                    // Empty state when no providers
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FaUsers className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">No Providers Available</h4>
+                      <p className="text-gray-600 mb-4">We're working on getting more service providers in your area.</p>
+                      <Link 
+                        href="/services"
+                        className="inline-flex items-center bg-orange-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+                      >
+                        Browse Services
+                      </Link>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <Link 
+                    href="/providers"
+                    className="inline-flex items-center bg-orange-100 text-orange-700 px-6 py-3 rounded-xl font-medium hover:bg-orange-200 transition-all duration-200"
+                  >
+                    <FaUsers className="mr-2 h-4 w-4" />
+                    Browse All Providers
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Client Profile Section - Takes up 1/3 of the space */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-gray-900">My Profile</h3>
+                  <Link 
+                    href="/profile" 
+                    className="text-orange-600 hover:text-orange-700 font-medium text-sm"
+                  >
+                    Edit
+                  </Link>
+                </div>
+                
+                <div className="text-center mb-6">
+                  <div className="relative inline-block">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 mx-auto mb-4">
+                      {(user as any).profilePicture ? (
+                        <Image
+                          src={(user as any).profilePicture}
+                          alt={user.name}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-orange-100">
+                          <FaUser className="h-8 w-8 text-orange-600" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute bottom-3 right-0 w-6 h-6 bg-green-500 border-2 border-white rounded-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                  </div>
+                  
+                  <h4 className="font-semibold text-gray-900 mb-1">{user.name}</h4>
+                  <p className="text-sm text-gray-600 mb-4">{user.email}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">
+                        {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
+                      </div>
+                      <div className="text-xs text-gray-500">Bookings</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">4.8</div>
+                      <div className="text-xs text-gray-500">Rating</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <Link 
+                    href="/profile"
+                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
+                  >
+                    <FaUser className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
+                    <span className="text-sm font-medium">Edit Profile</span>
+                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                  
+                  <Link 
+                    href="/bookings"
+                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
+                  >
+                    <FaClipboardList className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
+                    <span className="text-sm font-medium">My Bookings</span>
+                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                  
+                  <Link 
+                    href="/favorites"
+                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
+                  >
+                    <FaHeart className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
+                    <span className="text-sm font-medium">Saved Providers</span>
+                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                  
+                  <button 
+                    onClick={() => setShowLogoutDropdown(true)}
+                    className="w-full flex items-center p-3 bg-red-50 rounded-lg hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 group"
+                  >
+                    <FaSignOutAlt className="h-4 w-4 mr-3" />
+                    <span className="text-sm font-medium">Logout</span>
+                  </button>
                 </div>
               </div>
             </div>

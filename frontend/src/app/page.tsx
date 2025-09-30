@@ -20,7 +20,7 @@ export default function HomePage() {
       subtitle: 'Reliable pipe repairs, installations, and emergency services'
     },
     {
-      image: '/images/services/elec.jpg', 
+      image: '/images/services/electrical.jpg', 
       alt: 'Professional Electrical Services',
       title: 'Safe Electrical Work',
       subtitle: 'Professional wiring, installations, and safety inspections'
