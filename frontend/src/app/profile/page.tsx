@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import CloudinaryUpload from '@/components/CloudinaryUpload'
+import ProfileImageUpload from '@/components/ProfileImageUpload'
 import { toast } from 'react-hot-toast'
 import { 
   FaUser, 
@@ -91,6 +91,7 @@ interface User {
   isVerified: boolean
   providerStatus?: 'pending' | 'verified' | 'rejected'
   avatar?: string
+  profilePicture?: string
   createdAt: string
   lastLogin?: string
   preferences?: {
@@ -295,6 +296,18 @@ export default function ProfilePage() {
     }
   }
 
+  const handleAvatarUploadComplete = (imageUrl: string) => {
+    // Update user state with new profile picture
+    setUser(prev => prev ? { ...prev, profilePicture: imageUrl } : null)
+    
+    // Update localStorage if needed
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+    localStorage.setItem('user', JSON.stringify({
+      ...currentUser,
+      profilePicture: imageUrl
+    }))
+  }
+
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'verified': return 'text-green-600 bg-green-100'
@@ -378,40 +391,11 @@ export default function ProfilePage() {
               {/* Profile Header */}
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 px-6 py-8 text-center">
                 <div className="relative inline-block mb-4">
-                  <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-white text-3xl font-bold border-4 border-white/30">
-                    {getSafeAvatarUrl(user.avatar) ? (
-                      <Image 
-                        src={getSafeAvatarUrl(user.avatar)!} 
-                        alt={user.name}
-                        width={96}
-                        height={96}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      getUserInitials(user.name)
-                    )}
-                  </div>
-                  
-                  {/* Profile Picture Upload */}
-                  <div className="absolute bottom-0 right-0">
-                    <CloudinaryUpload
-                      onUploadComplete={handleAvatarUpload}
-                      maxFiles={1}
-                      folder="profiles"
-                      className="w-8 h-8"
-                    >
-                      <button 
-                        disabled={uploadingAvatar}
-                        className="w-8 h-8 bg-white text-orange-500 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                      >
-                        {uploadingAvatar ? (
-                          <FaSpinner className="text-sm animate-spin" />
-                        ) : (
-                          <FaCamera className="text-sm" />
-                        )}
-                      </button>
-                    </CloudinaryUpload>
-                  </div>
+                  <ProfileImageUpload
+                    currentImage={getSafeAvatarUrl(user.avatar) || user.profilePicture}
+                    userName={user.name || 'User'}
+                    onUploadComplete={handleAvatarUploadComplete}
+                  />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-1">{user.name}</h3>
                 <p className="text-orange-100 text-sm">{user.email}</p>

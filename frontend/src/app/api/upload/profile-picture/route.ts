@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Get image from form data
     const formData = await request.formData();
-    const image = formData.get('image') as File;
+    const image = formData.get('profilePicture') as File;
 
     if (!image) {
       return NextResponse.json(
