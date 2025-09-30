@@ -1,0 +1,3 @@
+# Placeholder file to ensure logs directory exists
+# This prevents deployment errors related to missing logs directory
+# The actual log files will be created by the application at runtime

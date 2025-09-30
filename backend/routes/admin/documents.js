@@ -1,8 +1,8 @@
 const express = require('express');
-const { protect, restrictTo } = require('../middleware/auth');
-const User = require('../models/User');
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
+const { protect, restrictTo } = require('../../middleware/auth');
+const User = require('../../models/User');
+const catchAsync = require('../../utils/catchAsync');
+const AppError = require('../../utils/appError');
 const path = require('path');
 const fs = require('fs');
 
