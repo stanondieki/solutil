@@ -1,7 +1,4 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 const AppError = require('../utils/appError');
@@ -9,49 +6,14 @@ const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
 const { sendEmail } = require('../utils/email');
 const providerEmailTemplates = require('../utils/providerEmailTemplates');
+const { uploadMiddleware } = require('../utils/cloudinary');
 
 const router = express.Router();
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, '../uploads/documents');
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    // Generate unique filename with timestamp
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, `${req.user._id}-${req.body.documentType}-${uniqueSuffix}${ext}`);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  // Check file type
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new AppError('Invalid file type. Only JPEG, PNG, and PDF files are allowed.', 400), false);
-  }
-};
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  }
-});
 
 // @desc    Upload provider document
 // @route   POST /api/provider/upload-document
 // @access  Private (Providers only)
-router.post('/upload-document', protect, upload.single('document'), catchAsync(async (req, res, next) => {
+router.post('/upload-document', protect, uploadMiddleware.providerDocuments, catchAsync(async (req, res, next) => {
   // Check if user is a provider
   if (req.user.userType !== 'provider') {
     return next(new AppError('Only providers can upload documents', 403));
@@ -69,11 +31,15 @@ router.post('/upload-document', protect, upload.single('document'), catchAsync(a
   }
 
   try {
-    // Update user document in database
+    // Update user document in database with Cloudinary data
     const updateField = `providerDocuments.${documentType}`;
     const documentData = {
-      url: `/uploads/documents/${req.file.filename}`,
-      public_id: req.file.filename,
+      url: req.file.path, // Cloudinary secure URL
+      secure_url: req.file.path, // Also store as secure_url for consistency
+      public_id: req.file.filename, // Cloudinary public ID
+      originalName: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
       uploaded: new Date(),
       verified: false
     };
@@ -87,27 +53,25 @@ router.post('/upload-document', protect, upload.single('document'), catchAsync(a
     );
 
     if (!user) {
-      // Delete uploaded file if user update fails
-      fs.unlinkSync(req.file.path);
       return next(new AppError('User not found', 404));
     }
 
-    logger.info(`Document uploaded: ${documentType} for user ${user.email}`);
+    logger.info(`Document uploaded to Cloudinary: ${documentType} for user ${user.email} - ${req.file.filename}`);
 
     res.status(200).json({
       status: 'success',
-      message: 'Document uploaded successfully',
+      message: 'Document uploaded successfully to Cloudinary',
       data: {
         documentType,
         url: documentData.url,
+        secure_url: documentData.secure_url,
+        public_id: documentData.public_id,
+        originalName: documentData.originalName,
         uploaded: documentData.uploaded
       }
     });
   } catch (error) {
-    // Delete uploaded file if database update fails
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
+    logger.error(`Document upload failed: ${error.message}`);
     throw error;
   }
 }));

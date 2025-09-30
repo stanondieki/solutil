@@ -26,35 +26,50 @@ router.get('/providers/:providerId/documents',
     // Get provider documents
     const documents = provider.providerDocuments || {};
     
+    // Helper function to get document URL (prioritize Cloudinary URLs)
+    const getDocumentUrl = (doc) => {
+      if (!doc) return '';
+      // Prioritize secure_url (Cloudinary) over local url
+      return doc.secure_url || doc.url || '';
+    };
+    
     // Format response to match frontend expectations
     const documentSummary = {
       nationalId: {
         uploaded: !!documents.nationalId,
-        filename: documents.nationalId?.originalName || '',
-        uploadDate: documents.nationalId?.uploadDate,
-        url: documents.nationalId?.secure_url || documents.nationalId?.url
+        filename: documents.nationalId?.originalName || documents.nationalId?.public_id || '',
+        uploadDate: documents.nationalId?.uploaded,
+        url: getDocumentUrl(documents.nationalId),
+        verified: documents.nationalId?.verified || false
       },
       businessLicense: {
         uploaded: !!documents.businessLicense,
-        filename: documents.businessLicense?.originalName || '',
-        uploadDate: documents.businessLicense?.uploadDate,
-        url: documents.businessLicense?.secure_url || documents.businessLicense?.url
+        filename: documents.businessLicense?.originalName || documents.businessLicense?.public_id || '',
+        uploadDate: documents.businessLicense?.uploaded,
+        url: getDocumentUrl(documents.businessLicense),
+        verified: documents.businessLicense?.verified || false
       },
       certificate: {
         uploaded: !!documents.certificate,
-        filename: documents.certificate?.originalName || '',
-        uploadDate: documents.certificate?.uploadDate,
-        url: documents.certificate?.secure_url || documents.certificate?.url
+        filename: documents.certificate?.originalName || documents.certificate?.public_id || '',
+        uploadDate: documents.certificate?.uploaded,
+        url: getDocumentUrl(documents.certificate),
+        verified: documents.certificate?.verified || false
       },
       goodConductCertificate: {
         uploaded: !!documents.goodConductCertificate,
-        filename: documents.goodConductCertificate?.originalName || '',
-        uploadDate: documents.goodConductCertificate?.uploadDate,
-        url: documents.goodConductCertificate?.secure_url || documents.goodConductCertificate?.url
+        filename: documents.goodConductCertificate?.originalName || documents.goodConductCertificate?.public_id || '',
+        uploadDate: documents.goodConductCertificate?.uploaded,
+        url: getDocumentUrl(documents.goodConductCertificate),
+        verified: documents.goodConductCertificate?.verified || false
       },
       portfolio: {
         count: documents.portfolio ? documents.portfolio.length : 0,
-        items: documents.portfolio || []
+        items: documents.portfolio ? documents.portfolio.map(item => ({
+          ...item,
+          url: getDocumentUrl(item),
+          verified: item.verified || false
+        })) : []
       }
     };
 
@@ -96,8 +111,20 @@ router.get('/providers/:providerId/documents/:documentType/view',
 
     // Get document info
     const document = provider.providerDocuments?.[documentType];
-    if (!document || !document.url) {
+    if (!document) {
       return next(new AppError('Document not found', 404));
+    }
+
+    // Helper function to get document URL (prioritize Cloudinary URLs)
+    const getDocumentUrl = (doc) => {
+      if (!doc) return '';
+      // Prioritize secure_url (Cloudinary) over local url
+      return doc.secure_url || doc.url || '';
+    };
+
+    const documentUrl = getDocumentUrl(document);
+    if (!documentUrl) {
+      return next(new AppError('Document URL not available', 404));
     }
 
     // For portfolio items, handle array
@@ -106,10 +133,11 @@ router.get('/providers/:providerId/documents/:documentType/view',
         status: 'success',
         data: {
           documents: document.map(item => ({
-            url: item.url,
+            url: getDocumentUrl(item),
             uploaded: item.uploaded,
             verified: item.verified || false,
-            filename: item.public_id
+            filename: item.originalName || item.public_id,
+            public_id: item.public_id
           }))
         }
       });
@@ -120,10 +148,11 @@ router.get('/providers/:providerId/documents/:documentType/view',
       status: 'success',
       data: {
         document: {
-          url: document.url,
+          url: documentUrl,
           uploaded: document.uploaded,
           verified: document.verified || false,
-          filename: document.public_id,
+          filename: document.originalName || document.public_id,
+          public_id: document.public_id,
           provider: {
             id: provider._id,
             name: provider.name,

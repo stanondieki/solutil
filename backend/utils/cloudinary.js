@@ -10,12 +10,12 @@ cloudinary.config({
 });
 
 // Create storage configurations for different types of uploads
-const createCloudinaryStorage = (folder, transformation = {}) => {
+const createCloudinaryStorage = (folder, transformation = {}, allowedFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif']) => {
   return new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
       folder: `solutil/${folder}`,
-      allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      allowed_formats: allowedFormats,
       transformation: [
         {
           quality: 'auto:good',
@@ -24,10 +24,12 @@ const createCloudinaryStorage = (folder, transformation = {}) => {
         }
       ],
       public_id: (req, file) => {
-        // Generate unique filename
+        // Generate unique filename with document type for documents
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 15);
-        return `${folder}_${timestamp}_${randomString}`;
+        const docType = req.body?.documentType || 'document';
+        const userId = req.user?._id || 'unknown';
+        return `${folder}_${userId}_${docType}_${timestamp}_${randomString}`;
       }
     },
   });
@@ -50,19 +52,46 @@ const storageConfigs = {
     crop: 'fill'
   }),
 
-  // Document uploads (certificates, licenses)
+  // Document uploads (certificates, licenses) - supports PDFs and images
   documents: createCloudinaryStorage('documents', {
     width: 1200,
     quality: 'auto:best'
-  }),
+  }, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf']),
 
   // General uploads
   general: createCloudinaryStorage('uploads')
 };
 
 // Create multer instances for different upload types
-const createUploadMiddleware = (storageType, fieldName = 'image', maxCount = 1) => {
+const createUploadMiddleware = (storageType, fieldName = 'image', maxCount = 1, allowPDF = false) => {
   const storage = storageConfigs[storageType];
+  
+  const fileFilter = (req, file, cb) => {
+    // Check file type based on storage type
+    if (storageType === 'documents') {
+      // Allow images and PDFs for documents
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files (JPG, PNG, WEBP) and PDF files are allowed for documents!'), false);
+      }
+    } else if (allowPDF) {
+      // Allow both images and PDFs
+      if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image and PDF files are allowed!'), false);
+      }
+    } else {
+      // Only images
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed!'), false);
+      }
+    }
+  };
   
   if (maxCount === 1) {
     return multer({ 
@@ -70,14 +99,7 @@ const createUploadMiddleware = (storageType, fieldName = 'image', maxCount = 1) 
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB limit
       },
-      fileFilter: (req, file, cb) => {
-        // Check file type
-        if (file.mimetype.startsWith('image/')) {
-          cb(null, true);
-        } else {
-          cb(new Error('Only image files are allowed!'), false);
-        }
-      }
+      fileFilter
     }).single(fieldName);
   } else {
     return multer({ 
@@ -85,13 +107,7 @@ const createUploadMiddleware = (storageType, fieldName = 'image', maxCount = 1) 
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB per file
       },
-      fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
-          cb(null, true);
-        } else {
-          cb(new Error('Only image files are allowed!'), false);
-        }
-      }
+      fileFilter
     }).array(fieldName, maxCount);
   }
 };
@@ -101,7 +117,8 @@ const uploadMiddleware = {
   profilePicture: createUploadMiddleware('profilePictures', 'profilePicture'),
   serviceImages: createUploadMiddleware('serviceImages', 'images', 5),
   singleServiceImage: createUploadMiddleware('serviceImages', 'image'),
-  documents: createUploadMiddleware('documents', 'document'),
+  documents: createUploadMiddleware('documents', 'document'), // Supports PDFs and images
+  providerDocuments: createUploadMiddleware('documents', 'file'), // For provider document uploads
   general: createUploadMiddleware('general', 'file')
 };
 
