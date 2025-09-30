@@ -43,7 +43,7 @@ export const RoleManager = {
   },
 
   // Navigation items based on user type
-  getNavigationItems: (userType: string, providerStatus?: string) => {
+  getNavigationItems: (userType: string, _providerStatus?: string) => {
     const baseItems = [
       { name: 'Home', href: '/', icon: 'FaHome' },
       { name: 'Dashboard', href: '/dashboard', icon: 'FaTachometerAlt' }
@@ -93,11 +93,12 @@ export const RoleManager = {
     return 'User';
   },
 
-  hasPermission: (userType: string, permission: string) => {
-    // Mock permission system - always return true for build compatibility
-    return true;
-  }
-};
+}
+
+export function hasPermission(_userType: string, _permission: string): boolean {
+  // Mock permission system - always return true for build compatibility
+  return true;
+}
 
 // Type definitions for compatibility  
 export type UserRole = 'admin' | 'provider' | 'client' | 'user';

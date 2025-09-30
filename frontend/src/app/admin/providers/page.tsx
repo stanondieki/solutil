@@ -68,6 +68,7 @@ export default function AdminProvidersPage() {
         const data = await response.json()
         // Map backend provider data to frontend format
         const providers = data.users || data.data?.users || []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mappedProviders = providers.filter((p: any) => p.userType === 'provider').map((p: any) => ({
           id: p._id,
           name: p.name,
@@ -132,7 +133,7 @@ export default function AdminProvidersPage() {
         
         // Update local state
         setProviders(providers.map(provider => 
-          provider.id === providerId ? { ...provider, status: newStatus as any } : provider
+          provider.id === providerId ? { ...provider, status: newStatus as ServiceProvider['status'] } : provider
         ))
         
         // Optionally refresh the data
@@ -198,6 +199,7 @@ export default function AdminProvidersPage() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getVerificationScore = (verification: any) => {
     // Focus on document verification (4 documents) + email verification
     const documentVerifications = [
