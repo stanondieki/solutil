@@ -13,7 +13,26 @@ const router = express.Router();
 // @desc    Upload provider document
 // @route   POST /api/provider/upload-document
 // @access  Private (Providers only)
-router.post('/upload-document', protect, uploadMiddleware.providerDocuments, catchAsync(async (req, res, next) => {
+router.post('/upload-document', protect, (req, res, next) => {
+  // Add debugging for upload middleware
+  console.log('🔍 Upload middleware starting...');
+  console.log('Request body before middleware:', req.body);
+  console.log('Request headers:', req.headers);
+  
+  uploadMiddleware.providerDocuments(req, res, (err) => {
+    if (err) {
+      console.error('❌ Upload middleware error:', err);
+      return next(new AppError(`Upload failed: ${err.message}`, 400));
+    }
+    
+    console.log('✅ Upload middleware completed');
+    console.log('Request file after middleware:', req.file);
+    console.log('Request body after middleware:', req.body);
+    next();
+  });
+}, catchAsync(async (req, res, next) => {
+  console.log('🚀 Document upload handler starting...');
+  
   // Check if user is a provider
   if (req.user.userType !== 'provider') {
     return next(new AppError('Only providers can upload documents', 403));
@@ -22,13 +41,25 @@ router.post('/upload-document', protect, uploadMiddleware.providerDocuments, cat
   const { documentType } = req.body;
   const allowedDocTypes = ['nationalId', 'businessLicense', 'certificate', 'goodConductCertificate'];
   
+  console.log('📋 Document type:', documentType);
+  console.log('📋 Allowed types:', allowedDocTypes);
+  
   if (!allowedDocTypes.includes(documentType)) {
     return next(new AppError('Invalid document type', 400));
   }
 
   if (!req.file) {
+    console.error('❌ No file in request:', req.file);
     return next(new AppError('No file uploaded', 400));
   }
+
+  console.log('📎 File received:', {
+    filename: req.file.filename,
+    originalname: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size,
+    path: req.file.path
+  });
 
   try {
     // Update user document in database with Cloudinary data
