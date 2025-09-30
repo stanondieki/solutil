@@ -5,6 +5,60 @@ const { protect } = require('../middleware/auth');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
+// @desc    Get all approved providers
+// @route   GET /api/providers
+// @access  Private (for clients to see providers)
+router.get('/', protect, catchAsync(async (req, res, next) => {
+  const { 
+    featured, 
+    service, 
+    limit = 10, 
+    page = 1,
+    area 
+  } = req.query;
+
+  // Base filter for approved providers only
+  let filter = { 
+    userType: 'provider', 
+    providerStatus: 'approved' 
+  };
+
+  // Add service area filter if specified
+  if (area) {
+    filter['providerProfile.serviceAreas'] = { $in: [area] };
+  }
+
+  // Add service skills filter if specified  
+  if (service) {
+    filter['providerProfile.skills'] = { $in: [service] };
+  }
+
+  // Build the query
+  let query = User.find(filter)
+    .select('name email profilePicture providerProfile providerStatus createdAt')
+    .sort({ 'providerProfile.rating': -1, createdAt: -1 });
+
+  // Apply limit
+  const limitNum = parseInt(limit);
+  const pageNum = parseInt(page);
+  
+  query = query.limit(limitNum).skip((pageNum - 1) * limitNum);
+
+  const providers = await query;
+  const total = await User.countDocuments(filter);
+
+  res.status(200).json({
+    status: 'success',
+    results: providers.length,
+    total,
+    totalPages: Math.ceil(total / limitNum),
+    currentPage: pageNum,
+    data: {
+      providers
+    }
+  });
+}));
+
 // @desc    Complete provider profile
 // @route   POST /api/provider/complete-profile
 // @access  Private
