@@ -118,7 +118,7 @@ const uploadMiddleware = {
   serviceImages: createUploadMiddleware('serviceImages', 'images', 5),
   singleServiceImage: createUploadMiddleware('serviceImages', 'image'),
   documents: createUploadMiddleware('documents', 'document'), // Supports PDFs and images
-  providerDocuments: createUploadMiddleware('documents', 'file'), // For provider document uploads
+  providerDocuments: createUploadMiddleware('documents', 'document'), // For provider document uploads
   general: createUploadMiddleware('general', 'file')
 };
 
