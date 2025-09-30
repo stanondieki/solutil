@@ -52,7 +52,7 @@ export default function HomePage() {
     setCurrentSlide(index)
   }
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-white">
       <Navigation />
 
       {/* Hero Slideshow Section - First Section */}
@@ -102,13 +102,13 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <Link 
                     href="/auth/login"
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-lg text-xl font-semibold transition-all transform hover:scale-105 shadow-lg"
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-300"
                   >
                     Book a Service Now
                   </Link>
                   <Link 
                     href="/services"
-                    className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-10 py-5 rounded-lg text-xl font-semibold transition-all"
+                    className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-10 py-5 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/50"
                   >
                     View Services
                   </Link>
