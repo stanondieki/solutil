@@ -625,20 +625,20 @@ export default function ProviderOnboardingPage() {
 
               {/* Experience */}
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
+                <label className="block text-lg font-black text-gray-900 mb-3">
                   Years of Experience *
                 </label>
                 <select
                   value={profile.experience}
                   onChange={(e) => setProfile(prev => ({ ...prev, experience: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-gray-900"
+                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-gray-900 bg-white text-base"
                 >
-                  <option value="">Select experience level</option>
-                  <option value="0-1">Less than 1 year</option>
-                  <option value="1-3">1-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5-10">5-10 years</option>
-                  <option value="10+">10+ years</option>
+                  <option value="" className="text-gray-500 font-semibold">Select experience level</option>
+                  <option value="0-1" className="text-gray-900 font-bold">Less than 1 year</option>
+                  <option value="1-3" className="text-gray-900 font-bold">1-3 years</option>
+                  <option value="3-5" className="text-gray-900 font-bold">3-5 years</option>
+                  <option value="5-10" className="text-gray-900 font-bold">5-10 years</option>
+                  <option value="10+" className="text-gray-900 font-bold">10+ years</option>
                 </select>
               </div>
 
@@ -684,19 +684,19 @@ export default function ProviderOnboardingPage() {
 
               {/* Services Section */}
               <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-1">
+                    <label className="block text-lg font-black text-gray-900 mb-2">
                       Your Services *
                     </label>
-                    <p className="text-sm text-gray-700 font-medium">
+                    <p className="text-sm text-gray-800 font-bold">
                       Create the specific services you'll offer to clients (minimum 1 required)
                     </p>
                   </div>
                   <button
                     onClick={addService}
                     type="button"
-                    className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors"
+                    className="inline-flex items-center px-6 py-3 bg-green-600 text-white text-sm font-black rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all duration-200 shadow-lg"
                   >
                     <FaPlus className="w-4 h-4 mr-2" />
                     Add Service
@@ -704,20 +704,25 @@ export default function ProviderOnboardingPage() {
                 </div>
 
                 {profile.services.length === 0 ? (
-                  <div className="text-center py-8 border-2 border-dashed border-green-300 rounded-lg">
-                    <p className="text-gray-600 font-medium mb-3">No services added yet</p>
-                    <p className="text-sm text-gray-500">Click "Add Service" to create your first service offering</p>
+                  <div className="text-center py-12 border-2 border-dashed border-green-400 rounded-lg bg-green-50">
+                    <p className="text-gray-800 font-bold mb-3 text-lg">No services added yet</p>
+                    <p className="text-sm text-gray-700 font-semibold">Click "Add Service" to create your first service offering</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
+                    <div className="mb-4">
+                      <p className="text-sm font-bold text-green-700 bg-green-100 px-4 py-2 rounded-lg border border-green-300">
+                        ✓ {profile.services.length} service{profile.services.length === 1 ? '' : 's'} created - Great start!
+                      </p>
+                    </div>
                     {profile.services.map((service, index) => (
-                      <div key={index} className="bg-white border border-green-200 rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <h4 className="text-sm font-bold text-gray-900">Service #{index + 1}</h4>
+                      <div key={index} className="bg-white border-2 border-green-200 rounded-lg p-6 shadow-sm">
+                        <div className="flex items-start justify-between mb-4">
+                          <h4 className="text-lg font-black text-gray-900 bg-green-100 px-3 py-1 rounded-full">Service #{index + 1}</h4>
                           <button
                             onClick={() => removeService(index)}
                             type="button"
-                            className="text-red-500 hover:text-red-700"
+                            className="text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 p-2 rounded-full transition-colors duration-200"
                           >
                             <FaTimes className="w-4 h-4" />
                           </button>
@@ -725,60 +730,60 @@ export default function ProviderOnboardingPage() {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Service Title *</label>
+                            <label className="block text-sm font-bold text-gray-900 mb-2">Service Title *</label>
                             <input
                               type="text"
                               value={service.title}
                               onChange={(e) => updateService(index, 'title', e.target.value)}
                               placeholder="e.g., Kitchen Plumbing Repair"
-                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm font-bold text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                             />
                           </div>
                           
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Category *</label>
+                            <label className="block text-sm font-bold text-gray-900 mb-2">Category *</label>
                             <select
                               value={service.category}
                               onChange={(e) => updateService(index, 'category', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                             >
-                              <option value="">Select category</option>
+                              <option value="" className="text-gray-500 font-medium">Select category</option>
                               {AVAILABLE_SKILLS.map((skill) => (
-                                <option key={skill} value={skill}>{skill}</option>
+                                <option key={skill} value={skill} className="text-gray-900 font-bold">{skill}</option>
                               ))}
                             </select>
                           </div>
                           
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Price (KES) *</label>
+                            <label className="block text-sm font-bold text-gray-900 mb-2">Price (KES) *</label>
                             <div className="flex">
                               <input
                                 type="number"
                                 value={service.price}
                                 onChange={(e) => updateService(index, 'price', e.target.value)}
                                 placeholder="1500"
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-l text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-l-lg text-sm font-bold text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                               />
                               <select
                                 value={service.priceType}
                                 onChange={(e) => updateService(index, 'priceType', e.target.value)}
-                                className="px-3 py-2 border-l-0 border border-gray-300 rounded-r text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                className="px-4 py-3 border-l-0 border-2 border-gray-300 rounded-r-lg text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                               >
-                                <option value="hourly">per hour</option>
-                                <option value="fixed">fixed price</option>
-                                <option value="quote">custom quote</option>
+                                <option value="hourly" className="text-gray-900 font-bold">per hour</option>
+                                <option value="fixed" className="text-gray-900 font-bold">fixed price</option>
+                                <option value="quote" className="text-gray-900 font-bold">custom quote</option>
                               </select>
                             </div>
                           </div>
                           
                           <div className="md:col-span-1">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Description *</label>
+                            <label className="block text-sm font-bold text-gray-900 mb-2">Description *</label>
                             <textarea
                               value={service.description}
                               onChange={(e) => updateService(index, 'description', e.target.value)}
                               placeholder="Brief description of what this service includes..."
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              rows={3}
+                              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm font-bold text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white resize-none"
                             />
                           </div>
                         </div>
@@ -810,13 +815,13 @@ export default function ProviderOnboardingPage() {
 
               {/* Service Areas */}
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-3">
+                <label className="block text-lg font-black text-gray-900 mb-3">
                   Service Areas *
                 </label>
-                <p className="text-sm text-gray-700 font-medium mb-4">
+                <p className="text-sm text-gray-800 font-bold mb-4">
                   Select all locations where you can provide services
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-48 overflow-y-auto bg-gray-50 p-4 rounded-lg border">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-48 overflow-y-auto bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
                   {KENYAN_CITIES.map((city) => (
                     <label key={city} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border hover:border-blue-300 transition-colors">
                       <input
@@ -837,7 +842,7 @@ export default function ProviderOnboardingPage() {
                         }}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
                       />
-                      <span className="text-sm font-medium text-gray-900">{city}</span>
+                      <span className="text-sm font-bold text-gray-900">{city}</span>
                     </label>
                   ))}
                 </div>
@@ -850,18 +855,18 @@ export default function ProviderOnboardingPage() {
 
               {/* Availability */}
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-4">
+                <label className="block text-lg font-black text-gray-900 mb-4">
                   Availability *
                 </label>
-                <p className="text-sm text-gray-700 font-medium mb-4">
+                <p className="text-sm text-gray-800 font-bold mb-4">
                   Set your working schedule for client bookings
                 </p>
-                <div className="space-y-6 bg-gray-50 p-4 rounded-lg border">
+                <div className="space-y-6 bg-purple-50 p-6 rounded-lg border-2 border-purple-200">
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-3">Working Days</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">Working Days</label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {DAYS_OF_WEEK.map((day) => (
-                        <label key={day} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border hover:border-blue-300 transition-colors">
+                        <label key={day} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border-2 hover:border-purple-300 transition-colors">
                           <input
                             type="checkbox"
                             checked={profile.availability.days.includes(day)}
@@ -884,9 +889,9 @@ export default function ProviderOnboardingPage() {
                                 }))
                               }
                             }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                            className="rounded border-gray-400 text-purple-600 focus:ring-purple-500 w-4 h-4"
                           />
-                          <span className="text-sm font-medium text-gray-900">{day}</span>
+                          <span className="text-sm font-bold text-gray-900">{day}</span>
                         </label>
                       ))}
                     </div>
@@ -897,9 +902,9 @@ export default function ProviderOnboardingPage() {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Start Time</label>
+                      <label className="block text-sm font-bold text-gray-900 mb-3">Start Time</label>
                       <input
                         type="time"
                         value={profile.availability.hours.start}
@@ -910,11 +915,11 @@ export default function ProviderOnboardingPage() {
                             hours: { ...prev.availability.hours, start: e.target.value }
                           }
                         }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-gray-900"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-bold text-gray-900 bg-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">End Time</label>
+                      <label className="block text-sm font-bold text-gray-900 mb-3">End Time</label>
                       <input
                         type="time"
                         value={profile.availability.hours.end}
@@ -925,7 +930,7 @@ export default function ProviderOnboardingPage() {
                             hours: { ...prev.availability.hours, end: e.target.value }
                           }
                         }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-gray-900"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-bold text-gray-900 bg-white"
                       />
                     </div>
                   </div>
@@ -933,24 +938,29 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Bio */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
+              <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
+                <label className="block text-lg font-black text-gray-900 mb-3">
                   Professional Bio *
                 </label>
-                <p className="text-sm text-gray-700 font-medium mb-3">
+                <p className="text-sm text-gray-800 font-bold mb-4">
                   Describe your experience, specialties, and what makes you the right choice for clients
                 </p>
                 <textarea
                   value={profile.bio}
                   onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={5}
+                  rows={6}
                   placeholder="Tell customers about your experience, specialties, and what makes you unique..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-gray-900 resize-none"
+                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-bold text-gray-900 placeholder-gray-500 resize-none bg-white"
                   maxLength={500}
                 />
-                <p className="text-sm text-gray-600 font-medium mt-2">
-                  {profile.bio.length}/500 characters
-                </p>
+                <div className="flex justify-between items-center mt-3">
+                  <p className="text-xs text-gray-700 font-semibold">
+                    💡 Tip: Mention your certifications, years of experience, and specialties
+                  </p>
+                  <p className="text-sm font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                    {profile.bio.length}/500 characters
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -960,19 +970,22 @@ export default function ProviderOnboardingPage() {
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Your Application</h2>
-              <p className="text-gray-600">Please review your information before submitting</p>
+              <h2 className="text-3xl font-black text-gray-900 mb-3">Review Your Application</h2>
+              <p className="text-gray-800 font-bold text-lg">Please review your information before submitting</p>
             </div>
 
             <div className="grid gap-6">
               {/* Documents Review */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Documents</h3>
+              <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaCheckCircle className="w-6 h-6 text-green-600 mr-3" />
+                  Documents Uploaded
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(documents).map(([key, doc]) => (
-                    <div key={key} className="flex items-center space-x-3">
-                      <FaCheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-gray-700 capitalize">
+                    <div key={key} className="flex items-center space-x-4 bg-white p-4 rounded-lg border border-green-200">
+                      <FaCheckCircle className="w-6 h-6 text-green-600" />
+                      <span className="text-gray-900 font-bold capitalize">
                         {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                       </span>
                     </div>
@@ -981,63 +994,93 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Profile Review */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Profile Information</h3>
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaUser className="w-6 h-6 text-blue-600 mr-3" />
+                  Profile Information
+                </h3>
                 
                 {/* Profile Photo */}
                 {profile.profilePhoto.preview && (
-                  <div className="flex items-center space-x-4 mb-6 bg-white p-4 rounded-lg border">
+                  <div className="flex items-center space-x-6 mb-6 bg-white p-6 rounded-lg border-2 border-blue-200">
                     <img 
                       src={profile.profilePhoto.preview} 
                       alt="Profile Photo" 
-                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
+                      className="w-20 h-20 rounded-full object-cover border-4 border-blue-300 shadow-lg"
                     />
                     <div>
-                      <p className="font-medium text-gray-900">Profile Photo</p>
-                      <p className="text-sm text-gray-600">✓ Photo ready for upload</p>
+                      <p className="font-bold text-gray-900 text-lg">Profile Photo</p>
+                      <p className="text-sm text-green-700 font-bold bg-green-100 px-3 py-1 rounded-full mt-1">✓ Photo ready for upload</p>
                     </div>
                   </div>
                 )}
                 
-                <div className="grid gap-4">
-                  <div>
-                    <span className="font-medium text-gray-700">Experience:</span> {profile.experience}
+                <div className="grid gap-6">
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base">Experience:</span> 
+                    <span className="font-bold text-blue-700 ml-2">{profile.experience}</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Skills:</span> {profile.skills.join(', ')}
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base">Skills:</span> 
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {profile.skills.map((skill, index) => (
+                        <span key={index} className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Base Hourly Rate:</span> KES {profile.hourlyRate}
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base">Base Hourly Rate:</span> 
+                    <span className="font-bold text-green-700 ml-2 text-lg">KES {profile.hourlyRate}</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Service Areas:</span> {profile.serviceAreas.join(', ')}
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base">Service Areas:</span> 
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {profile.serviceAreas.map((area, index) => (
+                        <span key={index} className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Availability:</span> {profile.availability.days.join(', ')} ({profile.availability.hours.start} - {profile.availability.hours.end})
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base">Availability:</span> 
+                    <div className="mt-2">
+                      <span className="font-bold text-purple-700">{profile.availability.days.join(', ')}</span>
+                      <span className="font-bold text-gray-700 ml-2">({profile.availability.hours.start} - {profile.availability.hours.end})</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Professional Bio:</span>
-                    <p className="text-gray-600 mt-1 text-sm bg-white p-3 rounded border">{profile.bio}</p>
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <span className="font-black text-gray-900 text-base mb-3 block">Professional Bio:</span>
+                    <p className="text-gray-800 font-medium text-sm bg-orange-50 p-4 rounded-lg border border-orange-200 leading-relaxed">{profile.bio}</p>
                   </div>
                 </div>
               </div>
 
               {/* Services Review */}
               {profile.services.length > 0 && (
-                <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Services ({profile.services.length})</h3>
-                  <div className="grid gap-4">
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                    <FaCertificate className="w-6 h-6 text-green-600 mr-3" />
+                    Your Services ({profile.services.length})
+                  </h3>
+                  <div className="grid gap-6">
                     {profile.services.map((service, index) => (
-                      <div key={index} className="bg-white p-4 rounded-lg border border-green-200">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium text-gray-900">{service.title}</h4>
-                          <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">
+                      <div key={index} className="bg-white p-6 rounded-lg border-2 border-green-200 shadow-sm">
+                        <div className="flex items-start justify-between mb-4">
+                          <h4 className="font-bold text-gray-900 text-lg">{service.title}</h4>
+                          <span className="text-sm font-bold text-green-700 bg-green-200 px-4 py-2 rounded-full">
                             {service.category}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{service.description}</p>
-                        <div className="text-sm text-gray-700">
-                          <strong>Price:</strong> KES {service.price} {service.priceType === 'hourly' ? 'per hour' : service.priceType === 'fixed' ? 'fixed' : 'custom quote'}
+                        <p className="text-sm font-medium text-gray-800 mb-4 bg-gray-50 p-3 rounded border">{service.description}</p>
+                        <div className="text-base font-bold text-gray-900 bg-yellow-50 p-3 rounded border border-yellow-200">
+                          <span className="text-yellow-700">💰 Price:</span> 
+                          <span className="text-green-700 ml-2">KES {service.price}</span>
+                          <span className="text-gray-600 ml-2">
+                            {service.priceType === 'hourly' ? 'per hour' : service.priceType === 'fixed' ? 'fixed price' : 'custom quote'}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -1046,12 +1089,12 @@ export default function ProviderOnboardingPage() {
               )}
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-              <div className="flex items-start space-x-3">
-                <FaExclamationTriangle className="w-6 h-6 text-blue-600 mt-1" />
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-8">
+              <div className="flex items-start space-x-4">
+                <FaExclamationTriangle className="w-8 h-8 text-yellow-600 mt-1" />
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">What happens next?</h4>
-                  <p className="text-blue-800 text-sm">
+                  <h4 className="font-black text-yellow-900 mb-4 text-xl">What happens next?</h4>
+                  <p className="text-yellow-900 font-bold text-base leading-relaxed">
                     After submitting your application, our team will review your documents and profile. 
                     This usually takes 2-3 business days. You'll receive an email notification once your account is approved.
                   </p>
