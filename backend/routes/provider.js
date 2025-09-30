@@ -349,4 +349,95 @@ router.get('/documents/:documentType', protect, catchAsync(async (req, res, next
   res.sendFile(filePath);
 }));
 
+// @desc    Upload provider profile picture
+// @route   POST /api/provider/profile-picture
+// @access  Private (Providers only)
+router.post('/profile-picture', protect, (req, res, next) => {
+  console.log('🔍 Profile picture upload starting...');
+  console.log('Request body before middleware:', req.body);
+  
+  uploadMiddleware.profilePicture(req, res, (err) => {
+    if (err) {
+      console.error('❌ Profile picture upload middleware error:', err);
+      return next(new AppError(`Upload failed: ${err.message}`, 400));
+    }
+    
+    console.log('✅ Profile picture upload middleware completed');
+    console.log('Request file after middleware:', req.file);
+    next();
+  });
+}, catchAsync(async (req, res, next) => {
+  console.log('🚀 Profile picture upload handler starting...');
+  
+  // Check if user is a provider
+  if (req.user.userType !== 'provider') {
+    return next(new AppError('Only providers can upload profile pictures', 403));
+  }
+
+  if (!req.file) {
+    return next(new AppError('No image file provided', 400));
+  }
+
+  const userId = req.user._id;
+
+  // Find the provider
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  // Update user profile picture with Cloudinary URL
+  const imageData = {
+    url: req.file.path, // Cloudinary secure_url
+    publicId: req.file.filename, // Cloudinary public_id
+    variants: {
+      original: req.file.path,
+      thumbnail: req.file.path.replace('/upload/', '/upload/c_fill,w_100,h_100/'),
+      medium: req.file.path.replace('/upload/', '/upload/c_fill,w_200,h_200/'),
+      large: req.file.path.replace('/upload/', '/upload/c_fill,w_400,h_400/')
+    },
+    uploadedAt: new Date()
+  };
+
+  user.profilePicture = imageData;
+  await user.save();
+
+  console.log('✅ Profile picture updated successfully for user:', userId);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Profile picture updated successfully',
+    data: {
+      image: imageData,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePicture: imageData
+      }
+    }
+  });
+}));
+
+// @desc    Get provider profile picture
+// @route   GET /api/provider/profile-picture
+// @access  Private (Providers only)
+router.get('/profile-picture', protect, catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  
+  const user = await User.findById(userId).select('profilePicture name email');
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      profilePicture: user.profilePicture,
+      name: user.name,
+      email: user.email
+    }
+  });
+}));
+
 module.exports = router;
