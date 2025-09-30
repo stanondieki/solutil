@@ -23,7 +23,11 @@ import {
   FaServicestack,
   FaBookOpen,
   FaCheck,
-  FaTimes
+  FaTimes,
+  FaSignOutAlt,
+  FaRocket,
+  FaShieldAlt,
+  FaFire
 } from 'react-icons/fa'
 
 interface UserProfile {
@@ -43,33 +47,87 @@ interface UserProfile {
 }
 
 export default function ProviderProfile() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [showLogoutDropdown, setShowLogoutDropdown] = useState(false)
 
   useEffect(() => {
-    if (user) {
-      // For now, we'll use the user data directly
-      // In production, you'd fetch extended profile data from API
-      setProfile({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: (user as any).phone || '',
-        profilePicture: (user as any).profilePicture || '',
-        bio: 'Professional service provider committed to quality work.',
-        location: 'Nairobi, Kenya',
-        experience: '5+ years',
-        hourlyRate: 1500,
-        rating: 4.8,
-        totalBookings: 247,
-        completedBookings: 234,
-        totalEarnings: 450000
-      })
-      setLoading(false)
+    const fetchProviderProfile = async () => {
+      if (!user) return
+
+      try {
+        const token = localStorage.getItem('authToken')
+        const response = await fetch('/api/provider/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (response.ok) {
+          const apiData = await response.json()
+          const data = apiData.data || apiData // Handle nested response
+          setProfile({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: (user as any).phone || '',
+            profilePicture: (user as any).profilePicture || '',
+            bio: data.profile?.bio || 'Professional service provider committed to quality work.',
+            location: data.profile?.serviceAreas?.join(', ') || 'Nairobi, Kenya',
+            experience: data.profile?.experience || '5+ years',
+            hourlyRate: data.profile?.hourlyRate || 1500,
+            rating: 4.8, // TODO: Calculate from reviews
+            totalBookings: 0, // TODO: Get from bookings API
+            completedBookings: 0, // TODO: Get from bookings API 
+            totalEarnings: 0 // TODO: Calculate from completed bookings
+          })
+        } else {
+          // Fallback to user data if API fails
+          console.log('Using fallback data, API response:', response.status)
+          setProfile({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: (user as any).phone || '',
+            profilePicture: (user as any).profilePicture || '',
+            bio: 'Professional service provider committed to quality work.',
+            location: 'Nairobi, Kenya',
+            experience: '5+ years',
+            hourlyRate: 1500,
+            rating: 4.8,
+            totalBookings: 0,
+            completedBookings: 0,
+            totalEarnings: 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching provider profile:', error)
+        // Fallback to user data on error
+        setProfile({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: (user as any).phone || '',
+          profilePicture: (user as any).profilePicture || '',
+          bio: 'Professional service provider committed to quality work.',
+          location: 'Nairobi, Kenya',
+          experience: '5+ years',
+          hourlyRate: 1500,
+          rating: 4.8,
+          totalBookings: 0,
+          completedBookings: 0,
+          totalEarnings: 0
+        })
+        toast.error('Failed to load profile data')
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchProviderProfile()
   }, [user])
 
   const handleProfilePictureUpload = async (urls: string[]) => {
@@ -102,6 +160,44 @@ export default function ProviderProfile() {
     }
   }
 
+  // Modern logout functions
+  const handleQuickLogout = async () => {
+    console.log('🚀 Quick logout initiated from provider page')
+    setShowLogoutDropdown(false)
+    try {
+      await logout()
+    } catch (error) {
+      console.error('❌ Quick logout error:', error)
+      window.location.replace('/auth/login')
+    }
+  }
+
+  const handleSecureLogout = async () => {
+    console.log('🛡️ Secure logout initiated from provider page')
+    setShowLogoutDropdown(false)
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+      await logout()
+    } catch (error) {
+      console.error('❌ Secure logout error:', error)
+      window.location.replace('/auth/login')
+    }
+  }
+
+  const handleEmergencyLogout = () => {
+    console.log('🚨 Emergency logout initiated from provider page')
+    setShowLogoutDropdown(false)
+    localStorage.clear()
+    sessionStorage.clear()
+    document.cookie.split(';').forEach(cookie => {
+      const eqPos = cookie.indexOf('=')
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
+    })
+    window.location.replace('/auth/login')
+  }
+
   if (loading) {
     return (
       <RoleGuard requiredRole="provider">
@@ -127,22 +223,55 @@ export default function ProviderProfile() {
 
   return (
     <RoleGuard requiredRole="provider">
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
+            <div className="flex justify-between items-center py-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-                <p className="text-gray-600">Manage your profile and account settings</p>
+                <h1 className="text-3xl font-bold text-white">Provider Dashboard</h1>
+                <p className="text-orange-100">Manage your profile and grow your business</p>
               </div>
-              <Link
-                href="/provider/services"
-                className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors inline-flex items-center space-x-2"
-              >
-                <FaServicestack className="h-5 w-5" />
-                <span>Manage Services</span>
-              </Link>
+              <div className="flex items-center space-x-4">
+                <Link
+                  href="/provider/services"
+                  className="bg-white text-orange-600 px-6 py-3 rounded-lg hover:bg-orange-50 transition-all duration-300 inline-flex items-center space-x-2 shadow-sm border border-orange-200 font-medium"
+                >
+                  <FaServicestack className="h-5 w-5" />
+                  <span>Manage Services</span>
+                </Link>
+                <button
+                  onClick={() => setShowLogoutDropdown(true)}
+                  className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 inline-flex items-center space-x-2 border border-white/30 font-medium"
+                >
+                  <FaSignOutAlt className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Stats Bar */}
+        <div className="bg-white shadow-sm border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{profile?.rating}/5</div>
+                <div className="text-sm text-gray-600">Rating</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{profile?.totalBookings}</div>
+                <div className="text-sm text-gray-600">Total Jobs</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{profile?.completedBookings}</div>
+                <div className="text-sm text-gray-600">Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">KSh {profile?.totalEarnings?.toLocaleString()}</div>
+                <div className="text-sm text-gray-600">Earnings</div>
+              </div>
             </div>
           </div>
         </div>
@@ -154,7 +283,7 @@ export default function ProviderProfile() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-sm border p-6"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
               >
                 <div className="text-center">
                   {/* Profile Picture */}
@@ -249,11 +378,11 @@ export default function ProviderProfile() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="bg-white rounded-xl shadow-sm border p-6"
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
                 >
                   <div className="flex items-center">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <FaBookOpen className="h-6 w-6 text-blue-600" />
+                    <div className="p-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl text-white">
+                      <FaBookOpen className="h-6 w-6" />
                     </div>
                     <div className="ml-4">
                       <p className="text-2xl font-bold text-gray-900">
@@ -268,11 +397,11 @@ export default function ProviderProfile() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-white rounded-xl shadow-sm border p-6"
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
                 >
                   <div className="flex items-center">
-                    <div className="p-3 bg-green-100 rounded-lg">
-                      <FaCheck className="h-6 w-6 text-green-600" />
+                    <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl text-white">
+                      <FaCheck className="h-6 w-6" />
                     </div>
                     <div className="ml-4">
                       <p className="text-2xl font-bold text-gray-900">
@@ -287,11 +416,11 @@ export default function ProviderProfile() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-white rounded-xl shadow-sm border p-6"
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
                 >
                   <div className="flex items-center">
-                    <div className="p-3 bg-orange-100 rounded-lg">
-                      <FaDollarSign className="h-6 w-6 text-orange-600" />
+                    <div className="p-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl text-white">
+                      <FaDollarSign className="h-6 w-6" />
                     </div>
                     <div className="ml-4">
                       <p className="text-2xl font-bold text-gray-900">
@@ -356,7 +485,7 @@ export default function ProviderProfile() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-white rounded-xl shadow-sm border p-6"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Quick Actions
@@ -388,6 +517,65 @@ export default function ProviderProfile() {
             </div>
           </div>
         </div>
+
+        {/* Logout Options Dropdown */}
+        {showLogoutDropdown && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+              <div className="flex items-center mb-4">
+                <FaSignOutAlt className="h-6 w-6 text-red-500 mr-3" />
+                <h3 className="text-xl font-semibold text-gray-900">Logout Options</h3>
+              </div>
+              
+              <p className="text-gray-600 mb-6">Choose your preferred logout method:</p>
+              
+              <div className="space-y-3">
+                {/* Quick Logout */}
+                <button
+                  onClick={handleQuickLogout}
+                  className="w-full flex items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors"
+                >
+                  <FaRocket className="h-5 w-5 text-orange-600 mr-3" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900">Quick Logout</div>
+                    <div className="text-sm text-gray-600">Fast logout (recommended)</div>
+                  </div>
+                </button>
+
+                {/* Secure Logout */}
+                <button
+                  onClick={handleSecureLogout}
+                  className="w-full flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+                >
+                  <FaShieldAlt className="h-5 w-5 text-blue-600 mr-3" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900">Secure Logout</div>
+                    <div className="text-sm text-gray-600">Complete session cleanup</div>
+                  </div>
+                </button>
+
+                {/* Emergency Logout */}
+                <button
+                  onClick={handleEmergencyLogout}
+                  className="w-full flex items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors"
+                >
+                  <FaFire className="h-5 w-5 text-red-600 mr-3" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900">Emergency Logout</div>
+                    <div className="text-sm text-gray-600">Force logout & clear all data</div>
+                  </div>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowLogoutDropdown(false)}
+                className="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </RoleGuard>
   )
