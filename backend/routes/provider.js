@@ -386,20 +386,13 @@ router.post('/profile-picture', protect, (req, res, next) => {
     return next(new AppError('User not found', 404));
   }
 
-  // Update user profile picture with Cloudinary URL
-  const imageData = {
-    url: req.file.path, // Cloudinary secure_url
-    publicId: req.file.filename, // Cloudinary public_id
-    variants: {
-      original: req.file.path,
-      thumbnail: req.file.path.replace('/upload/', '/upload/c_fill,w_100,h_100/'),
-      medium: req.file.path.replace('/upload/', '/upload/c_fill,w_200,h_200/'),
-      large: req.file.path.replace('/upload/', '/upload/c_fill,w_400,h_400/')
-    },
-    uploadedAt: new Date()
+  // Update user avatar with Cloudinary URL (matches User model schema exactly)
+  const avatarData = {
+    public_id: req.file.filename, // Cloudinary public_id 
+    url: req.file.path // Cloudinary secure_url
   };
 
-  user.profilePicture = imageData;
+  user.avatar = avatarData;
   await user.save();
 
   console.log('✅ Profile picture updated successfully for user:', userId);
@@ -408,12 +401,12 @@ router.post('/profile-picture', protect, (req, res, next) => {
     status: 'success',
     message: 'Profile picture updated successfully',
     data: {
-      image: imageData,
+      image: avatarData,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        profilePicture: imageData
+        avatar: avatarData
       }
     }
   });
@@ -425,7 +418,7 @@ router.post('/profile-picture', protect, (req, res, next) => {
 router.get('/profile-picture', protect, catchAsync(async (req, res, next) => {
   const userId = req.user._id;
   
-  const user = await User.findById(userId).select('profilePicture name email');
+  const user = await User.findById(userId).select('avatar name email');
   if (!user) {
     return next(new AppError('User not found', 404));
   }
@@ -433,7 +426,7 @@ router.get('/profile-picture', protect, catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      profilePicture: user.profilePicture,
+      avatar: user.avatar,
       name: user.name,
       email: user.email
     }
