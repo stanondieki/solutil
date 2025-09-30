@@ -14,7 +14,7 @@ export default function HomePage() {
   
   const slides = [
     {
-      image: '/images/services/plumbing.jpg',
+      image: '/images/service/cleaner.jpg',
       alt: 'Professional Plumbing Services',
       title: 'Expert Plumbing',
       subtitle: 'Reliable pipe repairs, installations, and emergency services'
@@ -26,7 +26,7 @@ export default function HomePage() {
       subtitle: 'Professional wiring, installations, and safety inspections'
     },
     {
-      image: '/images/services/cleaning.jpg',
+      image: '/images/services/movers.jpg',
       alt: 'Professional Cleaning Services', 
       title: 'Professional Cleaning',
       subtitle: 'Deep cleaning and maintenance for homes and offices'
