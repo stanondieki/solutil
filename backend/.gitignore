@@ -7,7 +7,9 @@
 node_modules/
 
 # Logs
-logs/
+logs/*.log
+logs/combined.log
+logs/error.log
 *.log
 
 # Firebase
