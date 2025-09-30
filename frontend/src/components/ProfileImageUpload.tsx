@@ -27,6 +27,7 @@ export default function ProfileImageUpload({
   onUploadComplete,
   className = ""
 }: ProfileImageUploadProps) {
+  console.log('ProfileImageUpload - currentImage:', currentImage)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
@@ -114,10 +115,12 @@ export default function ProfileImageUpload({
       }
 
       const data = await response.json()
+      console.log('Upload response:', data)
       
       if (data.status === 'success') {
         // Wait a moment to show completion
         setTimeout(() => {
+          console.log('Image URL from response:', data.data.image.url)
           onUploadComplete(data.data.image.url)
           toast.success('Profile picture updated successfully!')
           setShowUploadArea(false)

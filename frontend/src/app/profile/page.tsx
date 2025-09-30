@@ -158,6 +158,8 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         const userData = data.data.user
+        console.log('Profile loaded:', userData)
+        console.log('Avatar data:', userData.avatar)
         setUser(userData)
         setFormData({
           name: userData.name || '',
