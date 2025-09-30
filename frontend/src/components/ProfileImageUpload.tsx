@@ -124,6 +124,12 @@ export default function ProfileImageUpload({
           setPreviewImage(null)
           setIsUploading(false)
           setUploadProgress(0)
+          
+          // Refresh profile data without page reload
+          if (typeof window !== 'undefined') {
+            // Emit custom event to trigger profile reload
+            window.dispatchEvent(new CustomEvent('profileUpdated'))
+          }
         }, 500)
       } else {
         throw new Error(data.message || 'Upload failed')

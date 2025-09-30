@@ -124,6 +124,18 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadUserProfile()
+
+    // Listen for profile updates from image upload
+    const handleProfileUpdate = () => {
+      loadUserProfile()
+    }
+
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+
+    // Cleanup listener
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
   }, [])
 
   const loadUserProfile = async () => {
