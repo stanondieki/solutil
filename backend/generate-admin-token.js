@@ -1,14 +1,18 @@
 const jwt = require('jsonwebtoken');
 
-// JWT secret from your .env file
-const JWT_SECRET = 'your-super-secure-jwt-secret-key-2024';
+// JWT secret for production
+const JWT_SECRET = 'solutil_production_jwt_secret_2025';
 
 // Real admin user ID from the database
-const adminUserId = '68cb5afb22e2322331a8831b';
+const adminUserId = '68da52c8094493faa9d0c392';
 
-// Create admin token
+// Create admin token with userType
 const adminToken = jwt.sign(
-  { userId: adminUserId },
+  { 
+    userId: adminUserId,
+    email: 'infosolu31@gmail.com',
+    userType: 'admin' 
+  },
   JWT_SECRET,
   { expiresIn: '7d' }
 );
