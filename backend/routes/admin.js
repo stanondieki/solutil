@@ -22,6 +22,7 @@ const AppError = require('../utils/appError');
 // Import admin sub-routes
 const adminProviderRoutes = require('./admin/providers');
 const adminEmailRoutes = require('./admin/email');
+const adminDocumentRoutes = require('./admin/documents');
 
 const router = express.Router();
 
@@ -36,6 +37,7 @@ const adminOnly = catchAsync(async (req, res, next) => {
 // Mount admin sub-routes
 router.use('/providers', adminProviderRoutes);
 router.use('/email', adminEmailRoutes);
+router.use('/', adminDocumentRoutes);
 
 // @desc    Get dashboard statistics
 // @route   GET /api/admin/stats

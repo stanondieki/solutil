@@ -11,6 +11,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // --- CLEANED UP SERVER.JS ---
 console.log('Starting server.js...');
 const express = require('express');
+const path = require('path');
 console.log('Loaded express');
 require('./models/Review');
 console.log('Loaded Review model');
@@ -153,6 +154,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/provider', providerOnboardingRoutes);
 app.use('/api/provider-services', providerServiceRoutes);
 app.use('/api/provider-bookings', providerBookingRoutes);
+
+// Serve static files for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('*', (req, res) => {
   res.status(404).json({

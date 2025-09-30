@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/AdminLayout'
+import DocumentViewer from '../../../components/admin/DocumentViewer'
 
 interface ServiceProvider {
   id: string
@@ -47,6 +48,8 @@ export default function AdminProvidersPage() {
   const [filterService, setFilterService] = useState<string>('all')
   const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false)
+  const [documentViewerProviderId, setDocumentViewerProviderId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProviders()
@@ -413,9 +416,18 @@ export default function AdminProvidersPage() {
                         )}
                         <button 
                           onClick={() => openProviderDetails(provider)}
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                          className="text-blue-400 hover:text-blue-300 transition-colors mr-3"
                         >
                           Review Details
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setDocumentViewerProviderId(provider.id)
+                            setShowDocumentViewer(true)
+                          }}
+                          className="text-purple-400 hover:text-purple-300 transition-colors"
+                        >
+                          View Documents
                         </button>
                       </div>
                     </td>
@@ -651,6 +663,17 @@ export default function AdminProvidersPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Document Viewer Modal */}
+        {showDocumentViewer && documentViewerProviderId && (
+          <DocumentViewer
+            providerId={documentViewerProviderId}
+            onClose={() => {
+              setShowDocumentViewer(false)
+              setDocumentViewerProviderId(null)
+            }}
+          />
         )}
       </div>
     </AdminLayout>
