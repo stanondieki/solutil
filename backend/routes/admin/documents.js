@@ -8,6 +8,67 @@ const fs = require('fs');
 
 const router = express.Router();
 
+// @desc    Get all documents for a provider (listing)
+// @route   GET /api/admin/providers/:providerId/documents
+// @access  Private (Admin only)
+router.get('/providers/:providerId/documents', 
+  protect, 
+  restrictTo('admin'), 
+  catchAsync(async (req, res, next) => {
+    const { providerId } = req.params;
+    
+    // Find the provider
+    const provider = await User.findById(providerId);
+    if (!provider || provider.userType !== 'provider') {
+      return next(new AppError('Provider not found', 404));
+    }
+
+    // Get provider documents
+    const documents = provider.providerDocuments || {};
+    
+    // Format response to match frontend expectations
+    const documentSummary = {
+      nationalId: {
+        uploaded: !!documents.nationalId,
+        filename: documents.nationalId?.originalName || '',
+        uploadDate: documents.nationalId?.uploadDate,
+        url: documents.nationalId?.secure_url || documents.nationalId?.url
+      },
+      businessLicense: {
+        uploaded: !!documents.businessLicense,
+        filename: documents.businessLicense?.originalName || '',
+        uploadDate: documents.businessLicense?.uploadDate,
+        url: documents.businessLicense?.secure_url || documents.businessLicense?.url
+      },
+      certificate: {
+        uploaded: !!documents.certificate,
+        filename: documents.certificate?.originalName || '',
+        uploadDate: documents.certificate?.uploadDate,
+        url: documents.certificate?.secure_url || documents.certificate?.url
+      },
+      goodConductCertificate: {
+        uploaded: !!documents.goodConductCertificate,
+        filename: documents.goodConductCertificate?.originalName || '',
+        uploadDate: documents.goodConductCertificate?.uploadDate,
+        url: documents.goodConductCertificate?.secure_url || documents.goodConductCertificate?.url
+      },
+      portfolio: {
+        count: documents.portfolio ? documents.portfolio.length : 0,
+        items: documents.portfolio || []
+      }
+    };
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        providerId: provider._id,
+        providerName: provider.fullName || provider.name,
+        documents: documentSummary
+      }
+    });
+  })
+);
+
 // @desc    Get provider document for viewing by admin
 // @route   GET /api/admin/providers/:providerId/documents/:documentType/view
 // @access  Private (Admin only)
