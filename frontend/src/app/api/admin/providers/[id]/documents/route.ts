@@ -3,10 +3,11 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = cookies()
+    const resolvedParams = await params
+    const cookieStore = await cookies()
     const token = cookieStore.get('token')
 
     if (!token) {
@@ -18,7 +19,7 @@ export async function GET(
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
     
-    const response = await fetch(`${backendUrl}/api/admin/providers/${params.id}/documents`, {
+    const response = await fetch(`${backendUrl}/api/admin/providers/${resolvedParams.id}/documents`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token.value}`,

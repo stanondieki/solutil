@@ -19,10 +19,22 @@ export async function POST(request: NextRequest) {
     if (response.ok) {
       // Check if user is admin
       if (data.data?.user?.userType === 'admin') {
-        return NextResponse.json({
+        // Create response with admin token as cookie
+        const adminResponse = NextResponse.json({
           token: data.token,
           user: data.data.user
         })
+
+        // Set the token as an HTTP-only cookie
+        adminResponse.cookies.set('token', data.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60, // 7 days
+          path: '/'
+        })
+
+        return adminResponse
       } else {
         return NextResponse.json(
           { message: 'Access denied. Admin privileges required.' },
