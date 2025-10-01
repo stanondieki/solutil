@@ -792,7 +792,7 @@ export default function DashboardPage() {
             
             {/* Provider Directory - Takes up 2/3 of the space */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-gray-900">Featured Providers</h3>
                   <Link 
@@ -803,7 +803,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
                   {loadingProviders ? (
                     // Loading skeleton for providers
                     [...Array(3)].map((_, index) => (
@@ -963,7 +963,7 @@ export default function DashboardPage() {
 
             {/* Client Stats Section - Takes up 1/3 of the space */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-gray-900">My Stats</h3>
                   <div className="text-xs text-gray-500">This month</div>
@@ -979,7 +979,7 @@ export default function DashboardPage() {
                 </div>
                 
                 {/* Stats Grid */}
-                <div className="space-y-4">
+                <div className="space-y-4 flex-1">
                   <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
@@ -1031,12 +1031,42 @@ export default function DashboardPage() {
                         <FaCreditCard className="h-5 w-5 text-purple-600" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Total Spent</div>
-                        <div className="text-xs text-gray-600">This year</div>
+                        <div className="text-sm font-medium text-gray-900">Money Spent</div>
+                        <div className="text-xs text-gray-600">All time</div>
                       </div>
                     </div>
                     <div className="text-lg font-bold text-purple-600">
-                      KES {dashboardStats.find(stat => stat.label === 'Total Spent')?.value || '0'}
+                      {dashboardStats.find(stat => stat.label === 'Money Spent')?.value || 'KES 0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center mr-3">
+                        <FaHeart className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Favorite Services</div>
+                        <div className="text-xs text-gray-600">Saved providers</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {dashboardStats.find(stat => stat.label === 'Favorite Services')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-indigo-200 rounded-full flex items-center justify-center mr-3">
+                        <FaStar className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Reviews Given</div>
+                        <div className="text-xs text-gray-600">Service ratings</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-indigo-600">
+                      {dashboardStats.find(stat => stat.label === 'Reviews Given')?.value || '0'}
                     </div>
                   </div>
                 </div>
@@ -1066,47 +1096,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {loadingStats ? (
-            // Loading skeleton for stats
-            [...Array(4)].map((_, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-xl bg-gray-200 mr-4 animate-pulse">
-                    <div className="h-6 w-6 bg-gray-300 rounded"></div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
-                    <div className="h-6 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
-                    <div className="h-2 bg-gray-200 rounded w-24 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            dashboardStats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
-              >
-                <div className="flex items-center">
-                  <div className={`p-3 rounded-xl ${stat.color} text-white mr-4`}>
-                    <stat.icon className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{stat.label}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                    {stat.trend && <p className="text-xs text-gray-500 mt-1">{stat.trend}</p>}
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
-        </div>
+
 
         {/* Quick Actions */}
         <div className="mb-12">
