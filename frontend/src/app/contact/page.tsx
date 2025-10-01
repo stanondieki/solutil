@@ -57,21 +57,21 @@ export default function ContactPage() {
     {
       icon: FaPhone,
       title: 'Phone',
-      details: '+254 123 456 789',
+      details: '0717855249',
       description: 'Call us for immediate assistance',
       color: 'bg-orange-600'
     },
     {
       icon: FaWhatsapp,
       title: 'WhatsApp',
-      details: '+254 123 456 789',
+      details: '0717855249',
       description: 'Message us on WhatsApp',
       color: 'bg-green-600'
     },
     {
       icon: FaEnvelope,
       title: 'Email',
-      details: 'info@solutil.com',
+      details: 'info@solutilconnect.com',
       description: 'Send us an email',
       color: 'bg-purple-600'
     },
@@ -92,11 +92,11 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20">
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
+      <section className="relative py-28 lg:py-40 bg-gradient-to-br from-white via-slate-50/30 to-indigo-50/20 overflow-hidden">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-3xl"></div>
@@ -119,14 +119,14 @@ export default function ContactPage() {
               <FaEnvelope className="text-white text-3xl" />
             </motion.div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-6">
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-slate-900 mb-12 leading-tight tracking-tight">
               Get in{' '}
-              <span className="bg-gradient-to-r from-orange-600 via-red-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
                 Touch
               </span>
             </h1>
             
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-3xl text-slate-800 mb-14 max-w-5xl mx-auto leading-relaxed font-semibold">
               Ready to transform your home? Our expert team is here to help you every step of the way. 
               Let&apos;s discuss your project and make it a reality.
             </p>
@@ -165,13 +165,13 @@ export default function ContactPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            <h2 className="text-5xl lg:text-6xl font-black text-slate-900 mb-8">
               Multiple Ways to{' '}
-              <span className="bg-gradient-to-r from-orange-600 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
                 Reach Us
               </span>
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+            <p className="text-2xl text-slate-800 max-w-3xl mx-auto leading-relaxed font-semibold">
               Choose your preferred method of communication. We&apos;re always ready to help!
             </p>
           </motion.div>
@@ -193,7 +193,7 @@ export default function ContactPage() {
                 {/* Glowing background effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
-                <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/20 dark:border-slate-700/20 text-center overflow-hidden">
+                <div className="relative bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 text-center overflow-hidden group-hover:border-orange-200">
                   {/* Background pattern */}
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100/50 to-transparent rounded-bl-3xl"></div>
                   
@@ -208,15 +208,15 @@ export default function ContactPage() {
                     <info.icon className="text-white text-2xl" />
                   </motion.div>
                   
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-orange-600 transition-colors duration-300">
+                  <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-orange-600 transition-colors duration-300">
                     {info.title}
                   </h3>
                   
-                  <p className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3">
+                  <p className="text-xl font-black text-orange-600 mb-4">
                     {info.details}
                   </p>
                   
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-lg text-slate-700 leading-relaxed font-medium">
                     {info.description}
                   </p>
 
@@ -247,7 +247,7 @@ export default function ContactPage() {
                 {/* Glowing border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                 
-                <div className="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl rounded-3xl p-10 shadow-2xl border border-white/20 dark:border-slate-700/20 overflow-hidden">
+                <div className="relative bg-white rounded-3xl p-12 shadow-2xl border border-gray-100 overflow-hidden">
                   {/* Background decorative elements */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-orange-50/50 to-transparent rounded-bl-full"></div>
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-red-50/30 to-transparent rounded-tr-full"></div>
@@ -258,10 +258,10 @@ export default function ContactPage() {
                         <FaPaperPlane className="text-white text-xl" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                        <h2 className="text-4xl font-bold text-gray-900">
                           Send us a Message
                         </h2>
-                        <p className="text-slate-600 dark:text-slate-400">We&apos;d love to hear from you</p>
+                        <p className="text-gray-700 text-lg font-medium">We&apos;d love to hear from you</p>
                       </div>
                     </div>
                     
@@ -279,14 +279,14 @@ export default function ContactPage() {
                         >
                           <FaCheckCircle className="text-white text-3xl" />
                         </motion.div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                        <h3 className="text-3xl font-bold text-gray-900 mb-4">
                           Message Sent Successfully!
                         </h3>
-                        <p className="text-slate-600 dark:text-slate-300 text-lg">
+                        <p className="text-gray-700 text-xl font-medium">
                           Thank you for reaching out. Our team will get back to you within 24 hours.
                         </p>
-                        <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-700">
-                          <p className="text-green-700 dark:text-green-300 text-sm">
+                        <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-200">
+                          <p className="text-green-700 text-base font-medium">
                             💡 Tip: For urgent matters, call us directly or use WhatsApp for faster response
                           </p>
                         </div>
