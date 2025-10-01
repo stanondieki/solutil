@@ -51,6 +51,39 @@ interface Service {
   reviews: number
 }
 
+interface ProviderService {
+  _id: string
+  title: string
+  description: string
+  category: string
+  price: number
+  priceType: 'fixed' | 'hourly' | 'quote'
+  duration: number
+  images: string[]
+}
+
+interface Provider {
+  _id: string
+  name: string
+  email: string
+  profilePicture: string | null
+  providerProfile: {
+    experience: string
+    skills: string[]
+    hourlyRate: number
+    availability: any
+    serviceAreas: string[]
+    bio: string
+    completedJobs: number
+    rating: number
+    reviewCount: number
+    services: any[]
+  }
+  services: ProviderService[]
+  providerStatus: string
+  createdAt: string
+}
+
 interface QuickAction {
   name: string
   icon: React.ComponentType<any>
@@ -781,66 +814,116 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : providers.length > 0 ? (
-                    providers.map((provider) => (
-                    <div key={provider._id || provider.id} className="flex items-center p-4 border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200 cursor-pointer">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
-                          {provider.profilePicture ? (
-                            <Image
-                              src={provider.profilePicture}
-                              alt={provider.name}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                              <FaUser className="h-6 w-6 text-orange-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
-                      </div>
-                      
-                      <div className="flex-1 ml-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-gray-900">{provider.name}</h4>
-                          <span className="text-sm font-medium text-orange-600">
-                            {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}/hr` : 'Contact for price'}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-1">
-                          {provider.providerProfile?.experience || 'Professional Service Provider'}
-                        </p>
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center">
-                            <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
-                            <span className="text-sm font-medium text-gray-700">4.8</span>
-                            <span className="text-sm text-gray-500 ml-1">(Reviews)</span>
+                    providers.map((provider: Provider) => (
+                    <div key={provider._id} className="border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200">
+                      {/* Provider Header */}
+                      <div className="flex items-center p-4 border-b border-gray-100">
+                        <div className="relative">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                            {provider.profilePicture ? (
+                              <Image
+                                src={provider.profilePicture}
+                                alt={provider.name}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-orange-100">
+                                <FaUser className="h-6 w-6 text-orange-600" />
+                              </div>
+                            )}
                           </div>
-                          <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
-                            Available
-                          </span>
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {provider.providerProfile?.skills?.slice(0, 2).map((skill: string, idx: number) => (
-                            <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                              {skill}
+                        
+                        <div className="flex-1 ml-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-gray-900">{provider.name}</h4>
+                            <span className="text-sm font-medium text-orange-600">
+                              {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}/hr` : 'Contact for price'}
                             </span>
-                          ))}
-                          {provider.providerProfile?.skills?.length > 2 && (
-                            <span className="text-xs text-gray-500">+{provider.providerProfile.skills.length - 2} more</span>
-                          )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">
+                            {provider.providerProfile?.experience || 'Professional Service Provider'}
+                          </p>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center">
+                              <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
+                              <span className="text-sm font-medium text-gray-700">
+                                {provider.providerProfile?.rating || 4.8}
+                              </span>
+                              <span className="text-sm text-gray-500 ml-1">
+                                ({provider.providerProfile?.reviewCount || 0} reviews)
+                              </span>
+                            </div>
+                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                              Available
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="ml-4">
+                          <Link 
+                            href={`/booking/${provider._id}`}
+                            className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+                          >
+                            Book Now
+                          </Link>
                         </div>
                       </div>
-                      
-                      <div className="ml-4">
-                        <Link 
-                          href={`/booking/${provider.id}`}
-                          className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
-                        >
-                          Book Now
-                        </Link>
+
+                      {/* Provider Services */}
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-semibold text-gray-800">Services Offered</h5>
+                          {provider.services && provider.services.length > 3 && (
+                            <span className="text-xs text-gray-500">
+                              +{provider.services.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                        
+                        {provider.services && provider.services.length > 0 ? (
+                          <div className="space-y-2">
+                            {provider.services.slice(0, 3).map((service: ProviderService) => (
+                              <div key={service._id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-sm font-medium text-gray-900 capitalize">
+                                      {service.title}
+                                    </span>
+                                    <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full capitalize">
+                                      {service.category}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 mt-1 truncate">
+                                    {service.description}
+                                  </p>
+                                </div>
+                                <div className="text-right ml-2">
+                                  <div className="text-sm font-semibold text-orange-600">
+                                    KES {service.price.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {service.priceType === 'hourly' ? '/hr' : service.priceType === 'fixed' ? 'fixed' : 'quote'}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {provider.providerProfile?.skills?.slice(0, 3).map((skill: string, idx: number) => (
+                              <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                {skill}
+                              </span>
+                            ))}
+                            {provider.providerProfile?.skills?.length > 3 && (
+                              <span className="text-xs text-gray-500">+{provider.providerProfile.skills.length - 3} more</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     ))
