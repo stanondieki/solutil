@@ -979,7 +979,7 @@ export default function DashboardPage() {
                 </div>
                 
                 {/* Stats Grid */}
-                <div className="space-y-4 flex-1">
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
                   <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
