@@ -288,7 +288,8 @@ export default function DashboardPage() {
     setLoadingProviders(true)
     try {
       const token = localStorage.getItem('authToken')
-      const response = await fetch('/api/providers?featured=true&limit=3', {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+      const response = await fetch(`${BACKEND_URL}/api/providers?featured=true&limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -297,9 +298,12 @@ export default function DashboardPage() {
       
       if (response.ok) {
         const data = await response.json()
-        setProviders(data.data || data.providers || [])
+        console.log('Providers API Response:', data) // Debug log
+        setProviders(data.data?.providers || data.providers || [])
       } else {
-        console.error('Failed to fetch providers data')
+        console.error('Failed to fetch providers data, status:', response.status)
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
         // Keep empty array as fallback
         setProviders([])
       }
