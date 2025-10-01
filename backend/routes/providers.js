@@ -97,7 +97,7 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
 
   // Build the query
   let query = User.find(filter)
-    .select('name email profilePicture providerProfile providerStatus createdAt')
+    .select('name email profilePicture avatar providerProfile providerStatus createdAt')
     .sort({ 'providerProfile.rating': -1, createdAt: -1 });
 
   // Apply limit
@@ -128,7 +128,7 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
       _id: provider._id,
       name: provider.name,
       email: provider.email,
-      profilePicture: provider.profilePicture || null,
+      profilePicture: provider.avatar?.url || provider.profilePicture || null, // Check both avatar.url and profilePicture
       providerProfile: {
         experience: providerInfo.experience,
         skills: providerInfo.skills || [],
