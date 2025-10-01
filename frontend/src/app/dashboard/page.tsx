@@ -790,8 +790,141 @@ export default function DashboardPage() {
         {user && RoleManager.isClient(user.userType) && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
-            {/* Provider Directory - Takes up 2/3 of the space */}
-            <div className="lg:col-span-2">
+            {/* Client Stats Section - Shows first on mobile, third on desktop */}
+            <div className="lg:col-span-1 order-1 lg:order-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-gray-900">My Stats</h3>
+                  <div className="text-xs text-gray-500">This month</div>
+                </div>
+                
+                {/* Welcome Header */}
+                <div className="text-center mb-6 p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl">
+                  <div className="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <FaUser className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-1">Welcome, {user.name.split(' ')[0]}!</h4>
+                  <p className="text-sm text-gray-600">Track your service activities</p>
+                </div>
+                
+                {/* Stats Grid */}
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCalendarAlt className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Total Bookings</div>
+                        <div className="text-xs text-gray-600">All time</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCheck className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Completed</div>
+                        <div className="text-xs text-gray-600">Services done</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {dashboardStats.find(stat => stat.label === 'Completed')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center mr-3">
+                        <FaClock className="h-5 w-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Pending</div>
+                        <div className="text-xs text-gray-600">In progress</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {dashboardStats.find(stat => stat.label === 'Pending')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCreditCard className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Money Spent</div>
+                        <div className="text-xs text-gray-600">All time</div>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-purple-600">
+                      {dashboardStats.find(stat => stat.label === 'Money Spent')?.value || 'KES 0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center mr-3">
+                        <FaHeart className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Favorite Services</div>
+                        <div className="text-xs text-gray-600">Saved providers</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {dashboardStats.find(stat => stat.label === 'Favorite Services')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-indigo-200 rounded-full flex items-center justify-center mr-3">
+                        <FaStar className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Reviews Given</div>
+                        <div className="text-xs text-gray-600">Service ratings</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-indigo-600">
+                      {dashboardStats.find(stat => stat.label === 'Reviews Given')?.value || '0'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="text-sm font-medium text-gray-900 mb-3">Quick Actions</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link 
+                      href="/bookings"
+                      className="flex items-center justify-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
+                    >
+                      <FaCalendarAlt className="h-4 w-4 mr-2 text-orange-600" />
+                      <span className="text-xs font-medium text-orange-700">Book Now</span>
+                    </Link>
+                    <Link 
+                      href="/bookings"
+                      className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                    >
+                      <FaClipboardList className="h-4 w-4 mr-2 text-gray-600" />
+                      <span className="text-xs font-medium text-gray-700">My Orders</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Provider Directory - Shows second on mobile, first on desktop */}
+            <div className="lg:col-span-2 order-2 lg:order-1">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-gray-900">Featured Providers</h3>
@@ -961,138 +1094,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Client Stats Section - Takes up 1/3 of the space */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">My Stats</h3>
-                  <div className="text-xs text-gray-500">This month</div>
-                </div>
-                
-                {/* Welcome Header */}
-                <div className="text-center mb-6 p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl">
-                  <div className="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <FaUser className="h-8 w-8 text-orange-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Welcome, {user.name.split(' ')[0]}!</h4>
-                  <p className="text-sm text-gray-600">Track your service activities</p>
-                </div>
-                
-                {/* Stats Grid */}
-                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
-                        <FaCalendarAlt className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Total Bookings</div>
-                        <div className="text-xs text-gray-600">All time</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
-                    </div>
-                  </div>
 
-                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mr-3">
-                        <FaCheck className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Completed</div>
-                        <div className="text-xs text-gray-600">Services done</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-green-600">
-                      {dashboardStats.find(stat => stat.label === 'Completed')?.value || '0'}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center mr-3">
-                        <FaClock className="h-5 w-5 text-yellow-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Pending</div>
-                        <div className="text-xs text-gray-600">In progress</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {dashboardStats.find(stat => stat.label === 'Pending')?.value || '0'}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
-                        <FaCreditCard className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Money Spent</div>
-                        <div className="text-xs text-gray-600">All time</div>
-                      </div>
-                    </div>
-                    <div className="text-lg font-bold text-purple-600">
-                      {dashboardStats.find(stat => stat.label === 'Money Spent')?.value || 'KES 0'}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center mr-3">
-                        <FaHeart className="h-5 w-5 text-red-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Favorite Services</div>
-                        <div className="text-xs text-gray-600">Saved providers</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-red-600">
-                      {dashboardStats.find(stat => stat.label === 'Favorite Services')?.value || '0'}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-indigo-200 rounded-full flex items-center justify-center mr-3">
-                        <FaStar className="h-5 w-5 text-indigo-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Reviews Given</div>
-                        <div className="text-xs text-gray-600">Service ratings</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-indigo-600">
-                      {dashboardStats.find(stat => stat.label === 'Reviews Given')?.value || '0'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="mt-6 pt-4 border-t border-gray-100">
-                  <div className="text-sm font-medium text-gray-900 mb-3">Quick Actions</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link 
-                      href="/bookings"
-                      className="flex items-center justify-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
-                    >
-                      <FaCalendarAlt className="h-4 w-4 mr-2 text-orange-600" />
-                      <span className="text-xs font-medium text-orange-700">Book Now</span>
-                    </Link>
-                    <Link 
-                      href="/bookings"
-                      className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
-                    >
-                      <FaClipboardList className="h-4 w-4 mr-2 text-gray-600" />
-                      <span className="text-xs font-medium text-gray-700">My Orders</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
