@@ -6,10 +6,10 @@ require('dotenv').config();
 
 // Admin configuration
 const ADMIN_CONFIG = {
-  name: 'Administrator',
-  email: 'infosolu31@gmail.com', // Your real email
-  password: 'AdminSolu2024!', // Strong password
-  phone: '+254700000000',
+  name: 'System Administrator',
+  email: 'info@solutilconnect.com', // Updated real admin email
+  password: 'SoluAdmin2025!', // Strong password
+  phone: '+254712345678',
   userType: 'admin'
 };
 
@@ -47,7 +47,7 @@ const sendAdminWelcomeEmail = async (adminUser) => {
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ea580c;">
             <h3 style="margin-top: 0; color: #ea580c;">🔐 Your Admin Credentials</h3>
             <p style="margin: 5px 0;"><strong>Email:</strong> ${adminUser.email}</p>
-            <p style="margin: 5px 0;"><strong>Password:</strong> ${ADMIN_CONFIG.password}</p>
+            <p style="margin: 5px 0;"><strong>Password:</strong> SoluAdmin2025!</p>
             <p style="margin: 5px 0;"><strong>Role:</strong> Administrator</p>
           </div>
           

@@ -109,9 +109,20 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
   const providers = await query;
   const total = await User.countDocuments(filter);
 
-  // Map providers to include profile picture and enhanced data
-  const mappedProviders = providers.map(provider => {
+  // Map providers to include profile picture, enhanced data, and their services
+  const mappedProviders = await Promise.all(providers.map(async (provider) => {
     const providerInfo = provider.providerProfile || {};
+    
+    // Fetch provider's services from ProviderService model
+    let providerServices = [];
+    try {
+      providerServices = await ProviderService.find({
+        providerId: provider._id,
+        isActive: true
+      }).select('title description category price priceType duration images').limit(5); // Limit to 5 services for performance
+    } catch (error) {
+      console.error(`Error fetching services for provider ${provider._id}:`, error);
+    }
     
     return {
       _id: provider._id,
@@ -130,10 +141,11 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
         reviewCount: providerInfo.reviewCount || 0,
         services: providerInfo.services || [] // Include onboarding services
       },
+      services: providerServices, // Include actual ProviderServices
       providerStatus: provider.providerStatus,
       createdAt: provider.createdAt
     };
-  });
+  }));
 
   res.status(200).json({
     status: 'success',
