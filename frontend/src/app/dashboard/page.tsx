@@ -961,93 +961,105 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Client Profile Section - Takes up 1/3 of the space */}
+            {/* Client Stats Section - Takes up 1/3 of the space */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">My Profile</h3>
-                  <Link 
-                    href="/profile" 
-                    className="text-orange-600 hover:text-orange-700 font-medium text-sm"
-                  >
-                    Edit
-                  </Link>
+                  <h3 className="text-lg font-bold text-gray-900">My Stats</h3>
+                  <div className="text-xs text-gray-500">This month</div>
                 </div>
                 
-                <div className="text-center mb-6">
-                  <div className="relative inline-block">
-                    <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 mx-auto mb-4">
-                      {(user as any).profilePicture ? (
-                        <Image
-                          src={(user as any).profilePicture}
-                          alt={user.name}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                          <FaUser className="h-8 w-8 text-orange-600" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute bottom-3 right-0 w-6 h-6 bg-green-500 border-2 border-white rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
+                {/* Welcome Header */}
+                <div className="text-center mb-6 p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl">
+                  <div className="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <FaUser className="h-8 w-8 text-orange-600" />
                   </div>
-                  
-                  <h4 className="font-semibold text-gray-900 mb-1">{user.name}</h4>
-                  <p className="text-sm text-gray-600 mb-4">{user.email}</p>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">
-                        {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
+                  <h4 className="font-semibold text-gray-900 mb-1">Welcome, {user.name.split(' ')[0]}!</h4>
+                  <p className="text-sm text-gray-600">Track your service activities</p>
+                </div>
+                
+                {/* Stats Grid */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCalendarAlt className="h-5 w-5 text-blue-600" />
                       </div>
-                      <div className="text-xs text-gray-500">Bookings</div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Total Bookings</div>
+                        <div className="text-xs text-gray-600">All time</div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">4.8</div>
-                      <div className="text-xs text-gray-500">Rating</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCheck className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Completed</div>
+                        <div className="text-xs text-gray-600">Services done</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {dashboardStats.find(stat => stat.label === 'Completed')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center mr-3">
+                        <FaClock className="h-5 w-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Pending</div>
+                        <div className="text-xs text-gray-600">In progress</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {dashboardStats.find(stat => stat.label === 'Pending')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCreditCard className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Total Spent</div>
+                        <div className="text-xs text-gray-600">This year</div>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-purple-600">
+                      KES {dashboardStats.find(stat => stat.label === 'Total Spent')?.value || '0'}
                     </div>
                   </div>
                 </div>
-                
-                <div className="space-y-3">
-                  <Link 
-                    href="/profile"
-                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
-                  >
-                    <FaUser className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
-                    <span className="text-sm font-medium">Edit Profile</span>
-                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                  
-                  <Link 
-                    href="/bookings"
-                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
-                  >
-                    <FaClipboardList className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
-                    <span className="text-sm font-medium">My Bookings</span>
-                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                  
-                  <Link 
-                    href="/favorites"
-                    className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 group"
-                  >
-                    <FaHeart className="h-4 w-4 mr-3 text-gray-500 group-hover:text-orange-600" />
-                    <span className="text-sm font-medium">Saved Providers</span>
-                    <FaArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                  
-                  <button 
-                    onClick={() => setShowLogoutDropdown(true)}
-                    className="w-full flex items-center p-3 bg-red-50 rounded-lg hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 group"
-                  >
-                    <FaSignOutAlt className="h-4 w-4 mr-3" />
-                    <span className="text-sm font-medium">Logout</span>
-                  </button>
+
+                {/* Quick Actions */}
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="text-sm font-medium text-gray-900 mb-3">Quick Actions</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link 
+                      href="/bookings"
+                      className="flex items-center justify-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
+                    >
+                      <FaCalendarAlt className="h-4 w-4 mr-2 text-orange-600" />
+                      <span className="text-xs font-medium text-orange-700">Book Now</span>
+                    </Link>
+                    <Link 
+                      href="/bookings"
+                      className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                    >
+                      <FaClipboardList className="h-4 w-4 mr-2 text-gray-600" />
+                      <span className="text-xs font-medium text-gray-700">My Orders</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
