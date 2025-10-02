@@ -20,7 +20,7 @@ export default function HomePage() {
       subtitle: 'Reliable pipe repairs, installations, and emergency services'
     },
     {
-      image: '/images/services/electrical.jpg', 
+      image: '/testmonials/electrician2.jpg', 
       alt: 'Professional Electrical Services',
       title: 'Safe Electrical Work',
       subtitle: 'Professional wiring, installations, and safety inspections'
@@ -230,15 +230,15 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {[
               { 
-                image: '/images/services/plumbing.jpg', 
+                image: '/testmonials/plumbing1.jpg', 
                 title: 'Plumbing', 
                 desc: 'Expert plumbing repairs and installations', 
                 features: ['Pipe repairs', 'Drain cleaning', 'Water heater service'],
                 color: 'orange',
-                price: 'From KES 1,500'
+                price: 'From KES 2,000'
               },
               { 
-                image: '/images/services/electrical.jpg', 
+                image: '/testmonials/electrician2.jpg', 
                 title: 'Electrical', 
                 desc: 'Safe electrical work & TV mounting', 
                 features: ['Wiring installation', 'TV mounting', 'Circuit repairs', 'Lighting setup'],
@@ -251,7 +251,7 @@ export default function HomePage() {
                 desc: 'Professional home and office cleaning', 
                 features: ['Deep cleaning', 'Regular maintenance', 'Move-in/out cleaning'],
                 color: 'green',
-                price: 'From KES 1,000'
+                price: 'From KES 1,800'
               },
               { 
                 image: '/service/movers.jpg', 
@@ -327,29 +327,29 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: 'Sarah Kimani',
+                name: 'Ian Kamau',
                 location: 'Nairobi',
                 service: 'Plumbing',
                 rating: 5,
-                image: 'https://images.unsplash.com/photo-1494790108755-2616b612b002?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
+                image: '/testmonials/ian.jpg',
                 testimonial: 'Excellent service! The plumber arrived on time, fixed my kitchen sink quickly, and the pricing was very fair. I\'ll definitely use Solutil again.',
                 date: '2 weeks ago'
               },
               {
-                name: 'David Mwangi',
-                location: 'Kiambu',
+                name: 'Desterian Ragira',
+                location: 'Nairobi',
                 service: 'Electrical',
                 rating: 5,
-                image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+                image: '/testmonials/dest.JPG',
                 testimonial: 'Professional electrical work! They installed new wiring in my home office safely and efficiently. Great communication throughout the process.',
                 date: '1 month ago'
               },
               {
-                name: 'Grace Wanjiku',
-                location: 'Nakuru',
+                name: 'Mitchele John',
+                location: 'Nairobi',
                 service: 'Cleaning',
                 rating: 5,
-                image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+                image: '/testmonials/mitchell.jpg',
                 testimonial: 'Amazing deep cleaning service! My house has never been cleaner. The team was thorough, professional, and respectful of my property.',
                 date: '3 weeks ago'
               }

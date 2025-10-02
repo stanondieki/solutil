@@ -108,24 +108,6 @@ export default function AboutPage() {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex items-center justify-center mb-8"
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-700 rounded-2xl blur-lg opacity-20"></div>
-                <Image 
-                  src="/images/logo.png" 
-                  alt="Solutil Logo" 
-                  width={100}
-                  height={100}
-                  className="relative rounded-2xl object-cover shadow-2xl ring-4 ring-white/20"
-                />
-              </div>
-            </motion.div>
-            
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

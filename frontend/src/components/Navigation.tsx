@@ -42,8 +42,8 @@ export default function Navigation() {
                 <Image 
                   src="/images/log.png" 
                   alt="Solutil Connect Logo" 
-                  width={60}
-                  height={60}
+                  width={130}
+                  height={130}
                   className="rounded-lg object-contain transition-transform group-hover:scale-105"
                 />
               </div>
