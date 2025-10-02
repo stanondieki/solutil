@@ -7,6 +7,90 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
+// @desc    Get public services by category (for client discovery)
+// @route   GET /api/provider-services/public/:category
+// @access  Public
+router.get('/public/:category', catchAsync(async (req, res, next) => {
+  const { category } = req.params;
+  const { limit = 20, page = 1, sort = '-rating' } = req.query;
+  
+  const skip = (page - 1) * limit;
+  
+  const services = await ProviderService.find({ 
+    category: category.toLowerCase(),
+    isActive: true 
+  })
+    .populate('providerId', 'name email phone providerProfile')
+    .sort(sort)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const total = await ProviderService.countDocuments({ 
+    category: category.toLowerCase(),
+    isActive: true 
+  });
+
+  res.status(200).json({
+    success: true,
+    results: services.length,
+    pagination: {
+      page: parseInt(page),
+      pages: Math.ceil(total / limit),
+      total,
+      limit: parseInt(limit)
+    },
+    data: {
+      services
+    }
+  });
+}));
+
+// @desc    Get all public services (for browsing)
+// @route   GET /api/provider-services/public
+// @access  Public
+router.get('/public', catchAsync(async (req, res, next) => {
+  const { limit = 20, page = 1, sort = '-rating', category } = req.query;
+  
+  const skip = (page - 1) * limit;
+  
+  let filter = { isActive: true };
+  if (category) {
+    filter.category = category.toLowerCase();
+  }
+  
+  const services = await ProviderService.find(filter)
+    .populate('providerId', 'name email phone providerProfile')
+    .sort(sort)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const total = await ProviderService.countDocuments(filter);
+
+  // Group services by category for better organization
+  const servicesByCategory = {};
+  services.forEach(service => {
+    if (!servicesByCategory[service.category]) {
+      servicesByCategory[service.category] = [];
+    }
+    servicesByCategory[service.category].push(service);
+  });
+
+  res.status(200).json({
+    success: true,
+    results: services.length,
+    pagination: {
+      page: parseInt(page),
+      pages: Math.ceil(total / limit),
+      total,
+      limit: parseInt(limit)
+    },
+    data: {
+      services,
+      servicesByCategory
+    }
+  });
+}));
+
 // @desc    Get all services for provider
 // @route   GET /api/services
 // @access  Private (Provider only)
@@ -314,6 +398,118 @@ router.post('/:id/duplicate', protect, catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       service: duplicatedService
+    }
+  });
+}));
+
+// @desc    Get all public provider services (for clients to discover)
+// @route   GET /api/provider-services/public
+// @access  Public
+router.get('/public', catchAsync(async (req, res, next) => {
+  const { category, location, priceMin, priceMax, page = 1, limit = 20 } = req.query;
+  
+  // Build filter object
+  const filter = { isActive: true };
+  
+  if (category && category !== 'all') {
+    filter.category = category;
+  }
+  
+  if (priceMin || priceMax) {
+    filter.price = {};
+    if (priceMin) filter.price.$gte = parseFloat(priceMin);
+    if (priceMax) filter.price.$lte = parseFloat(priceMax);
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Get services with provider information
+  const services = await ProviderService.find(filter)
+    .populate({
+      path: 'providerId',
+      select: 'name email providerProfile userType providerStatus',
+      match: { providerStatus: 'approved' } // Only approved providers
+    })
+    .sort({ rating: -1, totalBookings: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  // Filter out services where provider is null (not approved)
+  const approvedServices = services.filter(service => service.providerId);
+
+  const total = await ProviderService.countDocuments({
+    ...filter,
+    providerId: { 
+      $in: await require('../models/User').find({ 
+        providerStatus: 'approved',
+        userType: 'provider' 
+      }).distinct('_id')
+    }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: approvedServices.length,
+    pagination: {
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+      total,
+      limit: parseInt(limit)
+    },
+    data: {
+      services: approvedServices
+    }
+  });
+}));
+
+// @desc    Get provider services by category (public)
+// @route   GET /api/provider-services/category/:category
+// @access  Public  
+router.get('/category/:category', catchAsync(async (req, res, next) => {
+  const { category } = req.params;
+  const { page = 1, limit = 20 } = req.query;
+  
+  const filter = { 
+    isActive: true,
+    category: category 
+  };
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const services = await ProviderService.find(filter)
+    .populate({
+      path: 'providerId',
+      select: 'name email providerProfile userType providerStatus',
+      match: { providerStatus: 'approved' }
+    })
+    .sort({ rating: -1, totalBookings: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  // Filter out services where provider is null
+  const approvedServices = services.filter(service => service.providerId);
+
+  const total = await ProviderService.countDocuments({
+    ...filter,
+    providerId: { 
+      $in: await require('../models/User').find({ 
+        providerStatus: 'approved',
+        userType: 'provider' 
+      }).distinct('_id')
+    }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: approvedServices.length,
+    pagination: {
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+      total,
+      limit: parseInt(limit)
+    },
+    data: {
+      services: approvedServices
     }
   });
 }));
