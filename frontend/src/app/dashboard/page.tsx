@@ -36,7 +36,8 @@ import {
   FaShieldAlt,
   FaPowerOff,
   FaExclamationTriangle,
-  FaRocket
+  FaRocket,
+  FaEye
 } from 'react-icons/fa'
 
 // TypeScript interfaces
@@ -1094,6 +1095,222 @@ export default function DashboardPage() {
               </div>
             </div>
 
+
+          </div>
+        )}
+
+        {/* Provider-specific sections */}
+        {user && RoleManager.isProvider(user.userType) && user.providerStatus === 'approved' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            {/* Provider Stats Section */}
+            <div className="lg:col-span-1 order-1">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-gray-900">My Provider Stats</h3>
+                  <div className="text-xs text-gray-500">This month</div>
+                </div>
+                
+                {/* Welcome Header */}
+                <div className="text-center mb-6 p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl">
+                  <div className="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <FaTools className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-1">Welcome, {user.name.split(' ')[0]}!</h4>
+                  <p className="text-sm text-gray-600">Track your service performance</p>
+                </div>
+                
+                {/* Provider Stats Grid */}
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                  <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center mr-3">
+                        <FaClipboardList className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Total Bookings</div>
+                        <div className="text-xs text-gray-600">All time</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {dashboardStats.find(stat => stat.label === 'Total Bookings')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mr-3">
+                        <FaCreditCard className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Monthly Earnings</div>
+                        <div className="text-xs text-gray-600">This month</div>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-green-600">
+                      {dashboardStats.find(stat => stat.label === 'This Month Earnings')?.value || 'KES 0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center mr-3">
+                        <FaStar className="h-5 w-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Average Rating</div>
+                        <div className="text-xs text-gray-600">From clients</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {dashboardStats.find(stat => stat.label === 'Rating')?.value || '0.0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center mr-3">
+                        <FaTools className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Active Services</div>
+                        <div className="text-xs text-gray-600">Currently offered</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {dashboardStats.find(stat => stat.label === 'Active Services')?.value || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
+                        <FaEye className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Profile Views</div>
+                        <div className="text-xs text-gray-600">This week</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {dashboardData?.profileViews || '0'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-indigo-200 rounded-full flex items-center justify-center mr-3">
+                        <FaChartLine className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Response Rate</div>
+                        <div className="text-xs text-gray-600">Message replies</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-indigo-600">
+                      {dashboardData?.responseRate || '100%'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Provider Quick Actions */}
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="text-sm font-medium text-gray-900 mb-3">Quick Actions</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link 
+                      href="/provider/services"
+                      className="flex items-center justify-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
+                    >
+                      <FaTools className="h-4 w-4 mr-2 text-orange-600" />
+                      <span className="text-xs font-medium text-orange-700">Manage Services</span>
+                    </Link>
+                    <Link 
+                      href="/provider/bookings"
+                      className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                    >
+                      <FaCalendarAlt className="h-4 w-4 mr-2 text-gray-600" />
+                      <span className="text-xs font-medium text-gray-700">View Bookings</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Provider Earnings Chart */}
+            <div className="lg:col-span-2 order-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px]">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Earnings Overview</h3>
+                    <p className="text-sm text-gray-600">Track your monthly income and trends</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
+                      This Month
+                    </button>
+                    <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                      Last 6 Months
+                    </button>
+                  </div>
+                </div>
+
+                {/* Earnings Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-800">This Month</p>
+                        <p className="text-2xl font-bold text-orange-900">
+                          {dashboardStats.find(stat => stat.label === 'This Month Earnings')?.value || 'KES 0'}
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center">
+                        <FaCreditCard className="h-6 w-6 text-orange-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-800">Pending Payout</p>
+                        <p className="text-2xl font-bold text-green-900">
+                          {dashboardData?.pendingPayout ? `KES ${dashboardData.pendingPayout.toLocaleString()}` : 'KES 0'}
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
+                        <FaClock className="h-6 w-6 text-green-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">Total Earned</p>
+                        <p className="text-2xl font-bold text-blue-900">
+                          {dashboardData?.totalEarned ? `KES ${dashboardData.totalEarned.toLocaleString()}` : 'KES 0'}
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
+                        <FaChartLine className="h-6 w-6 text-blue-600" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chart Placeholder */}
+                <div className="flex-1 bg-gray-50 rounded-xl p-8 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                    <FaChartLine className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">Earnings Chart Coming Soon</h4>
+                  <p className="text-gray-600 text-center">
+                    We're working on adding detailed earnings analytics and charts to help you track your income trends.
+                  </p>
+                </div>
+              </div>
+            </div>
 
           </div>
         )}
