@@ -549,8 +549,8 @@ export default function DashboardPage() {
                 <Image
                   src="/images/log.png"
                   alt="Solutil"
-                  width={40}
-                  height={40}
+                  width={130}
+                  height={130}
                   className="group-hover:scale-105 transition-transform duration-200"
                 />
                
