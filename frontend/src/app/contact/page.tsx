@@ -487,7 +487,7 @@ export default function ContactPage() {
                         </div>
                         <div>
                           <span className="font-semibold block">Call Now</span>
-                          <span className="text-white/80 text-sm">+254 123 456 789</span>
+                          <span className="text-white/80 text-sm">+254 717855249 </span>
                         </div>
                       </motion.a>
                       

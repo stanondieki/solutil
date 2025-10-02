@@ -11,16 +11,6 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Company Info */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-3 mb-4">
-              <Image 
-                src="/images/logo.png" 
-                alt="Solutil Logo" 
-                width={40}
-                height={40}
-                className="rounded-lg object-cover"
-              />
-              <span className="text-2xl font-bold">Solutil</span>
-            </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Professional home services made simple. We connect you with trusted, vetted service providers 
               for all your home maintenance needs across Kenya.

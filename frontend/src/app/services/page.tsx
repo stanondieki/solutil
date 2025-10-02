@@ -25,7 +25,7 @@ const services = [
     title: 'Plumbing Services',
     icon: FaWrench,
     description: 'Professional plumbing services for homes and businesses',
-    price: 'From KES 1,500',
+    price: 'From KES 2,000',
     color: 'from-blue-500 to-blue-600',
     bgColor: 'from-blue-50 to-blue-100',
     features: [
@@ -63,7 +63,7 @@ const services = [
     title: 'Cleaning Services',
     icon: FaBroom,
     description: 'Comprehensive cleaning services for your space',
-    price: 'From KES 1,200',
+    price: 'From KES 1,800',
     color: 'from-green-500 to-emerald-500',
     bgColor: 'from-green-50 to-emerald-100',
     features: [
@@ -101,7 +101,7 @@ const services = [
     title: 'Painting Services',
     icon: FaPaintRoller,
     description: 'Interior and exterior painting services',
-    price: 'From KES 1,800',
+    price: 'From KES 2,000',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'from-purple-50 to-pink-100',
     features: [
