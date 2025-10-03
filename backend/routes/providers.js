@@ -12,7 +12,20 @@ const convertOnboardingServicesToProviderServices = async (provider) => {
   const onboardingServices = provider.providerProfile?.services;
   
   if (!onboardingServices || !Array.isArray(onboardingServices) || onboardingServices.length === 0) {
-    console.log(`No onboarding services found for provider: ${provider.email}`);
+    console.log(`No onboarding services found for provider: ${provider.email}, creating default service`);
+    
+    // Create a default service based on provider's main skill/category
+    const mainSkill = provider.providerProfile?.skills?.[0] || 'general';
+    const defaultService = {
+      title: `${mainSkill.charAt(0).toUpperCase() + mainSkill.slice(1)} Services`,
+      category: mainSkill.toLowerCase(),
+      price: provider.providerProfile?.hourlyRate || 1000,
+      priceType: 'hourly',
+      description: `Professional ${mainSkill} services by ${provider.name}`
+    };
+    
+    // Use the default service as the only service
+    await createProviderService(provider, defaultService);
     return;
   }
 
@@ -20,50 +33,56 @@ const convertOnboardingServicesToProviderServices = async (provider) => {
 
   // Convert each onboarding service to a ProviderService
   for (const service of onboardingServices) {
-    try {
-      // Check if service already exists to avoid duplicates
-      const existingService = await ProviderService.findOne({
-        providerId: provider._id,
-        title: service.title,
-        category: service.category
-      });
+    await createProviderService(provider, service);
+  }
+};
 
-      if (existingService) {
-        console.log(`Service already exists: ${service.title} for provider: ${provider.email}`);
-        continue;
-      }
+// Helper function to create a single provider service
+const createProviderService = async (provider, service) => {
+  try {
+    // Check if service already exists to avoid duplicates
+    const existingService = await ProviderService.findOne({
+      providerId: provider._id,
+      title: service.title,
+      category: service.category
+    });
 
-      // Create ProviderService from onboarding service data
-      const providerService = new ProviderService({
-        title: service.title,
-        description: service.description || `Professional ${service.category} service`,
-        category: service.category.toLowerCase(),
-        price: parseFloat(service.price) || 0,
-        priceType: service.priceType || 'hourly',
-        duration: 60, // Default 1 hour duration
-        images: [], // Will be populated later if provider uploads images
-        isActive: true,
-        serviceArea: provider.providerProfile?.serviceAreas || [],
-        availableHours: {
-          start: provider.providerProfile?.availability?.hours?.start || '08:00',
-          end: provider.providerProfile?.availability?.hours?.end || '18:00'
-        },
-        tags: [service.category, 'professional', 'verified'],
-        providerId: provider._id,
-        // Initialize stats
-        totalBookings: 0,
-        totalRevenue: 0,
-        rating: 0,
-        reviewCount: 0
-      });
-
-      await providerService.save();
-      console.log(`Created ProviderService: ${service.title} for provider: ${provider.email}`);
-
-    } catch (error) {
-      console.error(`Error creating service ${service.title} for provider ${provider.email}:`, error);
-      // Continue with next service even if one fails
+    if (existingService) {
+      console.log(`Service already exists: ${service.title} for provider: ${provider.email}`);
+      return existingService;
     }
+
+    // Create ProviderService from onboarding service data
+    const providerService = new ProviderService({
+      title: service.title,
+      description: service.description || `Professional ${service.category} service by ${provider.name}`,
+      category: service.category.toLowerCase(),
+      price: parseFloat(service.price) || provider.providerProfile?.hourlyRate || 1000,
+      priceType: service.priceType || 'hourly',
+      duration: 60, // Default 1 hour duration
+      images: [], // Will be populated later if provider uploads images
+      isActive: true,
+      serviceArea: provider.providerProfile?.serviceAreas || ['nairobi'],
+      availableHours: {
+        start: provider.providerProfile?.availability?.hours?.start || '08:00',
+        end: provider.providerProfile?.availability?.hours?.end || '18:00'
+      },
+      tags: [service.category, 'professional', 'verified'],
+      providerId: provider._id,
+      // Initialize stats
+      totalBookings: 0,
+      totalRevenue: 0,
+      rating: 0,
+      reviewCount: 0
+    });
+
+    await providerService.save();
+    console.log(`Created ProviderService: ${service.title} for provider: ${provider.email}`);
+    return providerService;
+
+  } catch (error) {
+    console.error(`Error creating service ${service.title} for provider ${provider.email}:`, error);
+    return null;
   }
 };
 
@@ -379,6 +398,59 @@ router.get('/verified/all', catchAsync(async (req, res, next) => {
     totalPages: Math.ceil(total / limit),
     currentPage: page,
     data: { providers }
+  });
+}));
+
+// @desc    Backfill services for existing approved providers
+// @route   POST /api/providers/backfill-services
+// @access  Private (Admin only)
+router.post('/backfill-services', protect, catchAsync(async (req, res, next) => {
+  if (req.user.userType !== 'admin') {
+    return next(new AppError('Access denied. Admin privileges required.', 403));
+  }
+
+  // Get all approved providers who might not have services
+  const approvedProviders = await User.find({
+    userType: 'provider',
+    providerStatus: 'approved'
+  });
+
+  let processedCount = 0;
+  let servicesCreated = 0;
+
+  for (const provider of approvedProviders) {
+    try {
+      // Check if provider already has services
+      const existingServicesCount = await ProviderService.countDocuments({ 
+        providerId: provider._id 
+      });
+
+      if (existingServicesCount === 0) {
+        // Provider has no services, convert onboarding services
+        await convertOnboardingServicesToProviderServices(provider);
+        
+        // Count services created
+        const newServicesCount = await ProviderService.countDocuments({ 
+          providerId: provider._id 
+        });
+        servicesCreated += newServicesCount;
+      }
+      
+      processedCount++;
+    } catch (error) {
+      logger.error(`Error processing provider ${provider.email}:`, error);
+    }
+  }
+
+  logger.info(`Backfilled services: ${processedCount} providers processed, ${servicesCreated} services created`);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Service backfill completed',
+    data: {
+      providersProcessed: processedCount,
+      servicesCreated: servicesCreated
+    }
   });
 }));
 

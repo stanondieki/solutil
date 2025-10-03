@@ -313,34 +313,51 @@ export default function DashboardPage() {
         }
         
         const uniqueProviders = services.reduce((acc: any[], service: any) => {
-          if (service.providerId && !acc.find(p => p._id === service.providerId._id)) {
-            // Map the provider data to match our interface
-            const mappedProvider = {
-              _id: service.providerId._id,
-              name: service.providerId.name,
-              email: service.providerId.email,
-              phone: service.providerId.phone,
-              profilePicture: service.providerId.profilePicture || null,
-              providerProfile: {
-                businessName: service.providerId.providerProfile?.businessName || service.providerId.name,
-                experience: service.providerId.providerProfile?.experience || 'Experienced professional',
-                skills: service.providerId.providerProfile?.skills || [],
-                hourlyRate: service.providerId.providerProfile?.hourlyRate || service.price || 0,
-                availability: service.providerId.providerProfile?.availability || {},
-                serviceAreas: service.serviceArea || [],
-                bio: service.providerId.providerProfile?.bio || service.description || '',
-                completedJobs: service.providerId.providerProfile?.completedJobs || service.totalBookings || 0,
-                rating: service.providerId.providerProfile?.rating || service.rating || 0,
-                reviewCount: service.providerId.providerProfile?.reviewCount || service.reviewCount || 0,
-                services: []
-              },
-              services: [],
-              providerStatus: 'approved', // Assume approved since they have active services
-              createdAt: service.createdAt || new Date().toISOString()
+          if (service.providerId) {
+            let existingProvider = acc.find(p => p._id === service.providerId._id);
+            
+            if (!existingProvider) {
+              // Create new provider entry
+              existingProvider = {
+                _id: service.providerId._id,
+                name: service.providerId.name,
+                email: service.providerId.email,
+                phone: service.providerId.phone,
+                profilePicture: service.providerId.profilePicture || null,
+                providerProfile: {
+                  businessName: service.providerId.providerProfile?.businessName || service.providerId.name,
+                  experience: service.providerId.providerProfile?.experience || 'Experienced professional',
+                  skills: service.providerId.providerProfile?.skills || [],
+                  hourlyRate: service.providerId.providerProfile?.hourlyRate || service.price || 0,
+                  availability: service.providerId.providerProfile?.availability || {},
+                  serviceAreas: service.serviceArea || [],
+                  bio: service.providerId.providerProfile?.bio || service.description || '',
+                  completedJobs: service.providerId.providerProfile?.completedJobs || service.totalBookings || 0,
+                  rating: service.providerId.providerProfile?.rating || service.rating || 0,
+                  reviewCount: service.providerId.providerProfile?.reviewCount || service.reviewCount || 0,
+                },
+                services: [],
+                providerStatus: 'approved', // Assume approved since they have active services
+                createdAt: service.createdAt || new Date().toISOString()
+              };
+              acc.push(existingProvider);
             }
-            acc.push(mappedProvider)
+            
+            // Add this service to the provider's services array
+            existingProvider.services.push({
+              _id: service._id,
+              title: service.title,
+              description: service.description,
+              category: service.category,
+              price: service.price,
+              priceType: service.priceType,
+              duration: service.duration,
+              rating: service.rating || 0,
+              reviewCount: service.reviewCount || 0,
+              totalBookings: service.totalBookings || 0
+            });
           }
-          return acc
+          return acc;
         }, [])
         
         console.log('Unique providers extracted:', uniqueProviders.length) // Debug log
@@ -1113,12 +1130,21 @@ export default function DashboardPage() {
                         </div>
                         
                         <div className="ml-4">
-                          <Link 
-                            href={`/booking/${provider._id}`}
-                            className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
-                          >
-                            Book Now
-                          </Link>
+                          {provider.services && provider.services.length > 0 ? (
+                            <Link 
+                              href={`/booking/form/${provider.services[0]._id}`}
+                              className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+                            >
+                              Book Now
+                            </Link>
+                          ) : (
+                            <Link 
+                              href={`/provider/${provider._id}`}
+                              className="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors"
+                            >
+                              View Profile
+                            </Link>
+                          )}
                         </div>
                       </div>
 
@@ -1136,7 +1162,11 @@ export default function DashboardPage() {
                         {provider.services && provider.services.length > 0 ? (
                           <div className="space-y-2">
                             {provider.services.slice(0, 3).map((service: ProviderService) => (
-                              <div key={service._id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                              <Link 
+                                key={service._id} 
+                                href={`/booking/form/${service._id}`}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer border border-transparent hover:border-orange-200"
+                              >
                                 <div className="flex-1">
                                   <div className="flex items-center space-x-2">
                                     <span className="text-sm font-medium text-gray-900 capitalize">
@@ -1158,7 +1188,7 @@ export default function DashboardPage() {
                                     {service.priceType === 'hourly' ? '/hr' : service.priceType === 'fixed' ? 'fixed' : 'quote'}
                                   </div>
                                 </div>
-                              </div>
+                              </Link>
                             ))}
                           </div>
                         ) : (
