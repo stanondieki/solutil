@@ -19,7 +19,7 @@ export default function SafeImage({
   width,
   height,
   className = '',
-  fallbackSrc = '/images/default-avatar.png',
+  fallbackSrc = '/images/default-avatar.svg',
   fallbackIcon
 }: SafeImageProps) {
   const [imgSrc, setImgSrc] = useState(src);

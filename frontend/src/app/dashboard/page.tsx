@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import SafeImage from '@/components/SafeImage'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
@@ -290,7 +291,7 @@ export default function DashboardPage() {
     try {
       const token = localStorage.getItem('authToken')
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
-      const response = await fetch(`${BACKEND_URL}/api/providers?featured=true&limit=3`, {
+      const response = await fetch(`${BACKEND_URL}/api/provider-services/public?limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -300,7 +301,15 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json()
         console.log('Providers API Response:', data) // Debug log
-        setProviders(data.data?.providers || data.providers || [])
+        // Extract providers from services data
+        const services = data.data?.services || data.services || []
+        const uniqueProviders = services.reduce((acc: any[], service: any) => {
+          if (service.providerId && !acc.find(p => p._id === service.providerId._id)) {
+            acc.push(service.providerId)
+          }
+          return acc
+        }, [])
+        setProviders(uniqueProviders)
       } else {
         console.error('Failed to fetch providers data, status:', response.status)
         const errorText = await response.text()
@@ -547,12 +556,13 @@ export default function DashboardPage() {
             {/* Left: Logo & Navigation */}
             <div className="flex items-center space-x-8">
               <Link href="/dashboard" className="flex items-center space-x-2 group">
-                <Image
+                <SafeImage
                   src="/images/log.png"
                   alt="Solutil"
                   width={130}
                   height={130}
                   className="group-hover:scale-105 transition-transform duration-200"
+                  fallbackIcon={<div className="text-orange-600 font-bold text-xl">Solutil</div>}
                 />
                
               </Link>
@@ -590,12 +600,15 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
                   {(user as any).avatar?.url ? (
-                    <Image
+                    <SafeImage
                       src={(user as any).avatar.url}
                       alt={user.name || 'User'}
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
+                      fallbackIcon={<span className="text-white font-semibold text-sm">
+                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                      </span>}
                     />
                   ) : (
                     <span className="text-white font-semibold text-sm">
@@ -959,12 +972,13 @@ export default function DashboardPage() {
                         <div className="relative">
                           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
                             {provider.profilePicture ? (
-                              <Image
+                              <SafeImage
                                 src={provider.profilePicture}
                                 alt={provider.name}
                                 width={64}
                                 height={64}
                                 className="w-full h-full object-cover"
+                                fallbackIcon={<FaUser className="h-6 w-6 text-orange-600" />}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-orange-100">
