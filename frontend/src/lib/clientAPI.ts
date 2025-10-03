@@ -84,7 +84,7 @@ export const clientAPI = {
   // Get single provider service details
   getServiceDetails: async (serviceId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/provider-services/${serviceId}`, {
+      const response = await fetch(`${API_BASE}/api/provider-services/public/service/${serviceId}`, {
         headers: {
           'Content-Type': 'application/json'
         }

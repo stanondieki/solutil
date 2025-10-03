@@ -91,6 +91,29 @@ router.get('/public', catchAsync(async (req, res, next) => {
   });
 }));
 
+// @desc    Get public service by ID (for booking)
+// @route   GET /api/provider-services/public/service/:id
+// @access  Public
+router.get('/public/service/:id', catchAsync(async (req, res, next) => {
+  const service = await ProviderService.findOne({ 
+    _id: req.params.id,
+    isActive: true 
+  }).populate('providerId', 'name email phone providerProfile');
+
+  if (!service) {
+    return next(new AppError('Service not found or not active', 404));
+  }
+
+  logger.info(`Public service details fetched: ${service.title} (${service._id})`);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      service
+    }
+  });
+}));
+
 // @desc    Get all services for provider
 // @route   GET /api/services
 // @access  Private (Provider only)
