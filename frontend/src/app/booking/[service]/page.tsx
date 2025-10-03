@@ -1,111 +1,193 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { clientAPI } from '@/lib/clientAPI';
+import { useAuth } from '@/contexts/AuthContext';
+import { 
+  FaStar, 
+  FaClock, 
+  FaMapMarkerAlt, 
+  FaPhone, 
+  FaUser, 
+  FaDollarSign,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaTools,
+  FaCheckCircle,
+  FaArrowRight
+} from 'react-icons/fa';
 
-const serviceDetails = {
-  electrical: {
-    name: 'Electric service',
-    rating: 4.8,
-    reviews: 76,
-    price: '$20/Hour',
-    timeStart: '7:00AM',
-    timeEnd: '10:00PM',
-    image: '/images/services/electrical.jpg',
-    options: [
-      {
-        id: 'wiring',
-        name: 'Wiring Installation',
-        icon: '/images/services/wiring.jpg',
-        description: 'Professional electrical wiring installation and setup'
-      },
-      {
-        id: 'repairs',
-        name: 'Electrical Repairs',
-        icon: '/images/services/electrical-repairs.jpg',
-        description: 'Fix electrical issues and faulty wiring'
-      },
-      {
-        id: 'lighting',
-        name: 'Indoor Lighting Installation',
-        icon: '/images/services/lighting.jpg',
-        description: 'Install and setup indoor lighting systems'
-      }
-    ]
-  },
-  plumbing: {
-    name: 'Plumbing service',
-    rating: 4.7,
-    reviews: 89,
-    price: '$18/Hour',
-    timeStart: '7:00AM',
-    timeEnd: '8:00PM',
-    image: '/images/services/plumbing.jpg',
-    options: [
-      {
-        id: 'installation',
-        name: 'Pipe Installation',
-        icon: '/images/services/pipe.jpg',
-        description: 'New pipe installation and setup'
-      },
-      {
-        id: 'repairs',
-        name: 'Plumbing Repairs',
-        icon: '/images/services/plumb-repair.jpg',
-        description: 'Fix leaks and plumbing issues'
-      },
-      {
-        id: 'maintenance',
-        name: 'Drain Cleaning',
-        icon: '/images/services/drain.jpg',
-        description: 'Professional drain cleaning service'
-      }
-    ]
-  },
-  cleaning: {
-    name: 'Cleaning service',
-    rating: 4.6,
-    reviews: 124,
-    price: '$15/Hour',
-    timeStart: '6:00AM',
-    timeEnd: '9:00PM',
-    image: '/images/services/cleaning.jpg',
-    options: [
-      {
-        id: 'deep',
-        name: 'Deep Cleaning',
-        icon: '/images/services/deep-clean.jpg',
-        description: 'Comprehensive deep cleaning service'
-      },
-      {
-        id: 'regular',
-        name: 'Regular Cleaning',
-        icon: '/images/services/regular-clean.jpg',
-        description: 'Standard home cleaning service'
-      },
-      {
-        id: 'carpet',
-        name: 'Carpet Cleaning',
-        icon: '/images/services/carpet.jpg',
-        description: 'Professional carpet cleaning'
-      }
-    ]
-  }
-};
+interface Service {
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  priceType: 'fixed' | 'hourly' | 'quote';
+  duration: number;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  totalBookings: number;
+  availableHours: {
+    start: string;
+    end: string;
+  };
+  serviceArea: string[];
+  tags: string[];
+  providerId: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    providerProfile?: {
+      businessName?: string;
+      experience?: string;
+      rating?: number;
+      hourlyRate?: number;
+    };
+  };
+}
 
 export default function ServiceBookingPage() {
   const params = useParams();
-  const serviceKey = params.service as keyof typeof serviceDetails;
-  const service = serviceDetails[serviceKey];
+  const router = useRouter();
+  const { user } = useAuth();
+  const category = params.service as string;
+  
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!service) {
+  useEffect(() => {
+    fetchServices();
+  }, [category]);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await clientAPI.getServicesByCategory(category);
+      
+      if (response.success) {
+        setServices(response.data?.services || []);
+      } else {
+        setError(response.error || 'Failed to load services');
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setError('Unable to load services. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCategoryDisplayName = (cat: string) => {
+    const names: Record<string, string> = {
+      'electrical': 'Electrical Services',
+      'plumbing': 'Plumbing Services', 
+      'cleaning': 'Cleaning Services',
+      'carpentry': 'Carpentry Services',
+      'painting': 'Painting Services',
+      'gardening': 'Gardening Services',
+      'appliance-repair': 'Appliance Repair',
+      'hvac': 'HVAC Services',
+      'roofing': 'Roofing Services',
+      'other': 'Other Services'
+    };
+    return names[cat] || cat.charAt(0).toUpperCase() + cat.slice(1) + ' Services';
+  };
+
+  const formatPrice = (service: Service) => {
+    const price = service.price;
+    const currency = 'KES';
+    
+    switch (service.priceType) {
+      case 'hourly':
+        return `${currency} ${price.toLocaleString()}/hour`;
+      case 'fixed':
+        return `${currency} ${price.toLocaleString()}`;
+      case 'quote':
+        return 'Contact for quote';
+      default:
+        return `${currency} ${price.toLocaleString()}`;
+    }
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    
+    if (hours > 0 && mins > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${mins}m`;
+    }
+  };
+
+  const handleBookService = (service: Service) => {
+    if (!user) {
+      // Redirect to login with return URL
+      router.push(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    
+    // Navigate to the booking form for this specific service
+    router.push(`/booking/form/${service._id}`);
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Service not found</h1>
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
-            Return to Dashboard
+          <FaSpinner className="animate-spin text-orange-600 text-4xl mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Services</h2>
+          <p className="text-gray-600">Finding available providers in your area...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <FaExclamationTriangle className="text-red-500 text-4xl mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Services</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchServices}
+            className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (services.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <FaTools className="text-gray-400 text-4xl mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Services Available</h2>
+          <p className="text-gray-600 mb-4">
+            We don't have any providers offering {getCategoryDisplayName(category).toLowerCase()} in your area yet.
+          </p>
+          <Link 
+            href="/services"
+            className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors inline-flex items-center"
+          >
+            Browse All Services
+            <FaArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </div>
       </div>
@@ -113,80 +195,171 @@ export default function ServiceBookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-orange-600 hover:text-orange-700">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {getCategoryDisplayName(category)}
+          </h1>
+          <p className="text-lg text-gray-600 mb-6">
+            Find and book trusted professionals in your area
+          </p>
+          <div className="text-sm text-gray-500">
+            {services.length} provider{services.length !== 1 ? 's' : ''} available
+          </div>
+        </div>
+
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service) => (
+            <motion.div
+              key={service._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-orange-200 overflow-hidden"
+            >
+              {/* Service Image */}
+              <div className="relative h-48 bg-gradient-to-br from-orange-100 to-orange-200">
+                {service.images && service.images.length > 0 ? (
+                  <Image
+                    src={service.images[0]}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <FaTools className="text-orange-600 text-4xl" />
+                  </div>
+                )}
+                
+                {/* Provider Badge */}
+                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1">
+                  <div className="flex items-center space-x-2">
+                    <FaUser className="text-orange-600 text-sm" />
+                    <span className="text-sm font-medium text-gray-800">
+                      {service.providerId.providerProfile?.businessName || service.providerId.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Rating Badge */}
+                {service.rating > 0 && (
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                    <div className="flex items-center space-x-1">
+                      <FaStar className="text-yellow-400 text-sm" />
+                      <span className="text-sm font-medium text-gray-800">{service.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Service Details */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
+
+                {/* Service Info */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <FaDollarSign className="text-green-600 text-sm" />
+                      <span className="text-sm text-gray-700">Price:</span>
+                    </div>
+                    <span className="font-semibold text-green-600">{formatPrice(service)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <FaClock className="text-blue-600 text-sm" />
+                      <span className="text-sm text-gray-700">Duration:</span>
+                    </div>
+                    <span className="text-sm text-gray-600">{formatDuration(service.duration)}</span>
+                  </div>
+
+                  {service.serviceArea && service.serviceArea.length > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <FaMapMarkerAlt className="text-red-600 text-sm" />
+                        <span className="text-sm text-gray-700">Area:</span>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {service.serviceArea.slice(0, 2).join(', ')}
+                        {service.serviceArea.length > 2 && ` +${service.serviceArea.length - 2} more`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Provider Contact */}
+                {service.providerId.phone && (
+                  <div className="flex items-center space-x-2 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <FaPhone className="text-gray-600 text-sm" />
+                    <span className="text-sm text-gray-700">{service.providerId.phone}</span>
+                  </div>
+                )}
+
+                {/* Service Stats */}
+                <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
+                  <span>{service.totalBookings} booking{service.totalBookings !== 1 ? 's' : ''}</span>
+                  <span>{service.reviewCount} review{service.reviewCount !== 1 ? 's' : ''}</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleBookService(service)}
+                    className="w-full bg-orange-600 text-white py-3 rounded-xl font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <FaCheckCircle className="text-sm" />
+                    <span>Book Now</span>
+                  </button>
+
+                  <Link
+                    href={`/provider/${service.providerId._id}`}
+                    className="w-full bg-gray-100 text-gray-700 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <FaUser className="text-sm" />
+                    <span>View Provider</span>
+                  </Link>
+                </div>
+
+                {/* Service Tags */}
+                {service.tags && service.tags.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {service.tags.slice(0, 3).map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {services.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <FaTools className="text-gray-400 text-6xl mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Services Found</h3>
+            <p className="text-gray-600 mb-6">No providers are currently offering {getCategoryDisplayName(category).toLowerCase()} in your area.</p>
+            <Link 
+              href="/services"
+              className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors inline-flex items-center"
+            >
+              Browse All Services
+              <FaArrowRight className="ml-2" />
             </Link>
-            <h1 className="text-xl font-bold text-orange-600">{service.name}</h1>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Service Overview Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{service.name}</h2>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1">
-                  <span className="text-yellow-500 text-lg">★</span>
-                  <span className="font-bold text-gray-900">{service.rating}</span>
-                  <span className="text-gray-500">({service.reviews})</span>
-                </div>
-                <div className="text-2xl font-bold text-orange-600">{service.price}</div>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-medium">{service.timeStart}</span>
-                <span>To</span>
-                <span className="font-medium">{service.timeEnd}</span>
-              </div>
-            </div>
-            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100">
-              <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </div>
-
-        {/* Service Options */}
-        <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">For what you need {service.name.replace(' service', 'ian')}</h3>
-          <div className="space-y-4">
-            {service.options.map((option) => (
-              <Link
-                key={option.id}
-                href={`/booking/${serviceKey}/${option.id}`}
-                className="block bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 p-4 border border-gray-100 hover:border-orange-200"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-green-100">
-                      <img src={option.icon} alt={option.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 text-lg">{option.name}</h4>
-                      <p className="text-gray-600 text-sm">{option.description}</p>
-                    </div>
-                  </div>
-                  <div className="bg-orange-600 text-white p-2 rounded-xl">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
