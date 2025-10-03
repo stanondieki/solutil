@@ -81,10 +81,10 @@ export default function ProvidersPage() {
       setLoading(true);
       setError(null);
       
-      // Fetch all services to get provider information
+      // First try to fetch providers through services
       const response = await clientAPI.getServicesByCategory('all');
       
-      if (response.success && response.data?.services) {
+      if (response.success && response.data?.services && response.data.services.length > 0) {
         setServices(response.data.services);
         
         // Extract unique providers from services
@@ -98,13 +98,64 @@ export default function ProvidersPage() {
         
         setProviders(uniqueProviders);
       } else {
-        setError(response.error || 'Failed to load providers');
+        // If no services found, try to get providers directly
+        console.log('No services found, fetching providers directly...');
+        await fetchVerifiedProviders();
       }
     } catch (error) {
       console.error('Error fetching providers:', error);
-      setError('Unable to load providers. Please try again.');
+      // Try direct provider fetch as fallback
+      await fetchVerifiedProviders();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerifiedProviders = async () => {
+    try {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+      const response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=50`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Verified providers response:', data);
+        
+        const verifiedProviders = data.data?.providers || [];
+        
+        // Map to our Provider interface
+        const mappedProviders: Provider[] = verifiedProviders.map((provider: any) => ({
+          _id: provider._id,
+          name: provider.name,
+          email: provider.email || '',
+          phone: provider.phone || '',
+          profilePicture: provider.avatar?.url || provider.profilePicture || null,
+          providerProfile: {
+            businessName: provider.providerProfile?.businessName || provider.name,
+            experience: provider.providerProfile?.experience || 'Experienced professional',
+            hourlyRate: provider.providerProfile?.hourlyRate || 500,
+            rating: provider.providerProfile?.rating || provider.rating || 4.5,
+            totalReviews: provider.providerProfile?.reviewCount || provider.reviewCount || 0,
+            completedJobs: provider.providerProfile?.completedJobs || 0,
+            services: provider.providerProfile?.services || [],
+            bio: provider.providerProfile?.bio || `Professional ${provider.name} ready to help.`,
+            workingHours: provider.providerProfile?.availability || { start: '08:00', end: '18:00' },
+            serviceAreas: provider.providerProfile?.serviceAreas || ['Nairobi'],
+            specializations: provider.providerProfile?.skills || []
+          },
+          isVerified: provider.providerStatus === 'approved',
+          isActive: true
+        }));
+        
+        setProviders(mappedProviders);
+        setServices([]); // No services available
+        console.log('Set verified providers:', mappedProviders.length);
+      } else {
+        console.error('Failed to fetch verified providers');
+        setError('Unable to load providers. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error fetching verified providers:', error);
+      setError('Unable to load providers. Please try again.');
     }
   };
 

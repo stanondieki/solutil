@@ -291,6 +291,8 @@ export default function DashboardPage() {
     try {
       const token = localStorage.getItem('authToken')
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+      
+      // First try to get providers through services
       const response = await fetch(`${BACKEND_URL}/api/provider-services/public?limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -344,7 +346,7 @@ export default function DashboardPage() {
         console.log('Unique providers extracted:', uniqueProviders.length) // Debug log
         setProviders(uniqueProviders)
         
-        // If no providers found, try alternative approach
+        // If no providers found from services, try direct provider lookup
         if (uniqueProviders.length === 0) {
           console.log('No providers found in services, trying direct provider lookup...')
           await fetchProvidersDirectly()
@@ -371,8 +373,8 @@ export default function DashboardPage() {
       const token = localStorage.getItem('authToken')
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
       
-      // Try to get users with provider type
-      const response = await fetch(`${BACKEND_URL}/api/users?userType=provider&limit=3`, {
+      // Use the verified providers endpoint
+      const response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -382,27 +384,29 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json()
         console.log('Direct providers response:', data)
-        const directProviders = data.data?.users || data.users || []
+        const directProviders = data.data?.providers || data.providers || []
+        
+        console.log('Found direct providers:', directProviders.length)
         
         // Map to our expected format
         const mappedProviders = directProviders.map((provider: any) => ({
           _id: provider._id,
           name: provider.name,
           email: provider.email,
-          phone: provider.phone,
-          profilePicture: provider.profilePicture || null,
+          phone: provider.phone || '',
+          profilePicture: provider.avatar?.url || provider.profilePicture || null,
           providerProfile: {
             businessName: provider.providerProfile?.businessName || provider.name,
             experience: provider.providerProfile?.experience || 'Experienced professional',
             skills: provider.providerProfile?.skills || [],
-            hourlyRate: provider.providerProfile?.hourlyRate || 0,
+            hourlyRate: provider.providerProfile?.hourlyRate || 500, // Default rate
             availability: provider.providerProfile?.availability || {},
-            serviceAreas: provider.providerProfile?.serviceAreas || [],
-            bio: provider.providerProfile?.bio || '',
+            serviceAreas: provider.providerProfile?.serviceAreas || ['Nairobi'],
+            bio: provider.providerProfile?.bio || `Professional ${provider.name} ready to help with your service needs.`,
             completedJobs: provider.providerProfile?.completedJobs || 0,
-            rating: provider.providerProfile?.rating || 0,
-            reviewCount: provider.providerProfile?.reviewCount || 0,
-            services: []
+            rating: provider.providerProfile?.rating || provider.rating || 4.5, // Default good rating
+            reviewCount: provider.providerProfile?.reviewCount || provider.reviewCount || 0,
+            services: provider.providerProfile?.services || []
           },
           services: [],
           providerStatus: provider.providerStatus || 'approved',
