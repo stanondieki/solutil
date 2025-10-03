@@ -301,15 +301,54 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json()
         console.log('Providers API Response:', data) // Debug log
+        
         // Extract providers from services data
         const services = data.data?.services || data.services || []
+        console.log('Services found:', services.length) // Debug log
+        
+        if (services.length > 0) {
+          console.log('First service sample:', services[0]) // Debug log
+        }
+        
         const uniqueProviders = services.reduce((acc: any[], service: any) => {
           if (service.providerId && !acc.find(p => p._id === service.providerId._id)) {
-            acc.push(service.providerId)
+            // Map the provider data to match our interface
+            const mappedProvider = {
+              _id: service.providerId._id,
+              name: service.providerId.name,
+              email: service.providerId.email,
+              phone: service.providerId.phone,
+              profilePicture: service.providerId.profilePicture || null,
+              providerProfile: {
+                businessName: service.providerId.providerProfile?.businessName || service.providerId.name,
+                experience: service.providerId.providerProfile?.experience || 'Experienced professional',
+                skills: service.providerId.providerProfile?.skills || [],
+                hourlyRate: service.providerId.providerProfile?.hourlyRate || service.price || 0,
+                availability: service.providerId.providerProfile?.availability || {},
+                serviceAreas: service.serviceArea || [],
+                bio: service.providerId.providerProfile?.bio || service.description || '',
+                completedJobs: service.providerId.providerProfile?.completedJobs || service.totalBookings || 0,
+                rating: service.providerId.providerProfile?.rating || service.rating || 0,
+                reviewCount: service.providerId.providerProfile?.reviewCount || service.reviewCount || 0,
+                services: []
+              },
+              services: [],
+              providerStatus: 'approved', // Assume approved since they have active services
+              createdAt: service.createdAt || new Date().toISOString()
+            }
+            acc.push(mappedProvider)
           }
           return acc
         }, [])
+        
+        console.log('Unique providers extracted:', uniqueProviders.length) // Debug log
         setProviders(uniqueProviders)
+        
+        // If no providers found, try alternative approach
+        if (uniqueProviders.length === 0) {
+          console.log('No providers found in services, trying direct provider lookup...')
+          await fetchProvidersDirectly()
+        }
       } else {
         console.error('Failed to fetch providers data, status:', response.status)
         const errorText = await response.text()
@@ -323,6 +362,60 @@ export default function DashboardPage() {
       setProviders([])
     } finally {
       setLoadingProviders(false)
+    }
+  }
+
+  // Alternative method to fetch providers directly (backup)
+  const fetchProvidersDirectly = async () => {
+    try {
+      const token = localStorage.getItem('authToken')
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+      
+      // Try to get users with provider type
+      const response = await fetch(`${BACKEND_URL}/api/users?userType=provider&limit=3`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Direct providers response:', data)
+        const directProviders = data.data?.users || data.users || []
+        
+        // Map to our expected format
+        const mappedProviders = directProviders.map((provider: any) => ({
+          _id: provider._id,
+          name: provider.name,
+          email: provider.email,
+          phone: provider.phone,
+          profilePicture: provider.profilePicture || null,
+          providerProfile: {
+            businessName: provider.providerProfile?.businessName || provider.name,
+            experience: provider.providerProfile?.experience || 'Experienced professional',
+            skills: provider.providerProfile?.skills || [],
+            hourlyRate: provider.providerProfile?.hourlyRate || 0,
+            availability: provider.providerProfile?.availability || {},
+            serviceAreas: provider.providerProfile?.serviceAreas || [],
+            bio: provider.providerProfile?.bio || '',
+            completedJobs: provider.providerProfile?.completedJobs || 0,
+            rating: provider.providerProfile?.rating || 0,
+            reviewCount: provider.providerProfile?.reviewCount || 0,
+            services: []
+          },
+          services: [],
+          providerStatus: provider.providerStatus || 'approved',
+          createdAt: provider.createdAt || new Date().toISOString()
+        }))
+        
+        setProviders(mappedProviders)
+        console.log('Set providers from direct call:', mappedProviders.length)
+      } else {
+        console.log('Direct providers API not available or failed')
+      }
+    } catch (error) {
+      console.error('Error in direct provider fetch:', error)
     }
   }
 
