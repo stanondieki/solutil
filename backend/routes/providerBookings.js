@@ -8,8 +8,107 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
-// @desc    Get all bookings for provider
-// @route   GET /api/bookings/provider
+// @desc    Get all bookings for provider  
+// @route   GET /api/provider-bookings
+// @access  Private (Provider only)
+router.get('/', protect, catchAsync(async (req, res, next) => {
+  if (req.user.userType !== 'provider') {
+    return next(new AppError('Access denied. Provider privileges required.', 403));
+  }
+
+  const { status, date, limit = 50, page = 1 } = req.query;
+
+  // Get provider's services first
+  const providerServices = await Service.find({ providerId: req.user._id }).select('_id');
+  const serviceIds = providerServices.map(service => service._id);
+
+  // Build query
+  let query = { serviceId: { $in: serviceIds } };
+
+  if (status && status !== 'all') {
+    query.status = status;
+  }
+
+  if (date) {
+    const selectedDate = new Date(date);
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    query.scheduledDate = {
+      $gte: selectedDate,
+      $lt: nextDay
+    };
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const bookings = await Booking.find(query)
+    .populate('userId', 'firstName lastName email phone')
+    .populate('serviceId', 'title category pricing')
+    .sort({ scheduledDate: -1, createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip(skip);
+
+  // Calculate basic stats
+  const totalBookings = await Booking.countDocuments(query);
+  
+  // Get stats for different statuses
+  const [pendingCount, confirmedCount, completedCount] = await Promise.all([
+    Booking.countDocuments({ ...query, status: 'pending' }),
+    Booking.countDocuments({ ...query, status: 'confirmed' }),
+    Booking.countDocuments({ ...query, status: 'completed' })
+  ]);
+
+  // Calculate total revenue from completed bookings
+  const completedBookings = await Booking.find({ 
+    ...query, 
+    status: 'completed' 
+  }).select('pricing.totalAmount finalPrice');
+  
+  const totalRevenue = completedBookings.reduce((sum, booking) => {
+    return sum + (booking.finalPrice || booking.pricing?.totalAmount || 0);
+  }, 0);
+
+  // Calculate average rating from completed bookings with ratings
+  const ratedBookings = await Booking.find({ 
+    ...query, 
+    status: 'completed',
+    rating: { $exists: true, $ne: null }
+  }).select('rating');
+  
+  const averageRating = ratedBookings.length > 0 
+    ? ratedBookings.reduce((sum, booking) => sum + (booking.rating || 0), 0) / ratedBookings.length
+    : 0;
+
+  const stats = {
+    totalBookings,
+    pendingBookings: pendingCount,
+    confirmedBookings: confirmedCount,
+    completedBookings: completedCount,
+    totalRevenue,
+    averageRating: Math.round(averageRating * 10) / 10
+  };
+
+  logger.info(`Provider ${req.user.email} fetched ${bookings.length} bookings`);
+
+  res.status(200).json({
+    status: 'success',
+    results: bookings.length,
+    data: {
+      bookings,
+      stats,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: totalBookings,
+        pages: Math.ceil(totalBookings / parseInt(limit))
+      }
+    }
+  });
+}));
+
+// @desc    Get all bookings for provider (legacy endpoint)
+// @route   GET /api/provider-bookings/provider  
 // @access  Private (Provider only)
 router.get('/provider', protect, catchAsync(async (req, res, next) => {
   if (req.user.userType !== 'provider') {

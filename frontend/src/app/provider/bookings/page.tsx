@@ -140,150 +140,76 @@ const BookingsPage: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
 
-  // Mock data for development - replace with API calls
+  // Load bookings and reload when filters change
   useEffect(() => {
     loadBookings()
-  }, [])
+  }, [statusFilter, dateFilter])
 
   const loadBookings = async () => {
     setLoading(true)
     try {
       const response = await providerBookingsAPI.getBookings({
-        status: statusFilter,
-        date: dateFilter,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        date: dateFilter !== 'all' ? dateFilter : undefined,
         limit: 50
       })
       
-      if (response.status === 'success') {
-        setBookings(response.data.bookings)
-        setStats(response.data.stats)
+      if (response.success && response.data) {
+        const bookingsData = response.data.bookings || []
+        setBookings(bookingsData)
+        
+        // Calculate stats from real data
+        const totalBookings = bookingsData.length
+        const pendingBookings = bookingsData.filter((b: Booking) => b.status === 'pending').length
+        const confirmedBookings = bookingsData.filter((b: Booking) => b.status === 'confirmed').length
+        const completedBookings = bookingsData.filter((b: Booking) => b.status === 'completed').length
+        
+        const completedBookingsWithPrice = bookingsData.filter((b: Booking) => 
+          b.status === 'completed' && (b.finalPrice || b.estimatedPrice)
+        )
+        const totalRevenue = completedBookingsWithPrice.reduce((sum: number, b: Booking) => 
+          sum + (b.finalPrice || b.estimatedPrice || 0), 0
+        )
+        
+        const ratedBookings = bookingsData.filter((b: Booking) => b.customerRating)
+        const avgRating = ratedBookings.length > 0 
+          ? ratedBookings.reduce((sum: number, b: Booking) => sum + (b.customerRating || 0), 0) / ratedBookings.length
+          : 0
+
+        setStats({
+          totalBookings,
+          pendingBookings,
+          confirmedBookings,
+          completedBookings,
+          totalRevenue,
+          averageRating: Math.round(avgRating * 10) / 10
+        })
       } else {
-        throw new Error('Failed to load bookings')
+        // If no bookings or API error, set empty state
+        console.log('No bookings found or API error:', response.error || 'Unknown error')
+        setBookings([])
+        setStats({
+          totalBookings: 0,
+          pendingBookings: 0,
+          confirmedBookings: 0,
+          completedBookings: 0,
+          totalRevenue: 0,
+          averageRating: 0
+        })
       }
-      const mockBookings: Booking[] = [
-        {
-          _id: '1',
-          bookingNumber: 'BK-2024-001',
-          customer: {
-            _id: 'c1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            phone: '+254712345678',
-            rating: 4.8,
-            totalBookings: 12
-          },
-          service: {
-            _id: 's1',
-            title: 'Emergency Plumbing Repair',
-            category: 'plumbing',
-            duration: 120,
-            price: 75,
-            priceType: 'hourly'
-          },
-          scheduledDate: '2024-01-25',
-          scheduledTime: '10:00',
-          status: 'pending',
-          location: {
-            address: '123 Westlands Road, Nairobi',
-            instructions: 'Gate 2, Apartment 5B'
-          },
-          estimatedPrice: 150,
-          specialInstructions: 'Kitchen sink pipe burst, urgent repair needed',
-          createdAt: '2024-01-24T08:30:00Z',
-          updatedAt: '2024-01-24T08:30:00Z'
-        },
-        {
-          _id: '2',
-          bookingNumber: 'BK-2024-002',
-          customer: {
-            _id: 'c2',
-            name: 'Sarah Wilson',
-            email: 'sarah@example.com',
-            phone: '+254723456789',
-            rating: 4.5,
-            totalBookings: 8
-          },
-          service: {
-            _id: 's2',
-            title: 'House Deep Cleaning',
-            category: 'cleaning',
-            duration: 240,
-            price: 150,
-            priceType: 'fixed'
-          },
-          scheduledDate: '2024-01-26',
-          scheduledTime: '09:00',
-          status: 'confirmed',
-          location: {
-            address: '456 Karen Boulevard, Nairobi',
-            instructions: 'Blue gate, press intercom'
-          },
-          estimatedPrice: 150,
-          specialInstructions: '3-bedroom house, focus on kitchen and bathrooms',
-          createdAt: '2024-01-23T14:20:00Z',
-          updatedAt: '2024-01-24T09:15:00Z'
-        },
-        {
-          _id: '3',
-          bookingNumber: 'BK-2024-003',
-          customer: {
-            _id: 'c3',
-            name: 'Michael Johnson',
-            email: 'michael@example.com',
-            phone: '+254734567890',
-            rating: 4.9,
-            totalBookings: 15
-          },
-          service: {
-            _id: 's1',
-            title: 'Emergency Plumbing Repair',
-            category: 'plumbing',
-            duration: 120,
-            price: 75,
-            priceType: 'hourly'
-          },
-          scheduledDate: '2024-01-22',
-          scheduledTime: '14:30',
-          status: 'completed',
-          location: {
-            address: '789 Kilimani Street, Nairobi'
-          },
-          estimatedPrice: 225,
-          finalPrice: 200,
-          customerRating: 5,
-          customerReview: 'Excellent service, very professional and quick!',
-          completionPhotos: ['/images/work1.jpg', '/images/work2.jpg'],
-          createdAt: '2024-01-21T11:00:00Z',
-          updatedAt: '2024-01-22T16:45:00Z'
-        }
-      ]
-
-      setBookings(mockBookings)
-      
-      // Calculate stats
-      const totalBookings = mockBookings.length
-      const pendingBookings = mockBookings.filter(b => b.status === 'pending').length
-      const confirmedBookings = mockBookings.filter(b => b.status === 'confirmed').length
-      const completedBookings = mockBookings.filter(b => b.status === 'completed').length
-      const totalRevenue = mockBookings
-        .filter(b => b.status === 'completed')
-        .reduce((sum, b) => sum + (b.finalPrice || b.estimatedPrice), 0)
-      const avgRating = mockBookings
-        .filter(b => b.customerRating)
-        .reduce((sum, b) => sum + (b.customerRating || 0), 0) / 
-        mockBookings.filter(b => b.customerRating).length
-
-      setStats({
-        totalBookings,
-        pendingBookings,
-        confirmedBookings,
-        completedBookings,
-        totalRevenue,
-        averageRating: Math.round(avgRating * 10) / 10 || 0
-      })
-      
     } catch (error) {
       console.error('Error loading bookings:', error)
+      handleAPIError(error)
+      // Set empty state on error
+      setBookings([])
+      setStats({
+        totalBookings: 0,
+        pendingBookings: 0,
+        confirmedBookings: 0,
+        completedBookings: 0,
+        totalRevenue: 0,
+        averageRating: 0
+      })
     } finally {
       setLoading(false)
     }
