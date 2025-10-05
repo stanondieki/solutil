@@ -292,8 +292,8 @@ export default function DashboardPage() {
       const token = localStorage.getItem('authToken')
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
       
-      // First try to get providers through services
-      const response = await fetch(`${BACKEND_URL}/api/provider-services/public?limit=3`, {
+      // 🆕 UPDATED: Use enhanced services API
+      const response = await fetch(`${BACKEND_URL}/api/v2/services?limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

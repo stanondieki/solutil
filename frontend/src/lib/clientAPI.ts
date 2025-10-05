@@ -50,7 +50,8 @@ export const clientAPI = {
       if (filters?.limit) queryParams.append('limit', filters.limit.toString());
       
       const queryString = queryParams.toString();
-      const url = `${API_BASE}/api/provider-services/public${queryString ? `?${queryString}` : ''}`;
+      // 🆕 UPDATED: Use enhanced services API
+      const url = `${API_BASE}/api/v2/services${queryString ? `?${queryString}` : ''}`;
       
       const response = await fetch(url, {
         headers: {
@@ -68,11 +69,21 @@ export const clientAPI = {
   // Get services by category
   getServicesByCategory: async (category: string, page = 1, limit = 20) => {
     try {
-      const response = await fetch(`${API_BASE}/api/provider-services/category/${category}?page=${page}&limit=${limit}`, {
+      // 🆕 UPDATED: Try enhanced API first, fallback to legacy
+      let response = await fetch(`${API_BASE}/api/v2/services?category=${category}&page=${page}&limit=${limit}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      
+      if (!response.ok) {
+        // Fallback to legacy API
+        response = await fetch(`${API_BASE}/api/provider-services/category/${category}?page=${page}&limit=${limit}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      }
       
       return response.json();
     } catch (error) {
@@ -84,11 +95,21 @@ export const clientAPI = {
   // Get single provider service details
   getServiceDetails: async (serviceId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/provider-services/public/service/${serviceId}`, {
+      // 🆕 UPDATED: Try enhanced API first, fallback to legacy
+      let response = await fetch(`${API_BASE}/api/v2/services/${serviceId}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      
+      if (!response.ok) {
+        // Fallback to legacy API
+        response = await fetch(`${API_BASE}/api/provider-services/public/service/${serviceId}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      }
       
       return response.json();
     } catch (error) {

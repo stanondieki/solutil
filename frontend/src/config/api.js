@@ -26,11 +26,21 @@ const getApiConfig = () => {
     },
     
     SERVICES: {
-      LIST: '/api/services',
+      LIST: '/api/services', // Legacy API
       CREATE: '/api/services',
       UPDATE: '/api/services',
       DELETE: '/api/services',
       SEARCH: '/api/services/search'
+    },
+    
+    // 🆕 NEW Enhanced Services API
+    SERVICES_V2: {
+      LIST: '/api/v2/services',
+      DETAIL: '/api/v2/services',
+      SEARCH: '/api/v2/services/search',
+      MY_SERVICES: '/api/v2/services/my-services',
+      UPDATE: '/api/v2/services',
+      DEACTIVATE: '/api/v2/services'
     },
     
     BOOKINGS: {
