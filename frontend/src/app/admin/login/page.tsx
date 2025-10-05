@@ -37,8 +37,10 @@ export default function AdminLoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Store admin token
+        // Store admin token and user data
         localStorage.setItem('adminToken', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('sessionExpiry', (Date.now() + (24 * 60 * 60 * 1000)).toString())
         // Redirect to admin dashboard
         window.location.href = '/admin/dashboard'
       } else {

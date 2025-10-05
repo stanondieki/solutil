@@ -138,29 +138,65 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const storedUser = localStorage.getItem('user')
       const storedToken = localStorage.getItem('authToken')
+      const adminToken = localStorage.getItem('adminToken')
       const storedExpiry = localStorage.getItem('sessionExpiry')
 
-      if (storedUser && storedToken) {
+      // Check for either regular user or admin token
+      const token = storedToken || adminToken
+      
+      if (storedUser && token) {
         const user = JSON.parse(storedUser)
         const expiry = storedExpiry ? parseInt(storedExpiry) : Date.now() + (24 * 60 * 60 * 1000)
 
         if (Date.now() < expiry) {
           dispatch({ 
             type: 'LOGIN_SUCCESS', 
-            payload: { user, token: storedToken } 
+            payload: { user, token } 
           })
           dispatch({ 
             type: 'SET_SESSION_EXPIRY', 
             payload: { expiry } 
           })
 
-          // Check if token needs refresh
-          if (expiry - Date.now() < REFRESH_THRESHOLD) {
+          // Check if token needs refresh (only for regular auth, not admin)
+          if (storedToken && expiry - Date.now() < REFRESH_THRESHOLD) {
             await refreshToken()
           }
         } else {
           // Session expired
           await logout()
+        }
+      } else if (adminToken) {
+        // Admin token exists but no stored user - try to get admin user info
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+          const response = await fetch(`${backendUrl}/api/auth/me`, {
+            headers: {
+              Authorization: `Bearer ${adminToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const user = data.user;
+            localStorage.setItem('user', JSON.stringify(user));
+            dispatch({ 
+              type: 'LOGIN_SUCCESS', 
+              payload: { user, token: adminToken } 
+            });
+            dispatch({ 
+              type: 'SET_SESSION_EXPIRY', 
+              payload: { expiry: Date.now() + (24 * 60 * 60 * 1000) } 
+            });
+          } else {
+            // Invalid admin token
+            localStorage.removeItem('adminToken');
+            dispatch({ type: 'LOGIN_FAILURE' });
+          }
+        } catch (error) {
+          console.error('Admin auth verification error:', error);
+          localStorage.removeItem('adminToken');
+          dispatch({ type: 'LOGIN_FAILURE' });
         }
       } else {
         dispatch({ type: 'LOGIN_FAILURE' })
@@ -247,6 +283,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear all possible localStorage keys
     localStorage.removeItem('user')
     localStorage.removeItem('authToken')
+    localStorage.removeItem('adminToken')
     localStorage.removeItem('sessionExpiry')
     localStorage.removeItem('token')
     localStorage.removeItem('accessToken')

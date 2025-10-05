@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import AdminLayout from '../../../components/AdminLayout'
 import DocumentViewer from '../../../components/admin/DocumentViewer'
 import type { ServiceProvider, RawProvider, ProviderVerification } from '../../../types/admin'
 
 export default function AdminProvidersPage() {
+  const router = useRouter()
   const [providers, setProviders] = useState<ServiceProvider[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -381,7 +383,7 @@ export default function AdminProvidersPage() {
                           </button>
                         )}
                         <button 
-                          onClick={() => window.location.href = `/admin/providers/${provider.id}/edit`}
+                          onClick={() => router.push(`/admin/providers/${provider.id}/edit`)}
                           className="text-orange-400 hover:text-orange-300 transition-colors mr-3"
                           title="Edit Provider Profile"
                         >
