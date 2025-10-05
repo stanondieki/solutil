@@ -9,25 +9,61 @@ const logger = require('./logger');
 class ProviderServiceManager {
   
   /**
-   * Convert onboarding services to ProviderServices when provider is approved
+   * Convert provider profile services to ProviderServices when provider is approved
    * @param {Object} provider - The provider user object
    * @returns {Array} Created ProviderService records
    */
   static async activateProviderServices(provider) {
     try {
-      if (!provider.onboardingData?.services?.length) {
-        logger.warn(`No onboarding services found for provider: ${provider.email}`);
-        return [];
-      }
-
       const createdServices = [];
 
-      for (const service of provider.onboardingData.services) {
+      // Define skill to category mapping
+      const skillCategoryMap = {
+        'Electrical': 'electrical',
+        'Plumbing': 'plumbing',
+        'Cleaning': 'cleaning',
+        'Carpentry': 'carpentry',
+        'Painting': 'painting',
+        'Gardening': 'gardening'
+      };
+
+      // Check for services in multiple locations (migration compatibility)
+      let servicesToCreate = [];
+      let skillsToCreate = [];
+
+      // 1. Check providerProfile.services (new structure)
+      if (provider.providerProfile?.services?.length) {
+        servicesToCreate = provider.providerProfile.services;
+        logger.info(`Found ${servicesToCreate.length} services in providerProfile for ${provider.email}`);
+      }
+      
+      // 2. Check onboardingData.services (legacy structure) 
+      else if (provider.onboardingData?.services?.length) {
+        servicesToCreate = provider.onboardingData.services;
+        logger.info(`Found ${servicesToCreate.length} services in onboardingData for ${provider.email}`);
+      }
+
+      // 3. Check providerProfile.skills (create default services from skills)
+      if (provider.providerProfile?.skills?.length) {
+        skillsToCreate = provider.providerProfile.skills;
+        logger.info(`Found ${skillsToCreate.length} skills in providerProfile for ${provider.email}`);
+      }
+      
+      // 4. Check profile.skills (legacy location)
+      else if (provider.profile?.skills?.length) {
+        skillsToCreate = provider.profile.skills;
+        logger.info(`Found ${skillsToCreate.length} skills in profile for ${provider.email}`);
+      }
+
+      // Create services from explicit service definitions
+      for (const service of servicesToCreate) {
+        const category = skillCategoryMap[service.category] || service.category?.toLowerCase() || 'other';
+        
         // Check if service already exists
         const existingService = await ProviderService.findOne({
           providerId: provider._id,
           title: service.title,
-          category: service.category
+          category: category
         });
 
         if (existingService) {
@@ -35,53 +71,83 @@ class ProviderServiceManager {
           continue;
         }
 
-        // Create ProviderService from onboarding data
-        const providerService = new ProviderService({
+        // Create ProviderService from service data
+        const serviceData = {
           providerId: provider._id,
           title: service.title,
-          description: service.description,
-          category: service.category,
-          subCategory: service.subCategory,
-          pricing: {
-            basePrice: service.pricing?.basePrice || 0,
-            currency: service.pricing?.currency || 'USD',
-            priceType: service.pricing?.priceType || 'fixed',
-            hourlyRate: service.pricing?.hourlyRate,
-            customRates: service.pricing?.customRates || []
+          description: service.description || `Professional ${service.category?.toLowerCase()} service by ${provider.name}`,
+          category: category,
+          price: service.price || provider.providerProfile?.hourlyRate || 2000,
+          priceType: service.priceType || 'fixed',
+          duration: 60, // Default 1 hour
+          serviceArea: provider.providerProfile?.serviceAreas || ['Nairobi'],
+          availableHours: {
+            start: provider.providerProfile?.availability?.hours?.start || '09:00',
+            end: provider.providerProfile?.availability?.hours?.end || '17:00'
           },
-          availability: {
-            schedule: service.availability?.schedule || {},
-            timeSlots: service.availability?.timeSlots || [],
-            blackoutDates: service.availability?.blackoutDates || []
-          },
-          serviceArea: {
-            type: service.serviceArea?.type || 'radius',
-            radius: service.serviceArea?.radius || 25,
-            specificAreas: service.serviceArea?.specificAreas || [],
-            coordinates: provider.location?.coordinates || [0, 0]
-          },
-          requirements: service.requirements || [],
-          images: service.images || [],
           isActive: true,
-          isVerified: false, // Will need admin verification
-          createdAt: new Date(),
+          tags: ['professional', 'verified'],
           metadata: {
-            source: 'onboarding',
-            migrationDate: new Date()
+            source: 'providerProfile',
+            activationDate: new Date()
           }
-        });
+        };
 
+        const providerService = new ProviderService(serviceData);
         await providerService.save();
         createdServices.push(providerService);
         
         logger.info(`✅ Activated service: ${service.title} for provider: ${provider.email}`);
       }
 
-      // Update provider status to indicate services are activated
-      await User.findByIdAndUpdate(provider._id, {
-        'onboardingData.servicesActivated': true,
-        'onboardingData.activationDate': new Date()
-      });
+      // Create services from skills (if no explicit services exist)
+      for (const skill of skillsToCreate) {
+        const category = skillCategoryMap[skill] || 'other';
+        
+        // Check if we already created a service for this category
+        const existingService = await ProviderService.findOne({
+          providerId: provider._id,
+          category: category
+        });
+
+        if (existingService) {
+          logger.info(`Service already exists for skill ${skill} for ${provider.email}`);
+          continue;
+        }
+
+        // Create ProviderService from skill
+        const serviceData = {
+          providerId: provider._id,
+          title: `${skill} Services`,
+          description: `Professional ${skill.toLowerCase()} services by ${provider.name}. ${provider.providerProfile?.bio || ''}`.trim(),
+          category: category,
+          price: provider.providerProfile?.hourlyRate || 2000,
+          priceType: 'hourly',
+          duration: 60, // Default 1 hour
+          serviceArea: provider.providerProfile?.serviceAreas || ['Nairobi'],
+          availableHours: {
+            start: provider.providerProfile?.availability?.hours?.start || '09:00',
+            end: provider.providerProfile?.availability?.hours?.end || '17:00'
+          },
+          isActive: true,
+          tags: ['professional', 'skill-based'],
+          metadata: {
+            source: 'skill',
+            skill: skill,
+            activationDate: new Date()
+          }
+        };
+
+        const providerService = new ProviderService(serviceData);
+        await providerService.save();
+        createdServices.push(providerService);
+        
+        logger.info(`✅ Created service from skill: ${skill} for provider: ${provider.email}`);
+      }
+
+      if (createdServices.length === 0) {
+        logger.warn(`No services could be created for provider: ${provider.email} - no skills or services found`);
+      }
 
       return createdServices;
 
