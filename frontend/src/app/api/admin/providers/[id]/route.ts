@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { params } = context;
   try {
+    const { id } = await params;
     const authHeader = request.headers.get('authorization');
     
     if (!authHeader) {
@@ -17,7 +17,7 @@ export async function GET(
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
-    const backendResponse = await fetch(`${backendUrl}/api/admin/providers/${params.id}`, {
+    const backendResponse = await fetch(`${backendUrl}/api/admin/providers/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
