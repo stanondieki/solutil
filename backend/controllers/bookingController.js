@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
+const ProviderService = require('../models/ProviderService');
 const User = require('../models/User');
 const EscrowPayment = require('../models/EscrowPayment');
 const AppError = require('../utils/appError');
@@ -100,45 +101,73 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     notes
   } = req.body;
 
-  // Verify service exists, or create a basic one if it doesn't
-  let serviceDoc = await Service.findById(service);
+  // 🆕 UPDATED: Look for service in ProviderService collection first
+  let serviceDoc = await ProviderService.findById(service);
+  let isProviderService = true;
+  
   if (!serviceDoc) {
-    console.log('Service not found, creating a basic service...');
-    // Create a basic service for testing
-    serviceDoc = await Service.create({
-      name: 'Basic Service',
-      category: 'other',
-      description: 'Automatically created service for booking',
-      basePrice: 2500,
-      priceType: 'fixed',
-      isActive: true
-    });
-    console.log('Created service:', serviceDoc._id);
-    // Update the service ID to use the created one
-    service = serviceDoc._id;
+    // Fallback to Service collection for backwards compatibility
+    serviceDoc = await Service.findById(service);
+    isProviderService = false;
+  }
+  
+  if (!serviceDoc) {
+    return next(new AppError('Service not found', 404));
   }
 
-  // Create booking
+  // Ensure service is active
+  if (!serviceDoc.isActive) {
+    return next(new AppError('Service is not available for booking', 400));
+  }
+
+  // Get the actual provider ID from the service
+  const actualProviderId = isProviderService ? serviceDoc.providerId : provider;
+
+  // Create booking with proper provider reference
   const booking = await Booking.create({
     client: req.user.id,
-    provider: provider || req.user.id, // Use current user as provider if none specified
+    provider: actualProviderId,
     service,
+    serviceType: isProviderService ? 'ProviderService' : 'Service', // Track which model was used
     scheduledDate,
     scheduledTime,
     location,
-    pricing,
+    pricing: {
+      ...pricing,
+      // Use service pricing as fallback (ProviderService uses 'price', Service uses 'basePrice')
+      totalAmount: pricing.totalAmount || serviceDoc.price || serviceDoc.basePrice || 0,
+      currency: pricing.currency || 'KES'
+    },
     payment,
     notes: {
       client: notes
     }
   });
 
-  // Populate the created booking
-  await booking.populate([
+  // Populate the created booking with correct service model
+  const populateOptions = [
     { path: 'client', select: 'name email phone' },
-    { path: 'service', select: 'name category' },
-    { path: 'provider', select: 'businessName' }
-  ]);
+    { path: 'provider', select: 'businessName name email' }
+  ];
+  
+  // Populate service based on type
+  if (isProviderService) {
+    // Use ProviderService model (different field names)
+    populateOptions.push({ 
+      path: 'service', 
+      select: 'title category price priceType',
+      model: 'ProviderService'
+    });
+  } else {
+    // Use Service model (legacy)
+    populateOptions.push({ 
+      path: 'service', 
+      select: 'name category basePrice',
+      model: 'Service'
+    });
+  }
+  
+  await booking.populate(populateOptions);
 
   // Send booking confirmation emails
   try {

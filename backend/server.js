@@ -145,7 +145,8 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/services', serviceRoutes);
+app.use('/api/services', serviceRoutes); // Legacy services API
+app.use('/api/v2/services', require('./routes/servicesV2')); // 🆕 Enhanced services API
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/reviews', reviewRoutes);

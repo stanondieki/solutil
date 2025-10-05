@@ -4,6 +4,7 @@ const { protect } = require('../../middleware/auth');
 const AppError = require('../../utils/appError');
 const catchAsync = require('../../utils/catchAsync');
 const logger = require('../../utils/logger');
+const ProviderServiceManager = require('../../utils/providerServiceManager');
 
 const router = express.Router();
 
@@ -40,6 +41,15 @@ router.put('/:id/status', protect, catchAsync(async (req, res, next) => {
   if (status === 'approved') {
     provider.approvedBy = req.user._id;
     provider.approvedAt = new Date();
+    
+    // 🆕 AUTO-ACTIVATE PROVIDER SERVICES
+    try {
+      const activatedServices = await ProviderServiceManager.activateProviderServices(provider);
+      logger.info(`✅ Auto-activated ${activatedServices.length} services for provider: ${provider.email}`);
+    } catch (serviceError) {
+      logger.error(`❌ Failed to activate services for ${provider.email}:`, serviceError);
+      // Don't fail the approval if service activation fails
+    }
   } else if (status === 'rejected') {
     provider.rejectedAt = new Date();
   }
