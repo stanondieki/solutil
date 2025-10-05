@@ -111,17 +111,36 @@ const MyServicesPage: React.FC = () => {
   const loadServices = async () => {
     setLoading(true)
     try {
+      console.log('Loading services for provider...')
       const response = await providerServicesAPI.getServices()
+      console.log('Services API Response:', response)
       
       if (response.status === 'success') {
-        setServices(response.data.services)
-        setStats(response.data.stats)
+        setServices(response.data?.services || [])
+        setStats(response.data?.stats || {
+          totalServices: 0,
+          activeServices: 0, 
+          totalBookings: 0,
+          totalRevenue: 0,
+          averageRating: 0
+        })
+        console.log('Services loaded successfully:', response.data?.services?.length || 0)
       } else {
-        throw new Error('Failed to load services')
+        console.error('API response error:', response.message || response.error)
+        throw new Error(response.message || 'Failed to load services')
       }
       
     } catch (error) {
       console.error('Error loading services:', error)
+      // Set empty state on error
+      setServices([])
+      setStats({
+        totalServices: 0,
+        activeServices: 0, 
+        totalBookings: 0,
+        totalRevenue: 0,
+        averageRating: 0
+      })
     } finally {
       setLoading(false)
     }

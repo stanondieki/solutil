@@ -197,11 +197,23 @@ router.use(protect);
 router.get('/my-services', restrictTo('provider'), catchAsync(async (req, res, next) => {
   const services = await ProviderServiceManager.getProviderServices(req.user.id);
 
+  // Calculate stats (compatible with legacy API)
+  const stats = {
+    totalServices: services.length,
+    activeServices: services.filter(s => s.isActive).length,
+    totalBookings: services.reduce((sum, s) => sum + (s.totalBookings || 0), 0),
+    totalRevenue: services.reduce((sum, s) => sum + (s.totalRevenue || 0), 0),
+    averageRating: services.length > 0 
+      ? services.reduce((sum, s) => sum + (s.rating || 0), 0) / services.length 
+      : 0
+  };
+
   res.status(200).json({
     status: 'success',
     results: services.length,
     data: {
-      services
+      services,
+      stats
     }
   });
 }));

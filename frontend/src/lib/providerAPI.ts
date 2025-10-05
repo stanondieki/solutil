@@ -5,7 +5,18 @@ export const providerAPI = {
   // 🆕 UPDATED: Get provider services from enhanced API
   getServices: async () => {
     try {
-      const token = localStorage.getItem('token');
+      // Try multiple token storage locations
+      const token = localStorage.getItem('token') || 
+                   localStorage.getItem('authToken') || 
+                   sessionStorage.getItem('token') ||
+                   sessionStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        return { status: 'error', message: 'No authentication token', services: [] };
+      }
+
+      console.log('Fetching provider services with token:', token ? 'Found' : 'Not found');
       
       // Try enhanced API first
       let response = await fetch(`${API_BASE}/api/v2/services/my-services`, {
@@ -15,21 +26,27 @@ export const providerAPI = {
         }
       });
       
+      console.log('Enhanced API response status:', response.status);
+      
       if (!response.ok) {
         // Fallback to legacy API
-        console.warn('Enhanced services API failed, falling back to legacy');
+        console.warn('Enhanced services API failed, falling back to legacy API');
         response = await fetch(`${API_BASE}/api/provider-services`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
+        console.log('Legacy API response status:', response.status);
       }
       
-      return response.json();
+      const data = await response.json();
+      console.log('API Response data:', data);
+      
+      return data;
     } catch (error) {
       console.error('Error fetching services:', error);
-      return { success: false, services: [] };
+      return { status: 'error', message: error instanceof Error ? error.message : 'Unknown error', services: [] };
     }
   },
 
