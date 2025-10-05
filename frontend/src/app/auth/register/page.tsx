@@ -19,10 +19,8 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
-    userType: 'client',
-    verificationType: 'email' // 'email' or 'sms'
+    userType: 'client'
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -57,13 +55,8 @@ export default function RegisterPage() {
       }
 
       // Validate verification contact
-      if (formData.verificationType === 'email' && !formData.email) {
-        setError('Email is required for email verification')
-        return
-      }
-
-      if (formData.verificationType === 'sms' && !formData.phone) {
-        setError('Phone number is required for SMS verification')
+      if (!formData.email) {
+        setError('Email is required')
         return
       }
 
@@ -71,8 +64,7 @@ export default function RegisterPage() {
       console.log('Attempting registration with data:', {
         name: formData.name,
         email: formData.email,
-        userType: formData.userType,
-        phone: formData.phone
+        userType: formData.userType
       });
 
       const registerResponse = await fetch('/api/auth/register', {
@@ -84,8 +76,7 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          userType: formData.userType,
-          phone: formData.phone
+          userType: formData.userType
         }),
       })
 
@@ -104,9 +95,7 @@ export default function RegisterPage() {
           name: '',
           email: '',
           password: '',
-          userType: 'client',
-          phone: '',
-          verificationType: 'email'
+          userType: 'client'
         })
         
         // Optionally redirect to login page after showing success message
@@ -190,85 +179,13 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Phone Number Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">📱</span>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., 0712345678"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">We support Kenyan phone numbers (Safaricom, Airtel, etc.)</p>
-              </div>
 
-              {/* Verification Method Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">How would you like to verify your account?</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <input
-                      type="radio"
-                      id="verify-email"
-                      name="verificationType"
-                      value="email"
-                      checked={formData.verificationType === 'email'}
-                      onChange={handleInputChange}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor="verify-email"
-                      className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                        formData.verificationType === 'email'
-                          ? 'border-orange-500 bg-orange-50 text-orange-600'
-                          : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
-                      <FaEnvelope className="mr-2" />
-                      <span className="font-medium">Email</span>
-                    </label>
-                  </div>
-                  <div>
-                    <input
-                      type="radio"
-                      id="verify-sms"
-                      name="verificationType"
-                      value="sms"
-                      checked={formData.verificationType === 'sms'}
-                      onChange={handleInputChange}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor="verify-sms"
-                      className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                        formData.verificationType === 'sms'
-                          ? 'border-orange-500 bg-orange-50 text-orange-600'
-                          : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
-                      <span className="mr-2">📱</span>
-                      <span className="font-medium">SMS</span>
-                    </label>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {formData.verificationType === 'email' 
-                    ? 'We\'ll send a 6-digit code to your email address'
-                    : 'We\'ll send a 6-digit code to your phone number'
-                  }
+
+              {/* Email Verification Info */}
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  ℹ️ <strong>Email Verification:</strong> We'll send a verification link to your email address. Please check your email and click the link to activate your account.
                 </p>
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-xs text-blue-700">
-                    ℹ️ <strong>One-time verification:</strong> You only need to verify once during registration. After verification, you can login directly without any additional verification steps.
-                  </p>
-                </div>
               </div>
 
               {/* Password Input */}

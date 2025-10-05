@@ -39,11 +39,14 @@ function LoginPageContent() {
   useEffect(() => {
     const verified = searchParams.get('verified')
     const registered = searchParams.get('registered')
+    const reset = searchParams.get('reset')
     
     if (verified === 'true') {
       setSuccess('Email verified successfully! You can now log in.')
     } else if (registered === 'true') {
       setSuccess('Registration successful! Please check your email to verify your account before logging in.')
+    } else if (reset === 'success') {
+      setSuccess('Password reset successfully! You can now log in with your new password.')
     }
   }, [searchParams])
 
