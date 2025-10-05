@@ -381,6 +381,13 @@ export default function AdminProvidersPage() {
                           </button>
                         )}
                         <button 
+                          onClick={() => window.location.href = `/admin/providers/${provider.id}/edit`}
+                          className="text-orange-400 hover:text-orange-300 transition-colors mr-3"
+                          title="Edit Provider Profile"
+                        >
+                          Edit
+                        </button>
+                        <button 
                           onClick={() => openProviderDetails(provider)}
                           className="text-blue-400 hover:text-blue-300 transition-colors mr-3"
                         >

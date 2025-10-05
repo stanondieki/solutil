@@ -244,6 +244,86 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
   });
 }));
 
+// @desc    Update provider profile information
+// @route   PUT /api/admin/providers/:id/profile
+// @access  Private (Admin only)
+router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
+  // Check if user is admin
+  if (req.user.userType !== 'admin') {
+    return next(new AppError('Access denied. Admin privileges required.', 403));
+  }
+
+  const {
+    name,
+    email,
+    phone,
+    address,
+    providerProfile,
+    adminNote
+  } = req.body;
+
+  const provider = await User.findById(req.params.id);
+  
+  if (!provider) {
+    return next(new AppError('Provider not found', 404));
+  }
+
+  if (provider.userType !== 'provider') {
+    return next(new AppError('User is not a provider', 400));
+  }
+
+  // Update basic information
+  if (name !== undefined) provider.name = name;
+  if (email !== undefined) provider.email = email;
+  if (phone !== undefined) provider.phone = phone;
+  
+  // Update address
+  if (address) {
+    provider.address = {
+      ...provider.address,
+      ...address
+    };
+  }
+
+  // Update provider profile
+  if (providerProfile) {
+    provider.providerProfile = {
+      ...provider.providerProfile,
+      ...providerProfile
+    };
+  }
+
+  // Add admin note if provided
+  if (adminNote && adminNote.trim()) {
+    provider.adminNotes.push({
+      note: adminNote.trim(),
+      admin: req.user._id,
+      type: 'profile_update',
+      date: new Date()
+    });
+  }
+
+  await provider.save();
+
+  logger.info(`Provider profile updated for ${provider.email} by admin ${req.user.email}`);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Provider profile updated successfully',
+    data: {
+      provider: {
+        _id: provider._id,
+        name: provider.name,
+        email: provider.email,
+        phone: provider.phone,
+        address: provider.address,
+        providerProfile: provider.providerProfile,
+        providerStatus: provider.providerStatus
+      }
+    }
+  });
+}));
+
 // @desc    Add admin note to provider
 // @route   POST /api/admin/providers/:id/notes
 // @access  Private (Admin only)
