@@ -139,7 +139,7 @@ export default function HomePage() {
                   <span className="text-orange-400 block">Simple</span>
                 </h1>
                 <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-8 sm:mb-12 max-w-3xl mx-auto">
-                  Professional home services you can trust. From plumbing to electrical work, 
+                  Professional home and office services you can trust. From plumbing to electrical work, 
                   and professional cleaning - we connect you with vetted professionals for your essential home needs.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">

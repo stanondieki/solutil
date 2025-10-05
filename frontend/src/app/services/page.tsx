@@ -7,11 +7,6 @@ import { useState } from 'react';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import { 
-  FaWrench, 
-  FaLightbulb, 
-  FaShower, 
-  FaPaintRoller, 
-  FaBroom,
   FaCheck,
   FaClock,
   FaShieldAlt,
@@ -23,7 +18,7 @@ const services = [
   {
     id: 'plumbing',
     title: 'Plumbing Services',
-    icon: FaWrench,
+    image: '/servicetools/plumbtools.png',
     description: 'Professional plumbing services for homes and businesses',
     price: 'From KES 2,000',
     color: 'from-blue-500 to-blue-600',
@@ -42,7 +37,7 @@ const services = [
   {
     id: 'electrical',
     title: 'Electrical Services',
-    icon: FaLightbulb,
+    image: '/servicetools/electricityicon.png',
     description: 'Safe and reliable electrical installations and repairs',
     price: 'From KES 2,000',
     color: 'from-yellow-500 to-orange-500',
@@ -61,7 +56,7 @@ const services = [
   {
     id: 'cleaning',
     title: 'Cleaning Services',
-    icon: FaBroom,
+    image: '/servicetools/cleantools.png',
     description: 'Comprehensive cleaning services for your space',
     price: 'From KES 1,800',
     color: 'from-green-500 to-emerald-500',
@@ -80,7 +75,7 @@ const services = [
   {
     id: 'carpentry',
     title: 'Carpentry Services',
-    icon: FaShower,
+    image: '/servicetools/carpentrytools.png',
     description: 'Custom woodwork and furniture solutions',
     price: 'From KES 2,500',
     color: 'from-amber-600 to-orange-600',
@@ -99,7 +94,7 @@ const services = [
   {
     id: 'painting',
     title: 'Painting Services',
-    icon: FaPaintRoller,
+    image: '/servicetools/painting.png',
     description: 'Interior and exterior painting services',
     price: 'From KES 2,000',
     color: 'from-purple-500 to-pink-500',
@@ -114,6 +109,25 @@ const services = [
     ],
     duration: '1-3 days',
     warranty: '24 months warranty'
+  },
+  {
+    id: 'movers',
+    title: 'Moving Services',
+    image: '/servicetools/movers1.png',
+    description: 'Professional moving and relocation services',
+    price: 'From KES 3,000',
+    color: 'from-teal-500 to-cyan-500',
+    bgColor: 'from-teal-50 to-cyan-100',
+    features: [
+      'Residential moving services',
+      'Office relocation',
+      'Packing and unpacking',
+      'Furniture disassembly/assembly',
+      'Loading and unloading',
+      'Storage solutions'
+    ],
+    duration: '4-8 hours',
+    warranty: 'Items protection guarantee'
   }
 ];
 
@@ -157,7 +171,7 @@ export default function ServicesPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-3xl text-slate-800 mb-14 max-w-5xl mx-auto leading-relaxed font-semibold"
             >
-              Professional home services delivered by trusted experts. Quality work, fair prices, and your satisfaction guaranteed.
+              Professional home and office services delivered by trusted experts. Quality work, fair prices, and your satisfaction guaranteed.
             </motion.p>
           </motion.div>
         </div>
@@ -177,36 +191,40 @@ export default function ServicesPage() {
                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
                 className="group"
               >
-                <div className="bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-gray-200 relative overflow-hidden">
-                  {/* Background gradient overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.bgColor} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
-                  
-                  {/* Content */}
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between mb-8">
-                      <div className="flex items-center space-x-6">
-                        <div className={`w-20 h-20 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                          <service.icon className="text-white text-3xl" />
-                        </div>
+                <div className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-gray-200 relative">
+                  {/* Service Image Header */}
+                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                    <Image 
+                      src={service.image} 
+                      alt={service.title}
+                      fill
+                      className="object-contain group-hover:scale-105 transition-transform duration-500 p-4"
+                    />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent`}></div>
+                    <div className="absolute bottom-3 left-4 right-4">
+                      <div className="flex items-end justify-between">
                         <div>
-                          <h3 className="text-3xl font-black text-slate-900 mb-3">
+                          <h3 className="text-xl font-bold text-white mb-1 drop-shadow-lg">
                             {service.title}
                           </h3>
-                          <p className="text-slate-700 text-lg font-medium">
+                          <p className="text-white/90 text-xs font-medium drop-shadow">
                             {service.description}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-3xl font-black text-orange-600">
-                          {service.price}
+                        <div className="text-right">
+                          <div className="text-xl font-bold text-orange-400 drop-shadow-lg">
+                            {service.price}
+                          </div>
                         </div>
                       </div>
                     </div>
-
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="p-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                       <div>
-                        <h4 className="font-black text-slate-900 mb-6 text-xl">What's Included:</h4>
+                        <h4 className="font-black text-slate-900 mb-4 text-lg">What's Included:</h4>
                         <ul className="space-y-4">
                           {service.features.slice(0, 3).map((feature, idx) => (
                             <li key={idx} className="flex items-center space-x-4">
@@ -217,7 +235,7 @@ export default function ServicesPage() {
                             </li>
                           ))}
                           {service.features.length > 3 && (
-                            <li className="text-orange-600 text-lg cursor-pointer hover:underline font-bold"
+                            <li className="text-orange-600 text-base cursor-pointer hover:underline font-bold"
                                 onClick={() => setSelectedService(selectedService === service.id ? null : service.id)}>
                               {selectedService === service.id ? 'Show less' : `+${service.features.length - 3} more services`}
                             </li>
@@ -235,7 +253,7 @@ export default function ServicesPage() {
                                 <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                                   <FaCheck className="text-white text-sm" />
                                 </div>
-                                <span className="text-slate-800 text-lg font-medium">{feature}</span>
+                                <span className="text-slate-800 text-base font-medium">{feature}</span>
                               </li>
                             ))}
                           </motion.ul>
@@ -248,8 +266,8 @@ export default function ServicesPage() {
                             <FaClock className="text-white text-xl" />
                           </div>
                           <div>
-                            <div className="font-black text-slate-900 text-xl mb-2">Duration</div>
-                            <div className="text-lg text-slate-700 font-medium">{service.duration}</div>
+                            <div className="font-black text-slate-900 text-lg mb-2">Duration</div>
+                            <div className="text-base text-slate-700 font-medium">{service.duration}</div>
                           </div>
                         </div>
                         
@@ -258,8 +276,8 @@ export default function ServicesPage() {
                             <FaShieldAlt className="text-white text-xl" />
                           </div>
                           <div>
-                            <div className="font-black text-slate-900 text-xl mb-2">Warranty</div>
-                            <div className="text-lg text-slate-700 font-medium">{service.warranty}</div>
+                            <div className="font-black text-slate-900 text-lg mb-2">Warranty</div>
+                            <div className="text-base text-slate-700 font-medium">{service.warranty}</div>
                           </div>
                         </div>
                       </div>
@@ -268,12 +286,12 @@ export default function ServicesPage() {
                     <div className="flex flex-col sm:flex-row gap-5">
                       <Link
                         href={`/booking?service=${service.title.toLowerCase()}`}
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-center px-8 py-5 rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 font-black text-xl shadow-xl"
+                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-center px-6 py-4 rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 font-black text-lg shadow-xl"
                       >
                         Book {service.title}
                       </Link>
                       
-                      <button className="border-2 border-slate-300 text-slate-800 px-8 py-5 rounded-2xl hover:bg-slate-50 transition-all duration-300 font-black text-xl hover:border-orange-500 hover:text-orange-600 shadow-lg">
+                      <button className="border-2 border-slate-300 text-slate-800 px-6 py-4 rounded-2xl hover:bg-slate-50 transition-all duration-300 font-black text-lg hover:border-orange-500 hover:text-orange-600 shadow-lg">
                         Learn More
                       </button>
                     </div>
