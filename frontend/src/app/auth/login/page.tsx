@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/AuthContext'
 function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, user } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -66,75 +66,46 @@ function LoginPageContent() {
     setError('')
 
     try {
-      // Call backend login API
       console.log('Attempting login with email:', formData.email);
       
-      const loginResponse = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        }),
-      })
-
-      console.log('Login response status:', loginResponse.status);
-      const loginData = await loginResponse.json()
-      console.log('Login response data:', loginData);
-
-      if (loginResponse.ok && loginData.status === 'success') {
-        console.log('Login successful - using auth context')
-        console.log('Full response data:', JSON.stringify(loginData, null, 2))
+      // Use auth context login method directly (it handles the API call)
+      const loginSuccess = await login(formData.email, formData.password)
+      
+      if (loginSuccess) {
+        console.log('Login successful via auth context')
         
-        const token = loginData.token || loginData.data?.token || loginData.accessToken || loginData.data?.accessToken
-        const userData = {
-          ...loginData.data.user,
-          isAuthenticated: true,
-          verified: true
-        }
+        // Get user data from localStorage since auth context state might not be updated yet
+        const userData = JSON.parse(localStorage.getItem('user') || '{}')
         
-        if (token) {
-          // Use auth context login method
-          await login(formData.email, formData.password)
-          console.log('Login completed via auth context')
-          
-          // Smart redirect based on user role and status
-          const user = loginData.data.user
-          let redirectPath = '/dashboard' // default
-          
-          if (user.userType === 'admin') {
-            redirectPath = '/admin'
-          } else if (user.userType === 'provider') {
-            // Check provider verification status
-            if (user.providerStatus === 'pending' || user.providerStatus === 'under_review') {
-              redirectPath = '/provider/onboarding'
-            } else if (user.providerStatus === 'rejected') {
-              redirectPath = '/dashboard' // Dashboard will show rejection alert
-            } else {
-              redirectPath = '/dashboard' // Approved or other status
-            }
+        // Smart redirect based on user role and status
+        let redirectPath = '/dashboard' // default
+        
+        if (userData.userType === 'admin') {
+          redirectPath = '/admin'
+        } else if (userData.userType === 'provider') {
+          // Check provider verification status
+          if (userData.providerStatus === 'pending' || userData.providerStatus === 'under_review') {
+            redirectPath = '/provider/onboarding'
+          } else if (userData.providerStatus === 'rejected') {
+            redirectPath = '/dashboard' // Dashboard will show rejection alert
           } else {
-            // Client or default
-            redirectPath = '/dashboard'
+            redirectPath = '/dashboard' // Approved or other status
           }
-          
-          console.log(`Redirecting ${user.userType} (${user.providerStatus || 'N/A'}) to: ${redirectPath}`)
-          router.push(redirectPath)
         } else {
-          console.log('No token found in response. Available keys:', Object.keys(loginData))
-          setError('Login failed: No authentication token received')
+          // Client or default
+          redirectPath = '/dashboard'
         }
-      } else {
-        console.error('Login failed:', loginData);
-        const errorMessage = loginData.message || 'Invalid email or password'
-        setError(errorMessage)
         
-        // Show resend verification option if email is not verified
-        if (errorMessage.toLowerCase().includes('verify your email') || errorMessage.toLowerCase().includes('email verification')) {
-          setShowResendVerification(true)
-        }
+        console.log(`Redirecting ${userData.userType} (${userData.providerStatus || 'N/A'}) to: ${redirectPath}`)
+        router.push(redirectPath)
+      } else {
+        console.error('Login failed');
+        setError('Invalid email or password. Please check your credentials and try again.')
+        
+        // TODO: Add resend verification logic if needed
+        // if (errorMessage.toLowerCase().includes('verify your email')) {
+        //   setShowResendVerification(true)
+        // }
       }
     } catch (err) {
       console.error('Login error:', err);
