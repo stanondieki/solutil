@@ -2,16 +2,30 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
 
 export const providerAPI = {
-  // Get provider services
+  // 🆕 UPDATED: Get provider services from enhanced API
   getServices: async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/api/provider-services`, {
+      
+      // Try enhanced API first
+      let response = await fetch(`${API_BASE}/api/v2/services/my-services`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+      
+      if (!response.ok) {
+        // Fallback to legacy API
+        console.warn('Enhanced services API failed, falling back to legacy');
+        response = await fetch(`${API_BASE}/api/provider-services`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+      
       return response.json();
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -84,17 +98,32 @@ export const providerAPI = {
     }
   },
 
-  // Toggle service active status
+  // 🆕 UPDATED: Toggle service active status (deactivate via enhanced API)
   toggleService: async (serviceId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/api/provider-services/${serviceId}/toggle`, {
-        method: 'PUT',
+      
+      // Use enhanced API for deactivation
+      let response = await fetch(`${API_BASE}/api/v2/services/${serviceId}`, {
+        method: 'DELETE', // Enhanced API uses DELETE for deactivation
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+      
+      if (!response.ok) {
+        // Fallback to legacy API
+        console.warn('Enhanced toggle API failed, falling back to legacy');
+        response = await fetch(`${API_BASE}/api/provider-services/${serviceId}/toggle`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+      
       return response.json();
     } catch (error) {
       console.error('Error toggling service:', error);
