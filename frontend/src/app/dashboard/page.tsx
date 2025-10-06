@@ -1113,6 +1113,26 @@ export default function DashboardPage() {
                           <p className="text-sm text-gray-600 mb-1">
                             {provider.providerProfile?.experience || 'Professional Service Provider'}
                           </p>
+                          
+                          {/* Service Categories */}
+                          {provider.providerProfile?.skills && provider.providerProfile.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {provider.providerProfile.skills.slice(0, 3).map((skill, index) => (
+                                <span 
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {provider.providerProfile.skills.length > 3 && (
+                                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                                  +{provider.providerProfile.skills.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
                           <div className="flex items-center space-x-4">
                             <div className="flex items-center">
                               <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
@@ -1130,21 +1150,15 @@ export default function DashboardPage() {
                         </div>
                         
                         <div className="ml-4">
-                          {provider.services && provider.services.length > 0 ? (
-                            <Link 
-                              href={`/booking/form/${provider.services[0]._id}`}
-                              className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
-                            >
-                              Book Now
-                            </Link>
-                          ) : (
-                            <Link 
-                              href={`/provider/${provider._id}`}
-                              className="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors"
-                            >
-                              View Profile
-                            </Link>
-                          )}
+                          {/* Featured providers should have Book Now as primary action */}
+                          <Link 
+                            href={provider.services && provider.services.length > 0 
+                              ? `/booking/form/${provider.services[0]._id}` 
+                              : `/provider/${provider._id}/book`}
+                            className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+                          >
+                            Book Now
+                          </Link>
                         </div>
                       </div>
 
