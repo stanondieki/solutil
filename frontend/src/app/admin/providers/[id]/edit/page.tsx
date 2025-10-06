@@ -185,7 +185,7 @@ export default function EditProviderPage() {
       if (response.ok) {
         const result = await response.json()
         alert('Provider profile updated successfully!')
-        router.push(`/admin/providers/${provider._id}`)
+        router.push('/admin/providers')
       } else {
         const errorData = await response.json()
         throw new Error(errorData.message || 'Failed to update provider profile')
@@ -237,7 +237,7 @@ export default function EditProviderPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <button
-                onClick={() => router.push(`/admin/providers/${provider._id}`)}
+                onClick={() => router.push('/admin/providers')}
                 className="mr-4 p-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 <FaArrowLeft className="text-xl" />
@@ -249,7 +249,7 @@ export default function EditProviderPage() {
             </div>
             <div className="flex space-x-3">
               <button
-                onClick={() => router.push(`/admin/providers/${provider._id}`)}
+                onClick={() => router.push('/admin/providers')}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center"
               >
                 <FaTimes className="mr-2" />
