@@ -167,7 +167,12 @@ export default function EditProviderPage() {
         adminNote: adminNote.trim() ? `Profile updated: ${adminNote.trim()}` : 'Profile updated by admin'
       }
 
-      const response = await fetch(`/api/admin/providers/${provider._id}/profile`, {
+      console.log('🔄 Calling backend directly with data:', updateData);
+      
+      // Call production backend (where admin authentication was done)
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+      
+      const response = await fetch(`${backendUrl}/api/admin/providers/${provider._id}/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -282,36 +287,36 @@ export default function EditProviderPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Full Name
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Email Address
                   </label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Phone Number
                   </label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
               </div>
@@ -330,46 +335,46 @@ export default function EditProviderPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Street Address
                   </label>
                   <input
                     type="text"
                     value={formData.address?.street || ''}
                     onChange={(e) => handleInputChange('address.street', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     City
                   </label>
                   <input
                     type="text"
                     value={formData.address?.city || ''}
                     onChange={(e) => handleInputChange('address.city', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     State/County
                   </label>
                   <input
                     type="text"
                     value={formData.address?.state || ''}
                     onChange={(e) => handleInputChange('address.state', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Country
                   </label>
                   <select
                     value={formData.address?.country || 'Kenya'}
                     onChange={(e) => handleInputChange('address.country', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   >
                     <option value="Kenya">Kenya</option>
                     <option value="Uganda">Uganda</option>
@@ -394,18 +399,18 @@ export default function EditProviderPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Business Name
                   </label>
                   <input
                     type="text"
                     value={formData.providerProfile?.businessName || ''}
                     onChange={(e) => handleInputChange('providerProfile.businessName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Hourly Rate (KES)
                   </label>
                   <input
@@ -413,11 +418,11 @@ export default function EditProviderPage() {
                     min="0"
                     value={formData.providerProfile?.hourlyRate || 0}
                     onChange={(e) => handleInputChange('providerProfile.hourlyRate', Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Skills/Services (comma-separated)
                   </label>
                   <input
@@ -425,17 +430,17 @@ export default function EditProviderPage() {
                     value={formData.providerProfile?.skills?.join(', ') || ''}
                     onChange={(e) => handleSkillsChange(e.target.value)}
                     placeholder="e.g., House Cleaning, Plumbing, Electrical Work"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Experience Level
                   </label>
                   <select
                     value={formData.providerProfile?.experience || ''}
                     onChange={(e) => handleInputChange('providerProfile.experience', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   >
                     <option value="">Select Experience Level</option>
                     <option value="Beginner">Beginner (0-2 years)</option>
@@ -445,7 +450,7 @@ export default function EditProviderPage() {
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Bio/Description
                   </label>
                   <textarea
@@ -453,7 +458,7 @@ export default function EditProviderPage() {
                     value={formData.providerProfile?.bio || ''}
                     onChange={(e) => handleInputChange('providerProfile.bio', e.target.value)}
                     placeholder="Tell us about your professional background and expertise..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
               </div>
@@ -474,7 +479,7 @@ export default function EditProviderPage() {
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
                 placeholder="Add a note about this profile update for admin records..."
-                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white text-gray-900"
               />
             </motion.div>
           </div>

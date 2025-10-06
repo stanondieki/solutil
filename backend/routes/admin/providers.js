@@ -248,8 +248,12 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
 // @route   PUT /api/admin/providers/:id/profile
 // @access  Private (Admin only)
 router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
+  logger.info(`🔄 Admin ${req.user.email} updating provider profile ${req.params.id}`);
+  logger.info(`📝 Request body: ${JSON.stringify(req.body, null, 2)}`);
+  
   // Check if user is admin
   if (req.user.userType !== 'admin') {
+    logger.error(`❌ Access denied for user ${req.user.email} - not admin`);
     return next(new AppError('Access denied. Admin privileges required.', 403));
   }
 
@@ -295,6 +299,10 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
 
   // Add admin note if provided
   if (adminNote && adminNote.trim()) {
+    // Ensure adminNotes array exists
+    if (!provider.adminNotes) {
+      provider.adminNotes = [];
+    }
     provider.adminNotes.push({
       note: adminNote.trim(),
       admin: req.user._id,
@@ -303,9 +311,13 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
     });
   }
 
-  await provider.save();
-
-  logger.info(`Provider profile updated for ${provider.email} by admin ${req.user.email}`);
+  try {
+    await provider.save();
+    logger.info(`✅ Provider profile updated successfully for ${provider.email} by admin ${req.user.email}`);
+  } catch (saveError) {
+    logger.error(`❌ Failed to save provider ${provider.email}:`, saveError);
+    return next(new AppError(`Failed to save provider: ${saveError.message}`, 500));
+  }
 
   res.status(200).json({
     status: 'success',
