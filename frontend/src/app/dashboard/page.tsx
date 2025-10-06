@@ -1107,7 +1107,7 @@ export default function DashboardPage() {
                           <div className="flex items-center justify-between">
                             <h4 className="font-semibold text-gray-900">{provider.name}</h4>
                             <span className="text-sm font-medium text-orange-600">
-                              {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}/hr` : 'Contact for price'}
+                              {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}` : 'Contact for price'}
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-1">

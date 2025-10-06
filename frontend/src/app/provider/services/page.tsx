@@ -220,8 +220,7 @@ const MyServicesPage: React.FC = () => {
     switch (service.priceType) {
       case 'fixed':
         return `KSh ${service.price.toLocaleString()}`
-      case 'hourly':
-        return `KSh ${service.price}/hr`
+
       case 'quote':
         return 'Custom Quote'
       default:
@@ -987,7 +986,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               >
                 <option value="fixed">Fixed Price</option>
-                <option value="hourly">Hourly Rate</option>
+
                 <option value="quote">Custom Quote</option>
               </select>
             </div>
@@ -995,7 +994,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
             {formData.priceType !== 'quote' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price (KSh) {formData.priceType === 'hourly' && '/ hour'}
+                  Price (KSh)
                 </label>
                 <input
                   type="number"

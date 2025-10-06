@@ -168,7 +168,7 @@ export default function ProviderProfilePage() {
   };
 
   const formatPrice = (hourlyRate: number) => {
-    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}/hr` : 'Contact for quote';
+    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}` : 'Contact for quote';
   };
 
   const formatWorkingHours = (workingHours: { start: string; end: string }) => {

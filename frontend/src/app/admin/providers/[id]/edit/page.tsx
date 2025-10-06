@@ -412,7 +412,7 @@ export default function EditProviderPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-1">
-                    Hourly Rate (KES)
+                    Rate (KES)
                   </label>
                   <input
                     type="number"

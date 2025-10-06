@@ -207,7 +207,7 @@ export default function ProviderOnboardingPage() {
         description: '',
         category: '',
         price: '',
-        priceType: 'hourly' as const
+        priceType: 'fixed' as const
       }]
     }))
   }
@@ -806,7 +806,7 @@ export default function ProviderOnboardingPage() {
                                 onChange={(e) => updateService(index, 'priceType', e.target.value)}
                                 className="px-4 py-3 border-l-0 border-2 border-gray-300 rounded-r-lg text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                               >
-                                <option value="hourly" className="text-gray-900 font-bold">per hour</option>
+
                                 <option value="fixed" className="text-gray-900 font-bold">fixed price</option>
                                 <option value="quote" className="text-gray-900 font-bold">custom quote</option>
                               </select>
@@ -830,13 +830,13 @@ export default function ProviderOnboardingPage() {
                 )}
               </div>
 
-              {/* Hourly Rate */}
+              {/* Fixed Rate */}
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Base Hourly Rate (KES) *
+                  Base Service Rate (KES) *
                 </label>
                 <p className="text-sm text-gray-700 font-medium mb-3">
-                  Your standard hourly rate (you can set specific prices for individual services above)
+                  Your standard service rate (you can set specific prices for individual services above)
                 </p>
                 <div className="relative">
                   <FaDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -1068,7 +1068,7 @@ export default function ProviderOnboardingPage() {
                     </div>
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-blue-200">
-                    <span className="font-black text-gray-900 text-base">Base Hourly Rate:</span> 
+                    <span className="font-black text-gray-900 text-base">Base Service Rate:</span> 
                     <span className="font-bold text-green-700 ml-2 text-lg">KES {profile.hourlyRate}</span>
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-blue-200">
@@ -1116,7 +1116,7 @@ export default function ProviderOnboardingPage() {
                           <span className="text-yellow-700">💰 Price:</span> 
                           <span className="text-green-700 ml-2">KES {service.price}</span>
                           <span className="text-gray-600 ml-2">
-                            {service.priceType === 'hourly' ? 'per hour' : service.priceType === 'fixed' ? 'fixed price' : 'custom quote'}
+                            {service.priceType === 'fixed' ? 'fixed price' : 'custom quote'}
                           </span>
                         </div>
                       </div>

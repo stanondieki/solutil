@@ -182,7 +182,7 @@ export default function ProvidersPage() {
   };
 
   const formatPrice = (hourlyRate: number) => {
-    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}/hr` : 'Contact for quote';
+    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}` : 'Contact for quote';
   };
 
   if (loading) {

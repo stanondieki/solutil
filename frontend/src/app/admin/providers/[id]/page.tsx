@@ -65,8 +65,9 @@ export default function ProviderDetailPage() {
   const fetchProviderDetails = async (providerId: string) => {
     try {
       setLoading(true)
-      // Use new backend endpoint for provider details
-      const response = await fetch(`http://localhost:5000/api/provider/${providerId}`, {
+      // Use production backend endpoint for provider details
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+      const response = await fetch(`${backendUrl}/api/provider/${providerId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
