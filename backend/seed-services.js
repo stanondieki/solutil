@@ -1,3 +1,6 @@
+// === SEED SERVICES ANALYSIS ===
+// Understanding how services are seeded
+
 const mongoose = require('mongoose');
 const Service = require('./models/Service');
 require('dotenv').config();

@@ -99,7 +99,7 @@ exports.getService = catchAsync(async (req, res, next) => {
 
 // @desc    Create new service
 // @route   POST /api/services
-// @access  Private (Provider/Admin)
+// @access  Private (Admin only - Providers get services from onboarding)
 exports.createService = catchAsync(async (req, res, next) => {
   // For now, we'll create the service without provider association
   // In a complete implementation, you'd link it to the provider

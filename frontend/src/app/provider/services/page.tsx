@@ -98,7 +98,7 @@ const MyServicesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [showAddModal, setShowAddModal] = useState(false)
+  // Note: Providers cannot create services manually - services are created during onboarding
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [sortBy, setSortBy] = useState('createdAt')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -440,16 +440,15 @@ const MyServicesPage: React.FC = () => {
               <p className="text-gray-600 mb-6">
                 {searchQuery || selectedCategory !== 'all' || statusFilter !== 'all'
                   ? 'Try adjusting your filters'
-                  : 'Get started by adding your first service'
+                  : 'Your services will appear here after your onboarding application is approved'
                 }
               </p>
               {!searchQuery && selectedCategory === 'all' && statusFilter === 'all' && (
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="bg-orange-600 text-white px-6 py-3 rounded-xl hover:bg-orange-700 font-medium transition-colors"
-                >
-                  Add Your First Service
-                </button>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-blue-700 text-sm">
+                    <strong>Note:</strong> Services are automatically created from your onboarding application once approved. You cannot create services manually.
+                  </p>
+                </div>
               )}
             </div>
           ) : (
@@ -474,23 +473,17 @@ const MyServicesPage: React.FC = () => {
           )}
         </div>
 
-        {/* Add/Edit Service Modal */}
+        {/* Service Edit Modal - Only for editing auto-generated services */}
         <AnimatePresence>
-          {(showAddModal || editingService) && (
+          {editingService && (
             <ServiceModal
               service={editingService}
-              isOpen={showAddModal || !!editingService}
+              isOpen={!!editingService}
               onClose={() => {
-                setShowAddModal(false)
                 setEditingService(null)
               }}
               onSave={(service) => {
-                if (editingService) {
-                  setServices(prev => prev.map(s => s._id === service._id ? service : s))
-                } else {
-                  setServices(prev => [...prev, { ...service, _id: Date.now().toString() }])
-                }
-                setShowAddModal(false)
+                setServices(prev => prev.map(s => s._id === service._id ? service : s))
                 setEditingService(null)
                 loadServices() // Refresh stats
               }}
@@ -790,25 +783,24 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
       return
     }
 
+    if (!service?._id) {
+      alert('Error: Service creation is not allowed. Services are automatically created during onboarding.')
+      return
+    }
+
     setSaving(true)
     try {
-      let response
-      if (service?._id) {
-        // Update existing service
-        response = await providerServicesAPI.updateService(service._id, formData)
-      } else {
-        // Create new service
-        response = await providerServicesAPI.createService(formData)
-      }
+      // Update existing service only
+      const response = await providerServicesAPI.updateService(service._id, formData)
 
       if (response.status === 'success') {
         onSave(response.data.service)
-        alert(getSuccessMessage(service?._id ? 'Service updated successfully' : 'Service created successfully'))
+        alert(getSuccessMessage('Service updated successfully'))
       } else {
-        throw new Error('Failed to save service')
+        throw new Error('Failed to update service')
       }
     } catch (error) {
-      console.error('Error saving service:', error)
+      console.error('Error updating service:', error)
       alert(handleAPIError(error))
     } finally {
       setSaving(false)
@@ -869,7 +861,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-900">
-              {service ? 'Edit Service' : 'Add New Service'}
+              Edit Service Details
             </h2>
             <button
               onClick={onClose}
@@ -1167,7 +1159,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
             className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {loading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
-            <span>{service ? 'Update Service' : 'Create Service'}</span>
+            <span>Update Service</span>
           </button>
         </div>
       </motion.div>

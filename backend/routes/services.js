@@ -1,3 +1,5 @@
+// === SERVICE ROUTES ANALYSIS ===
+
 const express = require('express');
 const { body, query } = require('express-validator');
 const {
@@ -45,7 +47,7 @@ router.get('/:id', getService);
 // Protected routes
 router.use(protect);
 
-router.post('/', restrictTo('provider', 'admin'), [
+router.post('/', restrictTo('admin'), [ // Only admins can create services - providers get services from onboarding
   body('name')
     .trim()
     .isLength({ min: 3, max: 100 })

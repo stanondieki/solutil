@@ -171,59 +171,12 @@ router.get('/:id', protect, catchAsync(async (req, res, next) => {
   });
 }));
 
-// @desc    Create new service
+// @desc    Create new service - DISABLED - Services are created automatically during onboarding
 // @route   POST /api/services
 // @access  Private (Provider only)
 router.post('/', protect, catchAsync(async (req, res, next) => {
-  if (req.user.userType !== 'provider') {
-    return next(new AppError('Access denied. Provider privileges required.', 403));
-  }
-
-  if (req.user.providerStatus !== 'approved') {
-    return next(new AppError('Your provider account must be approved to create services', 403));
-  }
-
-  const serviceData = {
-    ...req.body,
-    providerId: req.user._id
-  };
-
-  const service = await ProviderService.create(serviceData);
-
-  logger.info(`New service created: ${service.title} by provider ${req.user.email}`);
-
-  // Send confirmation email to provider
-  try {
-    const { sendServiceCreatedEmail } = require('../utils/email');
-    
-    const priceDisplay = service.priceType === 'quote' 
-      ? 'Custom Quote' 
-      : service.priceType === 'hourly' 
-        ? `KSh ${service.price}/hr`
-        : `KSh ${service.price}`;
-
-    await sendServiceCreatedEmail(req.user.email, {
-      providerName: req.user.name,
-      serviceTitle: service.title,
-      category: service.category,
-      priceDisplay,
-      duration: service.duration,
-      isActive: service.isActive,
-      serviceURL: `${process.env.CLIENT_URL || 'http://localhost:3000'}/provider/services`
-    });
-    
-    logger.info(`Service creation confirmation email sent to ${req.user.email}`);
-  } catch (emailError) {
-    logger.error('Failed to send service creation email:', emailError.message);
-    // Don't fail the request if email fails
-  }
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      service
-    }
-  });
+  // Providers cannot create services manually - they are created automatically during onboarding
+  return next(new AppError('Service creation is not allowed. Services are automatically created when your provider application is approved during the onboarding process.', 403));
 }));
 
 // @desc    Update service
