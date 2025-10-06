@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, query } = require('express-validator');
 const ProviderServiceManager = require('../utils/providerServiceManager');
+const ProviderService = require('../models/ProviderService');
 const { protect, restrictTo, optionalAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
 const catchAsync = require('../utils/catchAsync');
@@ -150,8 +151,6 @@ router.get('/search', [
   }
 
   // For search, we'll do a simple text match on title and description
-  const ProviderService = require('../models/ProviderService');
-  
   const query = {
     isActive: true,
     $or: [
@@ -228,8 +227,6 @@ router.put('/:id', restrictTo('provider'), [
   body('pricing.basePrice').optional().isFloat({ min: 0 }),
   validate
 ], catchAsync(async (req, res, next) => {
-  const ProviderService = require('../models/ProviderService');
-  
   const service = await ProviderService.findOne({
     _id: req.params.id,
     providerId: req.user.id

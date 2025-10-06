@@ -140,7 +140,7 @@ export const clientAPI = {
     notes?: string;
   }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE}/api/bookings`, {
         method: 'POST',
         headers: {
@@ -169,7 +169,7 @@ export const clientAPI = {
   // Get client bookings
   getMyBookings: async (status?: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const queryString = status ? `?status=${status}` : '';
       const response = await fetch(`${API_BASE}/api/bookings/my-bookings${queryString}`, {
         headers: {
@@ -188,7 +188,7 @@ export const clientAPI = {
   // Get booking details
   getBookingDetails: async (bookingId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE}/api/bookings/${bookingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -206,7 +206,7 @@ export const clientAPI = {
   // Cancel booking
   cancelBooking: async (bookingId: string, reason?: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE}/api/bookings/${bookingId}/cancel`, {
         method: 'PUT',
         headers: {
