@@ -163,8 +163,9 @@ export default function EditProviderPage() {
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
-        providerProfile: formData.providerProfile,
-        adminNote: adminNote.trim() ? `Profile updated: ${adminNote.trim()}` : 'Profile updated by admin'
+        providerProfile: formData.providerProfile
+        // Temporarily remove adminNote until backend deployment completes
+        // adminNote: adminNote.trim() ? `Profile updated: ${adminNote.trim()}` : 'Profile updated by admin'
       }
 
       console.log('🔄 Calling backend directly with data:', updateData);
