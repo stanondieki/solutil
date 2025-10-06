@@ -25,6 +25,12 @@ interface Provider {
   email: string;
   phone: string;
   profilePicture?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  };
   providerProfile: {
     businessName: string;
     experience: string;
@@ -34,6 +40,7 @@ interface Provider {
     completedJobs: number;
     services: string[];
     bio: string;
+    skills?: string[];
     workingHours: {
       start: string;
       end: string;
@@ -172,7 +179,13 @@ export default function ProvidersPage() {
       );
 
     const matchesCategory = selectedCategory === 'all' || 
-      getProviderServices(provider._id).some(service => service.category === selectedCategory);
+      getProviderServices(provider._id).some(service => service.category === selectedCategory) ||
+      provider.providerProfile?.skills?.some(skill => 
+        skill.toLowerCase().includes(selectedCategory.toLowerCase())
+      ) ||
+      provider.providerProfile?.specializations?.some(spec => 
+        spec.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
 
     return matchesSearch && matchesCategory;
   });
@@ -368,12 +381,14 @@ export default function ProvidersPage() {
                         <span className="text-gray-600">{provider.phone}</span>
                       </div>
                     )}
-                    {provider.providerProfile?.serviceAreas && (
+                    {(provider.address?.city || provider.providerProfile?.serviceAreas) && (
                       <div className="flex items-center space-x-2 text-sm">
                         <FaMapMarkerAlt className="text-gray-400" />
                         <span className="text-gray-600">
-                          {provider.providerProfile.serviceAreas.slice(0, 2).join(', ')}
-                          {provider.providerProfile.serviceAreas.length > 2 && '...'}
+                          {provider.address?.city ? 
+                            `${provider.address.city}${provider.address.country ? `, ${provider.address.country}` : ''}` :
+                            `${provider.providerProfile.serviceAreas.slice(0, 2).join(', ')}${provider.providerProfile.serviceAreas.length > 2 ? '...' : ''}`
+                          }
                         </span>
                       </div>
                     )}
@@ -382,22 +397,24 @@ export default function ProvidersPage() {
 
                 {/* Actions */}
                 <div className="p-6 pt-0 space-y-2">
+                  {/* Primary Action - Book Now */}
                   <Link
-                    href={`/provider/${provider._id}`}
+                    href={providerServices.length > 0 
+                      ? `/booking/form/${providerServices[0]._id}` 
+                      : `/provider/${provider._id}`}
                     className="w-full bg-orange-600 text-white py-2 rounded-xl font-medium hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
                   >
-                    <span>View Profile</span>
+                    <span>Book Now</span>
                     <FaArrowRight className="text-sm" />
                   </Link>
                   
-                  {providerServices.length > 0 && (
-                    <Link
-                      href={`/booking/form/${providerServices[0]._id}`}
-                      className="w-full bg-gray-100 text-gray-700 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <span>Book Service</span>
-                    </Link>
-                  )}
+                  {/* Secondary Action - View Profile */}
+                  <Link
+                    href={`/provider/${provider._id}`}
+                    className="w-full bg-gray-100 text-gray-700 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <span>View Profile</span>
+                  </Link>
                 </div>
               </motion.div>
             );
