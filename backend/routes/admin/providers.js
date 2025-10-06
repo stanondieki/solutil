@@ -306,7 +306,7 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
     provider.adminNotes.push({
       note: adminNote.trim(),
       admin: req.user._id,
-      type: 'profile_update',
+      type: 'general',  // Use valid enum value instead of 'profile_update'
       date: new Date()
     });
   }
