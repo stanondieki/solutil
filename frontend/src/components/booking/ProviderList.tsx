@@ -9,6 +9,9 @@ interface ProviderListProps {
   serviceId: string
   onProviderSelect: (provider: Provider) => void
   selectedProviderId?: string
+  // 🆕 Add callback for when user selects a specific provider service
+  onProviderServiceSelect?: (providerId: string, serviceId: string) => void
+  showProviderServices?: boolean
 }
 
 // Mock providers data - In production, this would come from an API
@@ -71,7 +74,13 @@ const mockProviders: Provider[] = [
   }
 ]
 
-export default function ProviderList({ serviceId, onProviderSelect, selectedProviderId }: ProviderListProps) {
+export default function ProviderList({ 
+  serviceId, 
+  onProviderSelect, 
+  selectedProviderId,
+  onProviderServiceSelect,
+  showProviderServices = false
+}: ProviderListProps) {
   const [providers, setProviders] = useState<Provider[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -214,6 +223,8 @@ export default function ProviderList({ serviceId, onProviderSelect, selectedProv
                 provider={provider}
                 selected={selectedProviderId === provider.id}
                 onClick={() => onProviderSelect(provider)}
+                onServiceSelect={onProviderServiceSelect}
+                showServices={showProviderServices}
               />
             </motion.div>
           ))

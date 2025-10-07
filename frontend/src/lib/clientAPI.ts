@@ -118,6 +118,22 @@ export const clientAPI = {
     }
   },
 
+  // 🆕 Get providers with their services for a specific category
+  getProvidersWithServices: async (category: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/api/v2/services/providers/with-services?category=${category}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching providers with services:', error);
+      return { success: false, providers: [] };
+    }
+  },
+
   // Create a new booking
   createBooking: async (bookingData: {
     providerId: string;

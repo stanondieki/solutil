@@ -18,7 +18,8 @@ import {
   FaExclamationTriangle,
   FaTools,
   FaCheckCircle,
-  FaArrowRight
+  FaArrowRight,
+  FaUsers
 } from 'react-icons/fa';
 
 interface Service {
@@ -206,8 +207,26 @@ export default function ServiceBookingPage() {
           <p className="text-lg text-gray-600 mb-6">
             Find and book trusted professionals in your area
           </p>
+          
+          {/* Booking Options */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+              <h3 className="font-medium text-blue-900 mb-2">Looking for specific providers?</h3>
+              <p className="text-blue-700 text-sm mb-3">
+                Browse providers and their personalized services to book directly.
+              </p>
+              <Link
+                href={`/booking/providers/${category}`}
+                className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              >
+                <FaUsers className="mr-2" />
+                Browse Providers
+              </Link>
+            </div>
+          </div>
+          
           <div className="text-sm text-gray-500">
-            {services.length} provider{services.length !== 1 ? 's' : ''} available
+            {services.length} service{services.length !== 1 ? 's' : ''} available below
           </div>
         </div>
 

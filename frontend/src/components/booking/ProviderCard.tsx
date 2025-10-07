@@ -18,15 +18,38 @@ export interface Provider {
   availability: string[]
   verified: boolean
   responseTime: string
+  // 🆕 Add provider service information
+  providerServices?: ProviderServiceInfo[]
+}
+
+export interface ProviderServiceInfo {
+  _id: string
+  title: string
+  description: string
+  category: string
+  price: number
+  priceType: 'fixed' | 'hourly' | 'quote'
+  duration: number
+  rating: number
+  reviewCount: number
 }
 
 interface ProviderCardProps {
   provider: Provider
   selected?: boolean
   onClick: () => void
+  // 🆕 Add option to handle provider service selection
+  onServiceSelect?: (providerId: string, serviceId: string) => void
+  showServices?: boolean
 }
 
-export default function ProviderCard({ provider, selected = false, onClick }: ProviderCardProps) {
+export default function ProviderCard({ 
+  provider, 
+  selected = false, 
+  onClick,
+  onServiceSelect,
+  showServices = false
+}: ProviderCardProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
@@ -123,7 +146,7 @@ export default function ProviderCard({ provider, selected = false, onClick }: Pr
           </div>
 
           {/* Availability */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mb-4">
             <span className="text-sm text-gray-600 dark:text-gray-300">Available:</span>
             <div className="flex space-x-1">
               {provider.availability.slice(0, 3).map((time, index) => (
@@ -136,6 +159,47 @@ export default function ProviderCard({ provider, selected = false, onClick }: Pr
               ))}
             </div>
           </div>
+
+          {/* 🆕 Provider Services */}
+          {showServices && provider.providerServices && provider.providerServices.length > 0 && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Available Services:
+              </h4>
+              <div className="space-y-2">
+                {provider.providerServices.slice(0, 2).map((service) => (
+                  <div
+                    key={service._id}
+                    className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onServiceSelect?.(provider.id, service._id);
+                    }}
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {service.title}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">
+                        {service.priceType === 'fixed' ? `KES ${service.price.toLocaleString()}` : 
+                         service.priceType === 'hourly' ? `KES ${service.price.toLocaleString()}/hr` : 
+                         'Contact for quote'}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <FaStar className="text-yellow-400" />
+                      <span>{service.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                ))}
+                {provider.providerServices.length > 2 && (
+                  <p className="text-xs text-gray-500 text-center">
+                    +{provider.providerServices.length - 2} more services
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

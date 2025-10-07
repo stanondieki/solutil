@@ -2,6 +2,7 @@ const express = require('express');
 const { body, query } = require('express-validator');
 const ProviderServiceManager = require('../utils/providerServiceManager');
 const ProviderService = require('../models/ProviderService');
+const User = require('../models/User');
 const { protect, restrictTo, optionalAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
 const catchAsync = require('../utils/catchAsync');
@@ -183,6 +184,78 @@ router.get('/search', [
         images: service.images,
         provider: service.providerId
       }))
+    }
+  });
+}));
+
+// @desc    Get providers with their services for a specific category
+// @route   GET /api/v2/providers/with-services
+// @access  Public
+router.get('/providers/with-services', [
+  query('category').optional().isString().withMessage('Category must be a string'),
+  validate
+], catchAsync(async (req, res, next) => {
+  const { category } = req.query;
+
+  // Build query for services
+  const serviceQuery = { isActive: true };
+  if (category) {
+    serviceQuery.category = category;
+  }
+
+  // Find all active services with their providers
+  const services = await ProviderService.find(serviceQuery)
+    .populate('providerId', 'name email phone profilePicture providerProfile rating')
+    .sort({ rating: -1, totalBookings: -1 });
+
+  // Group services by provider
+  const providersMap = new Map();
+  
+  services.forEach(service => {
+    const providerId = service.providerId._id.toString();
+    
+    if (!providersMap.has(providerId)) {
+      const provider = service.providerId;
+      providersMap.set(providerId, {
+        id: providerId,
+        name: provider.name,
+        rating: provider.providerProfile?.rating || 0,
+        reviews: provider.providerProfile?.totalReviews || 0,
+        image: provider.profilePicture || '/images/default-avatar.png',
+        distance: '2.5 km away', // TODO: Calculate based on user location
+        experience: provider.providerProfile?.experience || 'Professional',
+        specialties: provider.providerProfile?.services || [],
+        availability: ['Today', 'Tomorrow'], // TODO: Get from provider schedule
+        verified: provider.providerProfile?.isVerified || false,
+        responseTime: 'Responds in 1 hour', // TODO: Calculate based on provider data
+        providerServices: []
+      });
+    }
+    
+    // Add service to provider's services
+    const providerData = providersMap.get(providerId);
+    providerData.providerServices.push({
+      _id: service._id,
+      title: service.title,
+      description: service.description,
+      category: service.category,
+      price: service.price,
+      priceType: service.priceType,
+      duration: service.duration,
+      rating: service.rating,
+      reviewCount: service.reviewCount
+    });
+  });
+
+  // Convert map to array
+  const providers = Array.from(providersMap.values());
+
+  res.status(200).json({
+    status: 'success',
+    success: true,
+    results: providers.length,
+    data: {
+      providers
     }
   });
 }));
