@@ -170,6 +170,8 @@ export const clientAPI = {
   }) => {
     try {
       const token = localStorage.getItem('authToken');
+      console.log('Auth token for booking:', token ? 'Present' : 'Missing');
+      
       const response = await fetch(`${API_BASE}/api/bookings`, {
         method: 'POST',
         headers: {
@@ -189,6 +191,16 @@ export const clientAPI = {
           notes: bookingData.notes
         })
       });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Booking API Error:', response.status, errorData);
+        return { 
+          success: false, 
+          error: `HTTP ${response.status}: ${errorData}`,
+          message: 'Failed to create booking'
+        };
+      }
       
       return response.json();
     } catch (error) {
