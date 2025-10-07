@@ -82,6 +82,16 @@ export default function ProviderProfilePage() {
     }
   }, [providerId]);
 
+  // 🆕 DEBUG: Monitor services state changes
+  useEffect(() => {
+    console.log('🔥 SERVICES STATE CHANGED:', services.length, 'services');
+    if (services.length > 0) {
+      console.log('Services in state:', services.map(s => `${s.title} (${s._id})`));
+    } else {
+      console.log('❌ No services in state');
+    }
+  }, [services]);
+
   const fetchProviderDetails = async () => {
     try {
       setLoading(true);
@@ -207,7 +217,10 @@ export default function ProviderProfilePage() {
           });
         }
         
+        console.log('=== SETTING SERVICES TO STATE ===');
+        console.log('About to set services to state:', providerServices.length, 'services');
         setServices(providerServices);
+        console.log('✅ Services set to state successfully');
       } else {
         console.error('Failed to fetch services:', servicesResponse.status);
       }
