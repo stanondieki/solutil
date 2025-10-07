@@ -205,7 +205,7 @@ class ProviderServiceManager {
       }
 
       return await ProviderService.find(query)
-        .populate('providerId', 'businessName email phone rating location profilePicture')
+        .populate('providerId', 'name businessName email phone rating location profilePicture providerProfile')
         .sort({ 'rating.average': -1, createdAt: -1 })
         .limit(filters.limit || 20);
 

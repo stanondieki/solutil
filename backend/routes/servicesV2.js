@@ -77,8 +77,9 @@ router.get('/', [
         images: service.images,
         provider: {
           _id: service.providerId._id,
-          businessName: service.providerId.businessName,
-          rating: service.providerId.rating,
+          name: service.providerId.name,
+          businessName: service.providerId.businessName || service.providerId.providerProfile?.businessName || service.providerId.name,
+          rating: service.providerId.rating || service.providerId.providerProfile?.rating,
           location: service.providerId.location,
           profilePicture: service.providerId.profilePicture
         },
@@ -94,7 +95,7 @@ router.get('/', [
 // @access  Public
 router.get('/:id', catchAsync(async (req, res, next) => {
   const service = await ProviderService.findById(req.params.id)
-    .populate('providerId', 'businessName email phone rating location profilePicture createdAt');
+    .populate('providerId', 'name businessName email phone rating location profilePicture createdAt providerProfile');
 
   if (!service || !service.isActive) {
     return next(new AppError('Service not found', 404));
@@ -115,7 +116,10 @@ router.get('/:id', catchAsync(async (req, res, next) => {
         requirements: service.requirements,
         availability: service.availability,
         serviceArea: service.serviceArea,
-        provider: service.providerId,
+        provider: {
+          ...service.providerId.toObject(),
+          businessName: service.providerId.businessName || service.providerId.providerProfile?.businessName || service.providerId.name
+        },
         createdAt: service.createdAt,
         reviews: service.reviews || []
       }

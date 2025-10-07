@@ -145,18 +145,46 @@ export default function ProviderProfilePage() {
   const fetchProviderServices = async (providerId: string) => {
     try {
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
-      const servicesResponse = await fetch(`${BACKEND_URL}/api/provider-services/public`);
+      
+      // 🆕 UPDATED: Use the enhanced API with better data integrity and cache busting
+      const timestamp = Date.now();
+      let servicesResponse = await fetch(`${BACKEND_URL}/api/v2/services?limit=50&_t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (!servicesResponse.ok) {
+        // Fallback to legacy API if enhanced API fails
+        console.log('Enhanced API failed, falling back to legacy API');
+        servicesResponse = await fetch(`${BACKEND_URL}/api/provider-services/public?_t=${timestamp}`, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+      }
       
       if (servicesResponse.ok) {
         const servicesData = await servicesResponse.json();
         const allServices = servicesData.data?.services || [];
         
-        // Filter services for this provider
-        const providerServices = allServices.filter((service: any) => 
-          service.providerId && service.providerId._id === providerId
-        );
+        // Filter services for this provider with better validation
+        const providerServices = allServices.filter((service: any) => {
+          const serviceProviderId = service.providerId?._id || service.provider?._id;
+          return serviceProviderId === providerId && service.isActive !== false;
+        });
+        
+        console.log(`Found ${providerServices.length} services for provider ${providerId}`);
+        if (providerServices.length > 0) {
+          console.log('First service ID:', providerServices[0]._id);
+          console.log('First service title:', providerServices[0].title);
+        }
         
         setServices(providerServices);
+      } else {
+        console.error('Failed to fetch services:', servicesResponse.status);
       }
     } catch (error) {
       console.error('Error fetching provider services:', error);
@@ -306,14 +334,24 @@ export default function ProviderProfilePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
-                {services.length > 0 && (
+                {services.length > 0 && services[0]?._id && (
                   <Link
                     href={`/booking/form/${services[0]._id}`}
                     className="bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
+                    onClick={() => {
+                      // 🆕 DEBUG: Log the service ID being used
+                      console.log('Booking service with ID:', services[0]._id);
+                      console.log('Service title:', services[0].title);
+                    }}
                   >
                     <FaCalendarAlt />
                     <span>Book Service</span>
                   </Link>
+                )}
+                {services.length === 0 && (
+                  <div className="bg-gray-100 text-gray-500 px-6 py-3 rounded-xl font-medium text-center">
+                    No services available
+                  </div>
                 )}
                 <Link
                   href={`mailto:${provider.email}`}
@@ -452,12 +490,22 @@ export default function ProviderProfilePage() {
                           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
                             {service.category}
                           </span>
-                          <Link
-                            href={`/booking/form/${service._id}`}
-                            className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
-                          >
-                            Book Now
-                          </Link>
+                          {service._id ? (
+                            <Link
+                              href={`/booking/form/${service._id}`}
+                              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                              onClick={() => {
+                                // 🆕 DEBUG: Log the service ID being used
+                                console.log('Booking service:', service.title, 'with ID:', service._id);
+                              }}
+                            >
+                              Book Now
+                            </Link>
+                          ) : (
+                            <span className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium">
+                              Unavailable
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}
