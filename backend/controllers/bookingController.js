@@ -90,59 +90,89 @@ exports.getBooking = catchAsync(async (req, res, next) => {
 // @route   POST /api/bookings
 // @access  Private (Client)
 exports.createBooking = catchAsync(async (req, res, next) => {
-  const {
-    provider,
-    service,
-    scheduledDate,
-    scheduledTime,
-    location,
-    pricing,
-    payment,
-    notes
-  } = req.body;
+  try {
+    console.log('=== BOOKING CREATION DEBUG ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user?.id, req.user?.userType);
+    
+    const {
+      provider,
+      service,
+      scheduledDate,
+      scheduledTime,
+      location,
+      pricing,
+      payment,
+      notes
+    } = req.body;
 
-  // 🆕 UPDATED: Look for service in ProviderService collection first
-  let serviceDoc = await ProviderService.findById(service);
-  let isProviderService = true;
-  
-  if (!serviceDoc) {
-    // Fallback to Service collection for backwards compatibility
-    serviceDoc = await Service.findById(service);
-    isProviderService = false;
-  }
-  
-  if (!serviceDoc) {
-    return next(new AppError('Service not found', 404));
-  }
+    console.log('Extracted fields:', {
+      provider,
+      service,
+      scheduledDate,
+      scheduledTime,
+      location,
+      pricing,
+      payment,
+      notes
+    });
 
-  // Ensure service is active
-  if (!serviceDoc.isActive) {
-    return next(new AppError('Service is not available for booking', 400));
-  }
-
-  // Get the actual provider ID from the service
-  const actualProviderId = isProviderService ? serviceDoc.providerId : provider;
-
-  // Create booking with proper provider reference
-  const booking = await Booking.create({
-    client: req.user.id,
-    provider: actualProviderId,
-    service,
-    serviceType: isProviderService ? 'ProviderService' : 'Service', // Track which model was used
-    scheduledDate,
-    scheduledTime,
-    location,
-    pricing: {
-      ...pricing,
-      // Use service pricing as fallback (ProviderService uses 'price', Service uses 'basePrice')
-      totalAmount: pricing.totalAmount || serviceDoc.price || serviceDoc.basePrice || 0,
-      currency: pricing.currency || 'KES'
-    },
-    payment,
-    notes: {
-      client: notes
+    // 🆕 UPDATED: Look for service in ProviderService collection first
+    console.log('Looking for service ID:', service);
+    let serviceDoc = await ProviderService.findById(service);
+    let isProviderService = true;
+    
+    if (!serviceDoc) {
+      console.log('Service not found in ProviderService, checking Service collection...');
+      // Fallback to Service collection for backwards compatibility
+      serviceDoc = await Service.findById(service);
+      isProviderService = false;
     }
-  });
+    
+    console.log('Service found:', serviceDoc ? 'Yes' : 'No');
+    console.log('Is ProviderService:', isProviderService);
+    
+    if (!serviceDoc) {
+      console.log('ERROR: Service not found in either collection');
+      return next(new AppError('Service not found', 404));
+    }
+
+    // Ensure service is active
+    if (!serviceDoc.isActive) {
+      console.log('ERROR: Service is not active');
+      return next(new AppError('Service is not available for booking', 400));
+    }
+
+    // Get the actual provider ID from the service
+    const actualProviderId = isProviderService ? serviceDoc.providerId : provider;
+    console.log('Actual provider ID:', actualProviderId);
+
+    const bookingData = {
+      client: req.user.id,
+      provider: actualProviderId,
+      service,
+      serviceType: isProviderService ? 'ProviderService' : 'Service', // Track which model was used
+      scheduledDate,
+      scheduledTime,
+      location,
+      pricing: {
+        ...pricing,
+        // Use service pricing as fallback (ProviderService uses 'price', Service uses 'basePrice')
+        totalAmount: pricing.totalAmount || serviceDoc.price || serviceDoc.basePrice || 0,
+        currency: pricing.currency || 'KES'
+      },
+      payment,
+      notes: {
+        client: notes
+      }
+    };
+    
+    console.log('Booking data to create:', JSON.stringify(bookingData, null, 2));
+
+    // Create booking with proper provider reference
+    const booking = await Booking.create(bookingData);
+    
+    console.log('Booking created successfully:', booking._id);
 
   // Populate the created booking with correct service model
   const populateOptions = [
@@ -226,6 +256,16 @@ exports.createBooking = catchAsync(async (req, res, next) => {
       booking
     }
   });
+  
+  } catch (error) {
+    console.error('=== BOOKING CREATION ERROR ===');
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Re-throw the error to be handled by the error middleware
+    throw error;
+  }
 });
 
 // @desc    Update booking status
