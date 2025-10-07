@@ -21,9 +21,17 @@ export const metadata: Metadata = {
   description: "Professional home services including plumbing, electrical, cleaning, carpentry, and painting. Book trusted service providers in Kenya.",
   keywords: "home services, plumbing, electrical, cleaning, carpentry, painting, Kenya, Nairobi",
   icons: {
-    icon: '/images/log.png',
+    icon: [
+      { url: '/images/log.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/log.png', sizes: '16x16', type: 'image/png' },
+    ],
     shortcut: '/images/log.png',
-    apple: '/images/log.png',
+    apple: [
+      { url: '/images/log.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'icon', url: '/images/log.png' },
+    ],
   },
 };
 
