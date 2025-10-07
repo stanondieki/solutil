@@ -61,6 +61,14 @@ interface Service {
       experience?: string;
       rating?: number;
       hourlyRate?: number;
+      services?: Array<{
+        title: string;
+        description: string;
+        category: string;
+        price: number;
+        priceType: 'fixed' | 'hourly' | 'quote';
+        _id: string;
+      }>;
     };
   };
   // Fallback for legacy data
@@ -121,11 +129,36 @@ export default function BookingFormPage() {
   };
 
   const getPrice = (service: Service) => {
-    return service.pricing?.amount || service.price || 0;
+    // Try multiple locations for price data
+    if (service.pricing?.amount) return service.pricing.amount;
+    if (service.price) return service.price;
+    
+    // Check provider's service data
+    const provider = getProvider(service);
+    if (provider?.providerProfile?.services?.[0]?.price) {
+      return provider.providerProfile.services[0].price;
+    }
+    
+    // Fallback to hourly rate
+    if (provider?.providerProfile?.hourlyRate) {
+      return provider.providerProfile.hourlyRate;
+    }
+    
+    return 0;
   };
 
   const getPriceType = (service: Service) => {
-    return service.pricing?.type || service.priceType || 'fixed';
+    // Try multiple locations for price type
+    if (service.pricing?.type) return service.pricing.type;
+    if (service.priceType) return service.priceType;
+    
+    // Check provider's service data
+    const provider = getProvider(service);
+    if (provider?.providerProfile?.services?.[0]?.priceType) {
+      return provider.providerProfile.services[0].priceType;
+    }
+    
+    return 'fixed';
   };
 
   const getDuration = (service: Service) => {
@@ -143,9 +176,19 @@ export default function BookingFormPage() {
       
       const response = await clientAPI.getServiceDetails(serviceId);
       
+      console.log('=== BOOKING FORM DEBUG ===');
+      console.log('API Response:', response);
+      
       if (response.success && response.data?.service) {
-        setService(response.data.service);
+        const service = response.data.service;
+        console.log('Service data:', service);
+        console.log('Provider data:', getProvider(service));
+        console.log('Price data:', getPrice(service));
+        console.log('Pricing object:', service.pricing);
+        console.log('Direct price:', service.price);
+        setService(service);
       } else {
+        console.log('Service not found, response:', response);
         setError('Service not found');
       }
     } catch (error) {
@@ -194,6 +237,12 @@ export default function BookingFormPage() {
       const provider = getProvider(service);
       const price = getPrice(service);
 
+      console.log('=== BOOKING SUBMISSION DEBUG ===');
+      console.log('Service:', service);
+      console.log('Provider:', provider);
+      console.log('Price:', price);
+      console.log('Form data:', formData);
+
       const bookingData: BookingData = {
         providerId: provider?._id || '',
         serviceId: service._id,
@@ -209,7 +258,11 @@ export default function BookingFormPage() {
         notes: formData.notes
       };
 
+      console.log('Booking data to send:', bookingData);
+
       const response = await clientAPI.createBooking(bookingData);
+      
+      console.log('Booking response:', response);
       
       if (response.success) {
         setSuccess(true);
@@ -217,7 +270,8 @@ export default function BookingFormPage() {
           router.push('/bookings');
         }, 2000);
       } else {
-        setError(response.error || 'Failed to create booking');
+        console.log('Booking failed:', response);
+        setError(response.error || response.message || 'Failed to create booking');
       }
     } catch (error) {
       console.error('Error creating booking:', error);
