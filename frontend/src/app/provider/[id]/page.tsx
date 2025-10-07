@@ -144,16 +144,22 @@ export default function ProviderProfilePage() {
 
   const fetchProviderServices = async (providerId: string) => {
     try {
+      console.log('=== STARTING SERVICE FETCH ===');
+      console.log('Provider ID:', providerId);
+      
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
       
       // 🆕 UPDATED: Use the enhanced API with better data integrity and cache busting
       const timestamp = Date.now();
+      console.log('Calling enhanced API...');
       let servicesResponse = await fetch(`${BACKEND_URL}/api/v2/services?limit=50&_t=${timestamp}`, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
       });
+      
+      console.log('Enhanced API response status:', servicesResponse.status);
       
       if (!servicesResponse.ok) {
         // Fallback to legacy API if enhanced API fails
@@ -164,34 +170,50 @@ export default function ProviderProfilePage() {
             'Pragma': 'no-cache'
           }
         });
+        console.log('Legacy API response status:', servicesResponse.status);
       }
       
       if (servicesResponse.ok) {
         const servicesData = await servicesResponse.json();
         const allServices = servicesData.data?.services || [];
         
-        console.log('=== DEBUG SERVICE FETCHING ===');
+        console.log('=== API RESPONSE DEBUG ===');
         console.log('Provider ID we are looking for:', providerId);
         console.log('Total services returned:', allServices.length);
-        console.log('Sample service structure:', allServices[0]);
+        console.log('First service sample:', allServices[0]);
+        
+        // Check specifically for kemmy's service
+        const kemmyService = allServices.find((s: any) => s._id === '68e4feba8e248b993e547690');
+        if (kemmyService) {
+          console.log('Found kemmy service:', kemmyService.title);
+          console.log('Kemmy service provider ID:', kemmyService.provider?._id || kemmyService.providerId?._id);
+        } else {
+          console.log('Kemmy service not found in response');
+        }
         
         // Filter services for this provider with better validation
         const providerServices = allServices.filter((service: any) => {
           // Check both possible provider ID locations for compatibility
           const serviceProviderId = service.provider?._id || service.providerId?._id;
-          console.log(`Service ${service.title}: providerId = ${serviceProviderId}, matches = ${serviceProviderId === providerId}`);
-          return serviceProviderId === providerId && service.isActive !== false;
+          const matches = serviceProviderId === providerId;
+          console.log(`Service "${service.title}": providerId = ${serviceProviderId}, target = ${providerId}, matches = ${matches}`);
+          return matches && service.isActive !== false;
         });
         
+        console.log(`=== FILTERING RESULT ===`);
         console.log(`Found ${providerServices.length} services for provider ${providerId}`);
         if (providerServices.length > 0) {
-          console.log('First service ID:', providerServices[0]._id);
-          console.log('First service title:', providerServices[0].title);
+          console.log('Services found:');
+          providerServices.forEach((service: any, index: number) => {
+            console.log(`  ${index + 1}. ${service.title} (${service._id})`);
+          });
         } else {
-          console.log('No services found - checking all provider IDs in response:');
+          console.log('❌ NO SERVICES FOUND - Debug info:');
+          console.log('   Target provider ID:', providerId);
+          console.log('   All provider IDs in response:');
           allServices.forEach((service: any, index: number) => {
-            const serviceProviderId = service.providerId?._id || service.provider?._id;
-            console.log(`Service ${index}: ${service.title} - Provider ID: ${serviceProviderId}`);
+            const serviceProviderId = service.provider?._id || service.providerId?._id;
+            console.log(`     ${index + 1}. ${service.title}: ${serviceProviderId}`);
           });
         }
         
