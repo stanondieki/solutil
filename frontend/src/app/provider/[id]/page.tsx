@@ -170,9 +170,16 @@ export default function ProviderProfilePage() {
         const servicesData = await servicesResponse.json();
         const allServices = servicesData.data?.services || [];
         
+        console.log('=== DEBUG SERVICE FETCHING ===');
+        console.log('Provider ID we are looking for:', providerId);
+        console.log('Total services returned:', allServices.length);
+        console.log('Sample service structure:', allServices[0]);
+        
         // Filter services for this provider with better validation
         const providerServices = allServices.filter((service: any) => {
-          const serviceProviderId = service.providerId?._id || service.provider?._id;
+          // Check both possible provider ID locations for compatibility
+          const serviceProviderId = service.provider?._id || service.providerId?._id;
+          console.log(`Service ${service.title}: providerId = ${serviceProviderId}, matches = ${serviceProviderId === providerId}`);
           return serviceProviderId === providerId && service.isActive !== false;
         });
         
@@ -180,6 +187,12 @@ export default function ProviderProfilePage() {
         if (providerServices.length > 0) {
           console.log('First service ID:', providerServices[0]._id);
           console.log('First service title:', providerServices[0].title);
+        } else {
+          console.log('No services found - checking all provider IDs in response:');
+          allServices.forEach((service: any, index: number) => {
+            const serviceProviderId = service.providerId?._id || service.provider?._id;
+            console.log(`Service ${index}: ${service.title} - Provider ID: ${serviceProviderId}`);
+          });
         }
         
         setServices(providerServices);
