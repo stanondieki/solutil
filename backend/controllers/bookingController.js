@@ -36,7 +36,7 @@ exports.getBookings = catchAsync(async (req, res, next) => {
     .limit(limit)
     .populate('client', 'name email phone avatar')
     .populate('service', 'name category images basePrice')
-    .populate('provider', 'businessName rating');
+    .populate('provider', 'name email phone userType providerProfile');
 
   const total = await Booking.countDocuments(filters);
 
@@ -62,7 +62,7 @@ exports.getBooking = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id)
     .populate('client', 'name email phone avatar address')
     .populate('service', 'name category description images basePrice')
-    .populate('provider', 'businessName user rating location services')
+    .populate('provider', 'name email phone userType providerProfile location')
     .populate('review');
 
   if (!booking) {
@@ -147,7 +147,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
   // Populate the created booking with correct service model
   const populateOptions = [
     { path: 'client', select: 'name email phone' },
-    { path: 'provider', select: 'businessName name email' }
+    { path: 'provider', select: 'name email phone userType providerProfile' }
   ];
   
   // Populate service based on type

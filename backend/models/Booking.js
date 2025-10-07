@@ -13,7 +13,7 @@ const bookingSchema = new mongoose.Schema({
   },
   provider: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Provider',
+    ref: 'User', // Updated to reference User instead of Provider
     required: true
   },
   service: {
@@ -220,7 +220,7 @@ bookingSchema.statics.getRecentBookings = function(userId, userType, limit = 10)
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate('client', 'name email phone avatar')
-    .populate('provider', 'businessName user rating')
+    .populate('provider', 'name email phone userType providerProfile')
     .populate('service', 'name category images');
 };
 
