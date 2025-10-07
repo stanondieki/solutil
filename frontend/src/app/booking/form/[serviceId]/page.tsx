@@ -257,12 +257,15 @@ export default function BookingFormPage() {
       console.log('Service:', service);
       console.log('Provider:', provider);
       console.log('Price:', price);
+      console.log('User:', user);
+      console.log('User ID:', user?._id);
+      console.log('User Type:', user?.userType);
       console.log('Form data:', formData);
 
       const bookingData: BookingData = {
         providerId: provider?._id || '',
         serviceId: service._id,
-        scheduledDate: formData.scheduledDate,
+        scheduledDate: new Date(formData.scheduledDate).toISOString(), // Convert to ISO8601
         scheduledTime: formData.scheduledTime,
         location: formData.location,
         pricing: {
