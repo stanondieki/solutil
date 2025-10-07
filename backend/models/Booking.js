@@ -18,8 +18,13 @@ const bookingSchema = new mongoose.Schema({
   },
   service: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service',
+    refPath: 'serviceType', // Dynamic reference based on serviceType field
     required: true
+  },
+  serviceType: {
+    type: String,
+    enum: ['Service', 'ProviderService'],
+    default: 'ProviderService'
   },
   status: {
     type: String,
