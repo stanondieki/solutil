@@ -230,6 +230,22 @@ export default function BookingFormPage() {
     
     if (!service || !user) return;
     
+    // Validate required fields
+    if (!formData.scheduledDate) {
+      setError('Please select a date');
+      return;
+    }
+    
+    if (!formData.scheduledTime.start) {
+      setError('Please select a start time');
+      return;
+    }
+    
+    if (!formData.location.address) {
+      setError('Please enter a service location');
+      return;
+    }
+    
     try {
       setSubmitting(true);
       setError(null);

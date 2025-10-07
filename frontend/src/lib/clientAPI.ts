@@ -182,7 +182,9 @@ export const clientAPI = {
           scheduledDate: bookingData.scheduledDate,
           scheduledTime: bookingData.scheduledTime,
           location: bookingData.location,
-          pricing: bookingData.pricing,
+          pricing: {
+            totalAmount: bookingData.pricing.totalAmount
+          },
           payment: bookingData.payment,
           notes: bookingData.notes
         })
