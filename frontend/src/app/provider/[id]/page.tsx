@@ -82,16 +82,6 @@ export default function ProviderProfilePage() {
     }
   }, [providerId]);
 
-  // 🆕 DEBUG: Monitor services state changes
-  useEffect(() => {
-    console.log('🔥 SERVICES STATE CHANGED:', services.length, 'services');
-    if (services.length > 0) {
-      console.log('Services in state:', services.map(s => `${s.title} (${s._id})`));
-    } else {
-      console.log('❌ No services in state');
-    }
-  }, [services]);
-
   const fetchProviderDetails = async () => {
     try {
       setLoading(true);
@@ -154,73 +144,28 @@ export default function ProviderProfilePage() {
 
   const fetchProviderServices = async (providerId: string) => {
     try {
-      console.log('=== STARTING SERVICE FETCH ===');
-      console.log('Provider ID:', providerId);
-      
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
       
-      // 🆕 UPDATED: Use the enhanced API with better data integrity and cache busting
+      // Use the enhanced API with better data integrity
       const timestamp = Date.now();
-      console.log('Calling enhanced API...');
       let servicesResponse = await fetch(`${BACKEND_URL}/api/v2/services?limit=50&_t=${timestamp}`);
-      
-      console.log('Enhanced API response status:', servicesResponse.status);
       
       if (!servicesResponse.ok) {
         // Fallback to legacy API if enhanced API fails
-        console.log('Enhanced API failed, falling back to legacy API');
         servicesResponse = await fetch(`${BACKEND_URL}/api/provider-services/public?_t=${timestamp}`);
-        console.log('Legacy API response status:', servicesResponse.status);
       }
       
       if (servicesResponse.ok) {
         const servicesData = await servicesResponse.json();
         const allServices = servicesData.data?.services || [];
         
-        console.log('=== API RESPONSE DEBUG ===');
-        console.log('Provider ID we are looking for:', providerId);
-        console.log('Total services returned:', allServices.length);
-        console.log('First service sample:', allServices[0]);
-        
-        // Check specifically for kemmy's service
-        const kemmyService = allServices.find((s: any) => s._id === '68e4feba8e248b993e547690');
-        if (kemmyService) {
-          console.log('Found kemmy service:', kemmyService.title);
-          console.log('Kemmy service provider ID:', kemmyService.provider?._id || kemmyService.providerId?._id);
-        } else {
-          console.log('Kemmy service not found in response');
-        }
-        
-        // Filter services for this provider with better validation
+        // Filter services for this provider
         const providerServices = allServices.filter((service: any) => {
-          // Check both possible provider ID locations for compatibility
           const serviceProviderId = service.provider?._id || service.providerId?._id;
-          const matches = serviceProviderId === providerId;
-          console.log(`Service "${service.title}": providerId = ${serviceProviderId}, target = ${providerId}, matches = ${matches}`);
-          return matches && service.isActive !== false;
+          return serviceProviderId === providerId && service.isActive !== false;
         });
         
-        console.log(`=== FILTERING RESULT ===`);
-        console.log(`Found ${providerServices.length} services for provider ${providerId}`);
-        if (providerServices.length > 0) {
-          console.log('Services found:');
-          providerServices.forEach((service: any, index: number) => {
-            console.log(`  ${index + 1}. ${service.title} (${service._id})`);
-          });
-        } else {
-          console.log('❌ NO SERVICES FOUND - Debug info:');
-          console.log('   Target provider ID:', providerId);
-          console.log('   All provider IDs in response:');
-          allServices.forEach((service: any, index: number) => {
-            const serviceProviderId = service.provider?._id || service.providerId?._id;
-            console.log(`     ${index + 1}. ${service.title}: ${serviceProviderId}`);
-          });
-        }
-        
-        console.log('=== SETTING SERVICES TO STATE ===');
-        console.log('About to set services to state:', providerServices.length, 'services');
         setServices(providerServices);
-        console.log('✅ Services set to state successfully');
       } else {
         console.error('Failed to fetch services:', servicesResponse.status);
       }
