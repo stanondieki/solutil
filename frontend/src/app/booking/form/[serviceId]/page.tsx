@@ -28,16 +28,43 @@ interface Service {
   title: string;
   description: string;
   category: string;
-  price: number;
-  priceType: 'fixed' | 'hourly' | 'quote';
-  duration: number;
+  pricing?: {
+    amount: number;
+    type: 'fixed' | 'hourly' | 'quote';
+  };
+  // Fallback for legacy data
+  price?: number;
+  priceType?: 'fixed' | 'hourly' | 'quote';
+  duration?: number;
+  rating: number;
   images: string[];
-  availableHours: {
+  availability?: {
+    hours: {
+      start: string;
+      end: string;
+    };
+  };
+  // Fallback for legacy data
+  availableHours?: {
     start: string;
     end: string;
   };
   serviceArea: string[];
-  providerId: {
+  provider: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    businessName?: string;
+    providerProfile?: {
+      businessName?: string;
+      experience?: string;
+      rating?: number;
+      hourlyRate?: number;
+    };
+  };
+  // Fallback for legacy data
+  providerId?: {
     _id: string;
     name: string;
     email: string;
@@ -88,6 +115,27 @@ export default function BookingFormPage() {
     fetchService();
   }, [serviceId]);
 
+  // Helper functions to extract values from different data structures
+  const getProvider = (service: Service) => {
+    return service.provider || service.providerId;
+  };
+
+  const getPrice = (service: Service) => {
+    return service.pricing?.amount || service.price || 0;
+  };
+
+  const getPriceType = (service: Service) => {
+    return service.pricing?.type || service.priceType || 'fixed';
+  };
+
+  const getDuration = (service: Service) => {
+    return service.duration || 60; // Default 1 hour
+  };
+
+  const getAvailableHours = (service: Service) => {
+    return service.availability?.hours || service.availableHours || { start: '08:00', end: '18:00' };
+  };
+
   const fetchService = async () => {
     try {
       setLoading(true);
@@ -124,7 +172,7 @@ export default function BookingFormPage() {
   const handleStartTimeChange = (startTime: string) => {
     if (!service) return;
     
-    const endTime = calculateEndTime(startTime, service.duration);
+    const endTime = calculateEndTime(startTime, getDuration(service));
     setFormData({
       ...formData,
       scheduledTime: {
@@ -143,15 +191,18 @@ export default function BookingFormPage() {
       setSubmitting(true);
       setError(null);
 
+      const provider = getProvider(service);
+      const price = getPrice(service);
+
       const bookingData: BookingData = {
-        providerId: service.providerId._id,
+        providerId: provider?._id || '',
         serviceId: service._id,
         scheduledDate: formData.scheduledDate,
         scheduledTime: formData.scheduledTime,
         location: formData.location,
         pricing: {
-          basePrice: service.price,
-          totalAmount: service.price,
+          basePrice: price,
+          totalAmount: price,
           currency: 'KES'
         },
         payment: formData.payment,
@@ -178,15 +229,18 @@ export default function BookingFormPage() {
 
   const formatPrice = (service: Service) => {
     const currency = 'KES';
-    switch (service.priceType) {
+    const price = getPrice(service);
+    const priceType = getPriceType(service);
+    
+    switch (priceType) {
       case 'hourly':
-        return `${currency} ${service.price.toLocaleString()}/hour`;
+        return `${currency} ${price.toLocaleString()}/hour`;
       case 'fixed':
-        return `${currency} ${service.price.toLocaleString()}`;
+        return `${currency} ${price.toLocaleString()}`;
       case 'quote':
         return 'Contact for quote';
       default:
-        return `${currency} ${service.price.toLocaleString()}`;
+        return `${currency} ${price.toLocaleString()}`;
     }
   };
 
@@ -288,11 +342,11 @@ export default function BookingFormPage() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {service.providerId.providerProfile?.businessName || service.providerId.name}
+                            {getProvider(service)?.providerProfile?.businessName || getProvider(service)?.businessName || getProvider(service)?.name}
                           </p>
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <FaPhone className="text-xs" />
-                            <span>{service.providerId.phone}</span>
+                            <span>{getProvider(service)?.phone}</span>
                           </div>
                         </div>
                       </div>
@@ -306,11 +360,11 @@ export default function BookingFormPage() {
                       </div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-700">Duration</span>
-                        <span className="text-sm text-gray-600">{Math.floor(service.duration / 60)}h {service.duration % 60}m</span>
+                        <span className="text-sm text-gray-600">{Math.floor(getDuration(service) / 60)}h {getDuration(service) % 60}m</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-700">Available</span>
-                        <span className="text-sm text-gray-600">{service.availableHours.start} - {service.availableHours.end}</span>
+                        <span className="text-sm text-gray-600">{getAvailableHours(service).start} - {getAvailableHours(service).end}</span>
                       </div>
                     </div>
                   </>
@@ -359,8 +413,8 @@ export default function BookingFormPage() {
                       <input
                         type="time"
                         required
-                        min={service?.availableHours.start}
-                        max={service?.availableHours.end}
+                        min={service ? getAvailableHours(service).start : '08:00'}
+                        max={service ? getAvailableHours(service).end : '18:00'}
                         value={formData.scheduledTime.start}
                         onChange={(e) => handleStartTimeChange(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
@@ -469,7 +523,7 @@ export default function BookingFormPage() {
                     <div className="border-t border-gray-100 pt-6">
                       <div className="flex items-center justify-between text-lg font-bold">
                         <span>Total Amount:</span>
-                        <span className="text-green-600">KES {service.price.toLocaleString()}</span>
+                        <span className="text-green-600">KES {getPrice(service).toLocaleString()}</span>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
                         Payment will be processed after service confirmation

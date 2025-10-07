@@ -111,7 +111,20 @@ export const clientAPI = {
         });
       }
       
-      return response.json();
+      const data = await response.json();
+      
+      // Normalize the response format - convert status to success
+      if (data.status === 'success') {
+        return {
+          success: true,
+          data: data.data
+        };
+      } else {
+        return {
+          success: false,
+          service: null
+        };
+      }
     } catch (error) {
       console.error('Error fetching service details:', error);
       return { success: false, service: null };
