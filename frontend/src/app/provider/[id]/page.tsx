@@ -152,24 +152,14 @@ export default function ProviderProfilePage() {
       // 🆕 UPDATED: Use the enhanced API with better data integrity and cache busting
       const timestamp = Date.now();
       console.log('Calling enhanced API...');
-      let servicesResponse = await fetch(`${BACKEND_URL}/api/v2/services?limit=50&_t=${timestamp}`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
+      let servicesResponse = await fetch(`${BACKEND_URL}/api/v2/services?limit=50&_t=${timestamp}`);
       
       console.log('Enhanced API response status:', servicesResponse.status);
       
       if (!servicesResponse.ok) {
         // Fallback to legacy API if enhanced API fails
         console.log('Enhanced API failed, falling back to legacy API');
-        servicesResponse = await fetch(`${BACKEND_URL}/api/provider-services/public?_t=${timestamp}`, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
+        servicesResponse = await fetch(`${BACKEND_URL}/api/provider-services/public?_t=${timestamp}`);
         console.log('Legacy API response status:', servicesResponse.status);
       }
       
