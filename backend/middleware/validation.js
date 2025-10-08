@@ -11,6 +11,10 @@ exports.validate = (req, res, next) => {
       value: error.value
     }));
 
+    console.log('=== VALIDATION ERRORS ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Validation errors:', JSON.stringify(errorMessages, null, 2));
+
     return next(new AppError(`Validation failed: ${errorMessages.map(e => e.message).join(', ')}`, 400));
   }
   

@@ -281,6 +281,7 @@ export default function BookingFormPage() {
       console.log('Scheduled time details:', JSON.stringify(bookingData.scheduledTime, null, 2));
       console.log('Location details:', JSON.stringify(bookingData.location, null, 2));
       console.log('Pricing details:', JSON.stringify(bookingData.pricing, null, 2));
+      console.log('Payment details:', JSON.stringify(bookingData.payment, null, 2));
 
       const response = await clientAPI.createBooking(bookingData);
       
