@@ -156,23 +156,28 @@ exports.createBooking = catchAsync(async (req, res, next) => {
       scheduledTime,
       location,
       pricing: {
-        ...pricing,
-        // Use service pricing as fallback (ProviderService uses 'price', Service uses 'basePrice')
+        basePrice: pricing.totalAmount || serviceDoc.price || serviceDoc.basePrice || 0,
         totalAmount: pricing.totalAmount || serviceDoc.price || serviceDoc.basePrice || 0,
         currency: pricing.currency || 'KES'
       },
       payment,
       notes: {
-        client: notes
+        client: notes || ''
       }
     };
     
     console.log('Booking data to create:', JSON.stringify(bookingData, null, 2));
 
     // Create booking with proper provider reference
-    const booking = await Booking.create(bookingData);
-    
-    console.log('Booking created successfully:', booking._id);
+    let booking;
+    try {
+      booking = await Booking.create(bookingData);
+      console.log('Booking created successfully:', booking._id);
+    } catch (bookingError) {
+      console.log('BOOKING CREATION ERROR:', bookingError.message);
+      console.log('Validation errors:', bookingError.errors);
+      return next(new AppError(`Booking creation failed: ${bookingError.message}`, 400));
+    }
 
   // Populate the created booking with correct service model
   const populateOptions = [
