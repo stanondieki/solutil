@@ -287,7 +287,7 @@ export default function BookingFormPage() {
       
       console.log('Booking response:', response);
       
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         console.log('🎉 BOOKING SUCCESSFUL!', response);
         setSuccess(true);
         setTimeout(() => {
