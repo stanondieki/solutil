@@ -147,7 +147,12 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     const actualProviderId = isProviderService ? serviceDoc.providerId : provider;
     console.log('Actual provider ID:', actualProviderId);
 
+    // Generate unique booking number
+    const bookingNumber = `BK${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    console.log('Generated booking number:', bookingNumber);
+
     const bookingData = {
+      bookingNumber,
       client: req.user.id,
       provider: actualProviderId,
       service,
