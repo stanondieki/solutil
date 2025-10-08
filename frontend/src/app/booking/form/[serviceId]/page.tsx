@@ -288,12 +288,14 @@ export default function BookingFormPage() {
       console.log('Booking response:', response);
       
       if (response.success) {
+        console.log('🎉 BOOKING SUCCESSFUL!', response);
         setSuccess(true);
         setTimeout(() => {
           router.push('/bookings');
         }, 2000);
       } else {
-        console.log('Booking failed:', response);
+        console.log('❌ Booking failed:', response);
+        console.error('Full error details:', JSON.stringify(response, null, 2));
         setError(response.error || response.message || 'Failed to create booking');
       }
     } catch (error) {

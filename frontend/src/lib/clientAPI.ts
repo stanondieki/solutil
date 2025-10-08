@@ -179,7 +179,6 @@ export const clientAPI = {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          bookingNumber: `BK${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
           provider: bookingData.providerId,
           service: bookingData.serviceId,
           scheduledDate: bookingData.scheduledDate,
