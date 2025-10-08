@@ -213,19 +213,40 @@ export const clientAPI = {
   // Get client bookings
   getMyBookings: async (status?: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+      
+      if (!token) {
+        console.error('🔐 No authentication token found for getMyBookings');
+        return { success: false, error: 'No authentication token found', bookings: [] };
+      }
+
+      console.log('📚 Fetching my bookings with token:', token.substring(0, 20) + '...');
+      
       const queryString = status ? `?status=${status}` : '';
-      const response = await fetch(`${API_BASE}/api/bookings/my-bookings${queryString}`, {
+      const url = `${API_BASE}/api/bookings/my-bookings${queryString}`;
+      
+      console.log('📚 Making request to:', url);
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
       
-      return response.json();
+      console.log('📚 Bookings API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
+      const data = await response.json();
+      console.log('📚 Bookings response data:', data);
+      
+      return data;
     } catch (error) {
-      console.error('Error fetching client bookings:', error);
-      return { success: false, bookings: [] };
+      console.error('❌ Error fetching client bookings:', error);
+      return { success: false, error: 'Network error', bookings: [] };
     }
   },
 

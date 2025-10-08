@@ -27,21 +27,26 @@ export default function RoleGuard({
     if (isLoading) return;
 
     if (!isAuthenticated || !user) {
+      console.log('RoleGuard: Not authenticated, redirecting to login');
       router.push('/auth/login');
       return;
     }
 
     // Check role-based access
     if (requiredRole && user.userType !== requiredRole) {
+      console.log(`RoleGuard: Access denied. Required role: ${requiredRole}, User role: ${user.userType}. Redirecting to ${fallbackRoute}`);
       router.push(fallbackRoute);
       return;
     }
 
     // Check permission-based access
     if (requiredPermission && !RoleManager.hasPermission(user.userType, requiredPermission)) {
+      console.log(`RoleGuard: Permission denied. Required permission: ${requiredPermission}, User role: ${user.userType}. Redirecting to ${fallbackRoute}`);
       router.push(fallbackRoute);
       return;
     }
+
+    console.log('RoleGuard: Access granted for', user.userType, 'to', requiredRole || requiredPermission);
   }, [user, isAuthenticated, isLoading, requiredRole, requiredPermission, router, fallbackRoute]);
 
   // Show loading state

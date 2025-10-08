@@ -474,6 +474,7 @@ export default function DashboardPage() {
     const baseActions: QuickAction[] = []
 
     if (RoleManager.isClient(user.userType)) {
+      console.log('User is client, userType:', user.userType);
       return [
         { name: 'Browse Services', icon: FaSearch, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Find the perfect service', href: '/services' },
         { name: 'Book Service', icon: FaCalendarAlt, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Schedule instantly', href: '/booking/plumbing' },
@@ -660,6 +661,9 @@ export default function DashboardPage() {
   }
 
   const quickActions = getQuickActions()
+  
+  console.log('Dashboard quick actions:', quickActions.map(a => ({ name: a.name, href: a.href })));
+  console.log('Current user:', { userType: user?.userType, isClient: user ? RoleManager.isClient(user.userType) : 'no user' });
   const dashboardStats = getDashboardStats()
 
   return (
@@ -1507,6 +1511,7 @@ export default function DashboardPage() {
                   <Link
                     href={action.href}
                     className="group block bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-orange-200"
+                    onClick={() => console.log('Navigating to:', action.href, 'for action:', action.name)}
                   >
                     <div className={`p-4 rounded-2xl ${action.color} text-white inline-flex mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg`}>
                       <action.icon className="h-6 w-6" />

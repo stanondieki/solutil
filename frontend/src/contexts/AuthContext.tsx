@@ -141,6 +141,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const adminToken = localStorage.getItem('adminToken')
       const storedExpiry = localStorage.getItem('sessionExpiry')
 
+      console.log('🔐 Auth initialization check:', {
+        hasUser: !!storedUser,
+        hasAuthToken: !!storedToken,
+        hasAdminToken: !!adminToken,
+        hasExpiry: !!storedExpiry,
+        expiry: storedExpiry ? new Date(parseInt(storedExpiry)) : null
+      })
+
       // Check for either regular user or admin token
       const token = storedToken || adminToken
       
@@ -358,9 +366,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUserData = async (): Promise<boolean> => {
     try {
       if (!state.token) {
-        console.warn('No auth token available for refreshing user data')
+        console.warn('🔐 No auth token available for refreshing user data')
         return false
       }
+
+      console.log('🔄 Attempting to refresh user data with token:', state.token?.substring(0, 20) + '...')
 
       const response = await fetch('/api/users/profile', {
         method: 'GET',
@@ -370,21 +380,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       })
 
+      console.log('🔄 User profile API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      })
+
       if (response.ok) {
         const data = await response.json()
+        console.log('🔄 User profile response data:', data)
+        
         if (data.status === 'success' && data.data?.user) {
           const freshUser = data.data.user
           localStorage.setItem('user', JSON.stringify(freshUser))
           dispatch({ type: 'UPDATE_USER', payload: { user: freshUser } })
-          console.log('User data refreshed successfully')
+          console.log('✅ User data refreshed successfully')
           return true
         }
       }
 
-      console.warn('Failed to refresh user data:', response.status)
+      if (response.status === 401) {
+        console.warn('🔐 Token is invalid or expired, logging out...')
+        await logout()
+        return false
+      }
+
+      console.warn('❌ Failed to refresh user data:', response.status)
       return false
     } catch (error) {
-      console.error('Error refreshing user data:', error)
+      console.error('❌ Error refreshing user data:', error)
       return false
     }
   }
