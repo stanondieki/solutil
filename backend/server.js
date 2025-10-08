@@ -9,6 +9,7 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 // --- CLEANED UP SERVER.JS ---
+// Fixed booking creation with basePrice and bookingNumber - v1.1
 console.log('Starting server.js...');
 const express = require('express');
 const path = require('path');
