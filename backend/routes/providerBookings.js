@@ -2,6 +2,7 @@ const express = require('express');
 const { protect } = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
+const ProviderService = require('../models/ProviderService');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const logger = require('../utils/logger');
@@ -39,8 +40,8 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const bookings = await Booking.find(query)
-    .populate('userId', 'firstName lastName email phone')
-    .populate('serviceId', 'title category pricing')
+    .populate('client', 'name email phone')
+    .populate('service', 'title category pricing')
     .sort({ scheduledDate: -1, createdAt: -1 })
     .limit(parseInt(limit))
     .skip(skip);
@@ -113,12 +114,8 @@ router.get('/provider', protect, catchAsync(async (req, res, next) => {
 
   const { status, date, limit = 50, page = 1 } = req.query;
 
-  // Get provider's services first
-  const providerServices = await Service.find({ providerId: req.user._id }).select('_id');
-  const serviceIds = providerServices.map(service => service._id);
-
-  // Build query
-  let query = { serviceId: { $in: serviceIds } };
+  // Use the provider field directly since we fixed the dashboard query
+  let query = { provider: req.user._id };
 
   if (status && status !== 'all') {
     query.status = status;
@@ -138,8 +135,8 @@ router.get('/provider', protect, catchAsync(async (req, res, next) => {
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const bookings = await Booking.find(query)
-    .populate('userId', 'firstName lastName email phone')
-    .populate('serviceId', 'title category pricing')
+    .populate('client', 'name email phone')
+    .populate('service', 'title category pricing')
     .sort({ scheduledDate: -1, createdAt: -1 })
     .limit(parseInt(limit))
     .skip(skip);
@@ -147,7 +144,7 @@ router.get('/provider', protect, catchAsync(async (req, res, next) => {
   const totalBookings = await Booking.countDocuments(query);
 
   // Calculate stats
-  const allBookings = await Booking.find({ serviceId: { $in: serviceIds } });
+  const allBookings = await Booking.find({ provider: req.user._id });
   const stats = {
     totalBookings: allBookings.length,
     pendingBookings: allBookings.filter(b => b.status === 'pending').length,
@@ -167,12 +164,12 @@ router.get('/provider', protect, catchAsync(async (req, res, next) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const todaysBookings = await Booking.find({
-    serviceId: { $in: serviceIds },
+    provider: req.user._id,
     scheduledDate: { $gte: today, $lt: tomorrow },
     status: { $in: ['confirmed', 'in_progress'] }
   })
-    .populate('userId', 'firstName lastName phone')
-    .populate('serviceId', 'title')
+    .populate('client', 'name phone')
+    .populate('service', 'title')
     .sort({ scheduledTime: 1 });
 
   res.status(200).json({
@@ -198,16 +195,15 @@ router.get('/:id', protect, catchAsync(async (req, res, next) => {
   }
 
   const booking = await Booking.findById(req.params.id)
-    .populate('userId', 'firstName lastName email phone')
-    .populate('serviceId', 'title category description pricing');
+    .populate('client', 'name email phone')
+    .populate('service', 'title category description pricing');
 
   if (!booking) {
     return next(new AppError('Booking not found', 404));
   }
 
-  // Verify booking belongs to provider's service
-  const service = await Service.findById(booking.serviceId._id);
-  if (!service || service.providerId.toString() !== req.user._id.toString()) {
+  // Verify booking belongs to provider
+  if (booking.provider.toString() !== req.user._id.toString()) {
     return next(new AppError('Access denied. This booking does not belong to you.', 403));
   }
 

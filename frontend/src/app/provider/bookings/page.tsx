@@ -39,9 +39,11 @@ import {
 } from 'react-icons/fa'
 
 // TypeScript interfaces
-interface Customer {
+interface Client {
   _id: string
   name: string
+  firstName?: string
+  lastName?: string
   email: string
   phone: string
   avatar?: string
@@ -53,31 +55,39 @@ interface Service {
   _id: string
   title: string
   category: string
-  duration: number
-  price: number
-  priceType: 'fixed' | 'hourly' | 'quote'
+  duration?: number
+  price?: number
+  priceType?: 'fixed' | 'hourly' | 'quote'
 }
 
 interface Booking {
   _id: string
   bookingNumber: string
-  customer: Customer
+  client: Client
   service: Service
   scheduledDate: string
-  scheduledTime: string
+  scheduledTime: {
+    start: string
+    end: string
+  }
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rejected'
   location: {
     address: string
     coordinates?: [number, number]
     instructions?: string
   }
-  estimatedPrice: number
+  pricing: {
+    basePrice: number
+    totalAmount: number
+    currency: string
+  }
+  estimatedPrice?: number
   finalPrice?: number
   specialInstructions?: string
   providerNotes?: string
   completionPhotos?: string[]
-  customerRating?: number
-  customerReview?: string
+  clientRating?: number
+  clientReview?: string
   providerRating?: number
   providerReview?: string
   createdAt: string
@@ -87,7 +97,7 @@ interface Booking {
 
 interface Message {
   _id: string
-  sender: 'provider' | 'customer'
+  sender: 'provider' | 'client'
   message: string
   timestamp: string
   type: 'text' | 'image' | 'system'
@@ -100,6 +110,15 @@ interface BookingStats {
   completedBookings: number
   totalRevenue: number
   averageRating: number
+}
+
+// Helper function to get client display name
+const getClientName = (client: Client): string => {
+  if (client?.name) return client.name;
+  if (client?.firstName || client?.lastName) {
+    return `${client?.firstName || ''} ${client?.lastName || ''}`.trim();
+  }
+  return 'Unknown Client';
 }
 
 const statusColors = {
@@ -171,9 +190,9 @@ const BookingsPage: React.FC = () => {
           sum + (b.finalPrice || b.estimatedPrice || 0), 0
         )
         
-        const ratedBookings = bookingsData.filter((b: Booking) => b.customerRating)
+        const ratedBookings = bookingsData.filter((b: Booking) => b.clientRating)
         const avgRating = ratedBookings.length > 0 
-          ? ratedBookings.reduce((sum: number, b: Booking) => sum + (b.customerRating || 0), 0) / ratedBookings.length
+          ? ratedBookings.reduce((sum: number, b: Booking) => sum + (b.clientRating || 0), 0) / ratedBookings.length
           : 0
 
         setStats({
@@ -217,9 +236,9 @@ const BookingsPage: React.FC = () => {
 
   const filteredBookings = bookings.filter(booking => {
     const matchesSearch = 
-      booking.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.bookingNumber.toLowerCase().includes(searchQuery.toLowerCase())
+      getClientName(booking.client).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (booking.service?.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (booking.bookingNumber || '').toLowerCase().includes(searchQuery.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter
     
@@ -241,16 +260,20 @@ const BookingsPage: React.FC = () => {
   const sortedBookings = [...filteredBookings].sort((a, b) => {
     switch (sortBy) {
       case 'customer':
-        return a.customer.name.localeCompare(b.customer.name)
+        return getClientName(a.client).localeCompare(getClientName(b.client))
       case 'service':
-        return a.service.title.localeCompare(b.service.title)
+        return (a.service?.title || '').localeCompare(b.service?.title || '')
       case 'status':
         return a.status.localeCompare(b.status)
       case 'price':
-        return b.estimatedPrice - a.estimatedPrice
+        const priceA = a.pricing?.totalAmount || a.estimatedPrice || 0;
+        const priceB = b.pricing?.totalAmount || b.estimatedPrice || 0;
+        return priceB - priceA
       default: // scheduledDate
-        return new Date(a.scheduledDate + ' ' + a.scheduledTime).getTime() - 
-               new Date(b.scheduledDate + ' ' + b.scheduledTime).getTime()
+        const timeA = typeof a.scheduledTime === 'string' ? a.scheduledTime : a.scheduledTime.start;
+        const timeB = typeof b.scheduledTime === 'string' ? b.scheduledTime : b.scheduledTime.start;
+        return new Date(a.scheduledDate + ' ' + timeA).getTime() - 
+               new Date(b.scheduledDate + ' ' + timeB).getTime()
     }
   })
 
@@ -275,18 +298,20 @@ const BookingsPage: React.FC = () => {
     }
   }
 
-  const formatDateTime = (date: string, time: string) => {
-    const bookingDate = new Date(date + ' ' + time)
+  const formatDateTime = (date: string, timeObj: {start: string, end: string} | string) => {
+    // Handle both old string format and new object format
+    const timeString = typeof timeObj === 'string' ? timeObj : timeObj.start;
+    const bookingDate = new Date(date + ' ' + timeString)
+    
     return {
       date: bookingDate.toLocaleDateString('en-US', { 
         weekday: 'short', 
         month: 'short', 
         day: 'numeric' 
       }),
-      time: bookingDate.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })
+      time: typeof timeObj === 'string' 
+        ? bookingDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        : `${timeObj.start} - ${timeObj.end}`
     }
   }
 
@@ -303,7 +328,11 @@ const BookingsPage: React.FC = () => {
     const today = new Date().toDateString()
     return bookings.filter(booking => 
       new Date(booking.scheduledDate).toDateString() === today
-    ).sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime))
+    ).sort((a, b) => {
+      const timeA = typeof a.scheduledTime === 'string' ? a.scheduledTime : a.scheduledTime.start;
+      const timeB = typeof b.scheduledTime === 'string' ? b.scheduledTime : b.scheduledTime.start;
+      return timeA.localeCompare(timeB);
+    })
   }
 
   if (loading) {
@@ -441,7 +470,7 @@ const BookingsPage: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">KSh {stats.totalRevenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-900">KSh {(stats.totalRevenue || 0).toLocaleString()}</p>
                 </div>
               </div>
             </motion.div>
@@ -495,8 +524,8 @@ const BookingsPage: React.FC = () => {
                           {statusInfo.label}
                         </span>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-1">{booking.service.title}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{booking.customer.name}</p>
+                      <h3 className="font-medium text-gray-900 mb-1">{booking.service?.title || 'Service'}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{getClientName(booking.client)}</p>
                       <p className="text-xs text-gray-500 flex items-center">
                         <FaMapMarkerAlt className="h-3 w-3 mr-1" />
                         {booking.location.address.split(',')[0]}
@@ -577,7 +606,7 @@ const BookingsPage: React.FC = () => {
               <p className="text-gray-600">
                 {searchQuery || statusFilter !== 'all' || dateFilter !== 'all'
                   ? 'Try adjusting your filters'
-                  : 'Your bookings will appear here when customers book your services'
+                  : 'Your bookings will appear here when clients book your services'
                 }
               </p>
             </div>
@@ -628,7 +657,7 @@ interface BookingCardProps {
   index: number
   onStatusUpdate: (bookingId: string, status: Booking['status']) => void
   onViewDetails: (booking: Booking) => void
-  formatDateTime: (date: string, time: string) => { date: string; time: string }
+  formatDateTime: (date: string, time: {start: string, end: string} | string) => { date: string; time: string }
   getStatusInfo: (status: Booking['status']) => any
 }
 
@@ -643,7 +672,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const { date, time } = formatDateTime(booking.scheduledDate, booking.scheduledTime)
   const statusInfo = getStatusInfo(booking.status)
   const isUrgent = booking.status === 'pending' && 
-    new Date(booking.scheduledDate + ' ' + booking.scheduledTime).getTime() - Date.now() < 24 * 60 * 60 * 1000
+    new Date(booking.scheduledDate + ' ' + (typeof booking.scheduledTime === 'string' ? booking.scheduledTime : booking.scheduledTime.start)).getTime() - Date.now() < 24 * 60 * 60 * 1000
 
   return (
     <motion.div
@@ -665,12 +694,12 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2">
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {booking.customer.name}
+                  {getClientName(booking.client)}
                 </h3>
-                {booking.customer.rating && (
+                {booking.client?.rating && (
                   <div className="flex items-center space-x-1">
                     <FaStar className="h-4 w-4 text-yellow-500" />
-                    <span className="text-sm text-gray-600">{booking.customer.rating}</span>
+                    <span className="text-sm text-gray-600">{booking.client.rating}</span>
                   </div>
                 )}
                 {isUrgent && (
@@ -700,7 +729,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1">Price</p>
               <p className="text-sm text-green-600 font-semibold">
-                KSh {(booking.finalPrice || booking.estimatedPrice).toLocaleString()}
+                KSh {((booking.pricing?.totalAmount || booking.pricing?.basePrice || 0).toLocaleString())}
               </p>
             </div>
           </div>
@@ -779,7 +808,7 @@ interface BookingDetailsModalProps {
   isOpen: boolean
   onClose: () => void
   onStatusUpdate: (bookingId: string, status: Booking['status']) => void
-  formatDateTime: (date: string, time: string) => { date: string; time: string }
+  formatDateTime: (date: string, time: {start: string, end: string} | string) => { date: string; time: string }
   getStatusInfo: (status: Booking['status']) => any
 }
 
@@ -872,28 +901,28 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
         <div className="p-6">
           {activeTab === 'details' && (
             <div className="space-y-6">
-              {/* Customer Information */}
+              {/* Client Information */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Client Information</h3>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Name</p>
-                      <p className="text-sm text-gray-600">{booking.customer.name}</p>
+                      <p className="text-sm text-gray-600">{getClientName(booking.client)}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Phone</p>
-                      <p className="text-sm text-gray-600">{booking.customer.phone}</p>
+                      <p className="text-sm text-gray-600">{booking.client?.phone}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Email</p>
-                      <p className="text-sm text-gray-600">{booking.customer.email}</p>
+                      <p className="text-sm text-gray-600">{booking.client?.email}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Rating</p>
                       <div className="flex items-center space-x-1">
                         <FaStar className="h-4 w-4 text-yellow-500" />
-                        <span className="text-sm text-gray-600">{booking.customer.rating || 'N/A'}</span>
+                        <span className="text-sm text-gray-600">{booking.clientRating || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
@@ -915,7 +944,12 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Duration</p>
-                      <p className="text-sm text-gray-600">{Math.floor(booking.service.duration / 60)}h {booking.service.duration % 60}m</p>
+                      <p className="text-sm text-gray-600">
+                        {booking.service.duration 
+                          ? `${Math.floor(booking.service.duration / 60)}h ${booking.service.duration % 60}m`
+                          : `${booking.scheduledTime.start} - ${booking.scheduledTime.end}`
+                        }
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Scheduled</p>
@@ -946,12 +980,12 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-gray-900">Estimated Price</span>
-                    <span className="text-sm text-gray-600">KSh {booking.estimatedPrice.toLocaleString()}</span>
+                    <span className="text-sm text-gray-600">KSh {(booking.estimatedPrice || 0).toLocaleString()}</span>
                   </div>
                   {booking.finalPrice && (
                     <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
                       <span className="text-sm font-medium text-gray-900">Final Price</span>
-                      <span className="text-sm font-semibold text-green-600">KSh {booking.finalPrice.toLocaleString()}</span>
+                      <span className="text-sm font-semibold text-green-600">KSh {(booking.finalPrice || 0).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -968,7 +1002,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
               )}
 
               {/* Customer Review */}
-              {booking.customerReview && (
+              {booking.clientReview && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Review</h3>
                   <div className="bg-gray-50 rounded-lg p-4">
@@ -978,14 +1012,14 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                           <FaStar
                             key={i}
                             className={`h-4 w-4 ${
-                              i < (booking.customerRating || 0) ? 'text-yellow-500' : 'text-gray-300'
+                              i < (booking.clientRating || 0) ? 'text-yellow-500' : 'text-gray-300'
                             }`}
                           />
                         ))}
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{booking.customerRating}/5</span>
+                      <span className="text-sm font-medium text-gray-900">{booking.clientRating}/5</span>
                     </div>
-                    <p className="text-sm text-gray-600">{booking.customerReview}</p>
+                    <p className="text-sm text-gray-600">{booking.clientReview}</p>
                   </div>
                 </div>
               )}
@@ -1026,7 +1060,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
           <div className="flex justify-between items-center">
             <div className="flex space-x-2">
               <a
-                href={`tel:${booking.customer.phone}`}
+                href={`tel:${booking.client?.phone}`}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
               >
                 <FaPhone className="h-4 w-4" />

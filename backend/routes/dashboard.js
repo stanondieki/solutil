@@ -17,8 +17,8 @@ router.get('/stats', protect, catchAsync(async (req, res) => {
       // Client dashboard stats - get real booking data
       const Booking = require('../models/Booking');
       
-      // Get client's bookings
-      const clientBookings = await Booking.find({ client: user.id });
+      // Get client's bookings - FIXED: use user._id instead of user.id
+      const clientBookings = await Booking.find({ client: user._id });
       const totalBookings = clientBookings.length;
       
       // Calculate total spent (sum of completed bookings)
@@ -66,8 +66,8 @@ router.get('/stats', protect, catchAsync(async (req, res) => {
         const Booking = require('../models/Booking');
         const Service = require('../models/Service');
         
-        // Get provider's bookings
-        const providerBookings = await Booking.find({ provider: user.id });
+        // Get provider's bookings - FIXED: use user._id instead of user.id
+        const providerBookings = await Booking.find({ provider: user._id });
         const totalBookings = providerBookings.length;
         
         // Calculate monthly earnings (current month)
@@ -87,8 +87,8 @@ router.get('/stats', protect, catchAsync(async (req, res) => {
           ? ratedBookings.reduce((sum, b) => sum + b.rating, 0) / ratedBookings.length 
           : 0;
         
-        // Count active services
-        const activeServices = await Service.countDocuments({ providerId: user.id });
+        // Count active services - FIXED: use user._id instead of user.id
+        const activeServices = await Service.countDocuments({ providerId: user._id });
 
         stats = {
           totalBookings,
