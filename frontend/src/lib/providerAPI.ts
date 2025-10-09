@@ -72,7 +72,16 @@ export const providerAPI = {
   // Get provider bookings
   getBookings: async (filters?: { status?: string; date?: string; limit?: number }) => {
     try {
-      const token = localStorage.getItem('token');
+      // Try multiple token storage locations
+      const token = localStorage.getItem('token') || 
+                   localStorage.getItem('authToken') || 
+                   sessionStorage.getItem('token') ||
+                   sessionStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('🔐 No authentication token found for provider bookings');
+        return { success: false, error: 'No authentication token found', bookings: [] };
+      }
       
       // Build query parameters from filters
       const queryParams = new URLSearchParams();
@@ -83,16 +92,35 @@ export const providerAPI = {
       const queryString = queryParams.toString();
       const url = `${API_BASE}/api/provider-bookings${queryString ? `?${queryString}` : ''}`;
       
+      console.log('📋 Fetching provider bookings from:', url);
+      
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      return response.json();
+      
+      const data = await response.json();
+      console.log('📋 Provider bookings response:', data);
+      
+      // Normalize the response format
+      if (response.ok && data.status === 'success') {
+        return {
+          success: true,
+          data: data.data,
+          bookings: data.data?.bookings || []
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Failed to fetch provider bookings',
+          bookings: []
+        };
+      }
     } catch (error) {
-      console.error('Error fetching bookings:', error);
-      return { success: false, bookings: [] };
+      console.error('❌ Error fetching provider bookings:', error);
+      return { success: false, error: 'Network error', bookings: [] };
     }
   },
 

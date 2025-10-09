@@ -53,7 +53,7 @@ export const RoleManager = {
       return [
         ...baseItems,
         { name: 'Services', href: '/services', icon: 'FaSearch' },
-        { name: 'My Bookings', href: '/profile', icon: 'FaCalendarAlt' }
+        { name: 'My Bookings', href: '/bookings', icon: 'FaCalendarAlt' }
       ];
     }
 

@@ -12,13 +12,14 @@ interface Booking {
   bookingNumber: string
   service: {
     _id: string
-    title: string
+    name: string  // Changed from 'title' to 'name' to match backend
     category: string
   }
   provider: {
     _id: string
-    businessName: string
-    user: {
+    businessName?: string
+    name?: string  // Added fallback name field
+    user?: {
       name: string
     }
   }
@@ -52,9 +53,14 @@ export default function BookingsPage() {
         setLoading(true)
         const response = await clientAPI.getMyBookings()
         
+        console.log('🎯 BookingsPage received response:', response)
+        
         if (response.success) {
-          setBookings(response.data?.bookings || [])
+          const bookingsData = response.data?.bookings || []
+          console.log('🎯 Setting bookings data:', bookingsData)
+          setBookings(bookingsData)
         } else {
+          console.log('🎯 Response not successful:', response.error)
           setError(response.error || 'Failed to fetch bookings')
         }
       } catch (error) {
@@ -134,8 +140,8 @@ export default function BookingsPage() {
               <div key={booking._id} className="bg-white rounded-xl shadow-lg p-6 border border-orange-100">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{booking.service.title}</h3>
-                    <p className="text-gray-600">with {booking.provider.businessName || booking.provider.user.name}</p>
+                    <h3 className="text-xl font-semibold text-gray-900">{booking.service.name}</h3>
+                    <p className="text-gray-600">with {booking.provider.businessName || booking.provider.name || booking.provider.user?.name || 'Provider'}</p>
                     <p className="text-sm text-gray-500">Booking #{booking.bookingNumber}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>

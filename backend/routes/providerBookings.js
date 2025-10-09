@@ -18,12 +18,8 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
 
   const { status, date, limit = 50, page = 1 } = req.query;
 
-  // Get provider's services first
-  const providerServices = await Service.find({ providerId: req.user._id }).select('_id');
-  const serviceIds = providerServices.map(service => service._id);
-
-  // Build query
-  let query = { serviceId: { $in: serviceIds } };
+  // Build query - use provider field directly since it references the User
+  let query = { provider: req.user._id };
 
   if (status && status !== 'all') {
     query.status = status;

@@ -1038,7 +1038,7 @@ export default function DashboardPage() {
                   <div className="text-sm font-medium text-gray-900 mb-3">Quick Actions</div>
                   <div className="grid grid-cols-2 gap-2">
                     <Link 
-                      href="/bookings"
+                      href="/services"
                       className="flex items-center justify-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
                     >
                       <FaCalendarAlt className="h-4 w-4 mr-2 text-orange-600" />
@@ -1049,7 +1049,7 @@ export default function DashboardPage() {
                       className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
                       <FaClipboardList className="h-4 w-4 mr-2 text-gray-600" />
-                      <span className="text-xs font-medium text-gray-700">My Orders</span>
+                      <span className="text-xs font-medium text-gray-700">My Bookings</span>
                     </Link>
                   </div>
                 </div>

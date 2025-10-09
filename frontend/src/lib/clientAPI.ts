@@ -243,7 +243,20 @@ export const clientAPI = {
       const data = await response.json();
       console.log('📚 Bookings response data:', data);
       
-      return data;
+      // Normalize the response format
+      if (response.ok && data.status === 'success') {
+        return {
+          success: true,
+          data: data.data,
+          results: data.results
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Failed to fetch bookings',
+          bookings: []
+        };
+      }
     } catch (error) {
       console.error('❌ Error fetching client bookings:', error);
       return { success: false, error: 'Network error', bookings: [] };
@@ -254,6 +267,10 @@ export const clientAPI = {
   getBookingDetails: async (bookingId: string) => {
     try {
       const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, error: 'No authentication token found' };
+      }
+
       const response = await fetch(`${API_BASE}/api/bookings/${bookingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -261,10 +278,23 @@ export const clientAPI = {
         }
       });
       
-      return response.json();
+      const data = await response.json();
+      
+      // Normalize the response format
+      if (response.ok && data.status === 'success') {
+        return {
+          success: true,
+          data: data.data
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Failed to fetch booking details'
+        };
+      }
     } catch (error) {
       console.error('Error fetching booking details:', error);
-      return { success: false, booking: null };
+      return { success: false, error: 'Network error' };
     }
   },
 
