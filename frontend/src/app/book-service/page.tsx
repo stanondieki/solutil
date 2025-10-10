@@ -25,7 +25,8 @@ import {
   FaStar,
   FaUser,
   FaPhone,
-  FaEnvelope
+  FaEnvelope,
+  FaFileAlt
 } from 'react-icons/fa'
 
 // Fixed Service Pricing (no hourly rates)
@@ -817,8 +818,12 @@ function BookServicePageContent() {
                 className="space-y-6"
               >
                 <div className="text-center mb-8">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">What service do you need?</h2>
-                  <p className="text-gray-600">Select the category that best matches your requirements</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">What Service Do You Need?</h2>
+                  <p className="text-lg text-gray-600">Choose the service category that matches your needs</p>
+                  <div className="mt-2 inline-flex items-center space-x-2 text-sm text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
+                    <FaCheck className="h-3 w-3" />
+                    <span>All services include professional providers & fixed pricing</span>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -837,14 +842,20 @@ function BookServicePageContent() {
                       <div className={`w-12 h-12 rounded-full ${category.color} flex items-center justify-center mb-4`}>
                         <category.icon className="h-6 w-6 text-gray-700" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name} Service</h3>
                       <p className="text-sm text-gray-600 mb-3">{category.description}</p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
-                          <span>{category.rating}</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center">
+                            <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
+                            <span>{category.rating} rating</span>
+                          </div>
+                          <span>({category.reviews} reviews)</span>
                         </div>
-                        <span>{category.averagePrice}</span>
+                        <div className="text-right">
+                          <div className="font-semibold text-orange-600">{category.averagePrice}</div>
+                          <div className="text-xs">Fixed rate</div>
+                        </div>
                       </div>
                     </motion.button>
                   ))}
@@ -871,8 +882,18 @@ function BookServicePageContent() {
                       <bookingData.category.icon className="h-6 w-6 text-gray-700" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{bookingData.category.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-900">{bookingData.category.name} Service Details</h3>
                       <p className="text-gray-600">{bookingData.category.detailedDescription}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm">
+                        <span className="flex items-center text-orange-600">
+                          <FaDollarSign className="h-3 w-3 mr-1" />
+                          <strong>{bookingData.category.averagePrice} per service</strong>
+                        </span>
+                        <span className="flex items-center text-gray-500">
+                          <FaClock className="h-3 w-3 mr-1" />
+                          {bookingData.category.estimatedDuration}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -880,42 +901,44 @@ function BookServicePageContent() {
                     {/* Date and Time */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaCalendarAlt className="inline h-4 w-4 mr-2" />
-                          Preferred Date
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaCalendarAlt className="inline h-4 w-4 mr-2 text-orange-500" />
+                          When do you need this service?
                         </label>
                         <input
                           type="date"
                           value={bookingData.date}
                           onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
                           min={new Date().toISOString().split('T')[0]}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Select your preferred service date</p>
                         {errors.date && <div className="text-red-500 text-sm mt-1">{errors.date}</div>}
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaClock className="inline h-4 w-4 mr-2" />
-                          Preferred Time
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaClock className="inline h-4 w-4 mr-2 text-orange-500" />
+                          What time works best for you?
                         </label>
                         <select
                           value={bookingData.time}
                           onChange={(e) => setBookingData(prev => ({ ...prev, time: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         >
-                          <option value="">Select time</option>
-                          <option value="08:00">8:00 AM</option>
-                          <option value="09:00">9:00 AM</option>
-                          <option value="10:00">10:00 AM</option>
-                          <option value="11:00">11:00 AM</option>
-                          <option value="12:00">12:00 PM</option>
-                          <option value="13:00">1:00 PM</option>
-                          <option value="14:00">2:00 PM</option>
-                          <option value="15:00">3:00 PM</option>
-                          <option value="16:00">4:00 PM</option>
-                          <option value="17:00">5:00 PM</option>
+                          <option value="">Choose your preferred time</option>
+                          <option value="08:00">8:00 AM - Morning</option>
+                          <option value="09:00">9:00 AM - Morning</option>
+                          <option value="10:00">10:00 AM - Morning</option>
+                          <option value="11:00">11:00 AM - Late Morning</option>
+                          <option value="12:00">12:00 PM - Midday</option>
+                          <option value="13:00">1:00 PM - Afternoon</option>
+                          <option value="14:00">2:00 PM - Afternoon</option>
+                          <option value="15:00">3:00 PM - Afternoon</option>
+                          <option value="16:00">4:00 PM - Late Afternoon</option>
+                          <option value="17:00">5:00 PM - Evening</option>
                         </select>
+                        <p className="text-xs text-gray-500 mt-1">Select the time that works best for your schedule</p>
                         {errors.time && <div className="text-red-500 text-sm mt-1">{errors.time}</div>}
                       </div>
                     </div>
@@ -923,26 +946,27 @@ function BookServicePageContent() {
                     {/* Providers Needed and Duration */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaUsers className="inline h-4 w-4 mr-2" />
-                          Number of Providers
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaUsers className="inline h-4 w-4 mr-2 text-orange-500" />
+                          How many professionals do you need?
                         </label>
                         <select
                           value={bookingData.providersNeeded}
                           onChange={(e) => setBookingData(prev => ({ ...prev, providersNeeded: parseInt(e.target.value) }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         >
-                          <option value={1}>1 Provider</option>
-                          <option value={2}>2 Providers</option>
-                          <option value={3}>3 Providers</option>
-                          <option value={4}>4+ Providers</option>
+                          <option value={1}>1 Professional - Standard job</option>
+                          <option value={2}>2 Professionals - Medium job</option>
+                          <option value={3}>3 Professionals - Large job</option>
+                          <option value={4}>4+ Professionals - Extra large job</option>
                         </select>
+                        <p className="text-xs text-gray-500 mt-1">More professionals can complete the job faster</p>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaClock className="inline h-4 w-4 mr-2" />
-                          Expected Duration (hours)
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaClock className="inline h-4 w-4 mr-2 text-orange-500" />
+                          How long will this job take?
                         </label>
                         <input
                           type="number"
@@ -950,52 +974,84 @@ function BookServicePageContent() {
                           onChange={(e) => setBookingData(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
                           min="1"
                           max="12"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="Hours needed"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Estimate: {bookingData.category?.estimatedDuration || '2-4 hours typical'}</p>
                         {errors.duration && <div className="text-red-500 text-sm mt-1">{errors.duration}</div>}
                       </div>
                     </div>
 
                     {/* Service Description */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Service Description
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
+                        Tell us more about your specific needs
                       </label>
                       <textarea
                         value={bookingData.description}
                         onChange={(e) => setBookingData(prev => ({ ...prev, description: e.target.value }))}
-                        placeholder="Describe what you need done..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder={`Describe what you need done for ${bookingData.category?.name?.toLowerCase()} service...
+
+Examples:
+- Specific repairs needed
+- Areas to be cleaned/fixed
+- Materials you have/need
+- Any special requirements
+- Access details (stairs, parking, etc.)`}
+                        rows={5}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
+                      <p className="text-xs text-gray-500 mt-1">More details help us match you with the right professional and provide accurate quotes</p>
                       {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description}</div>}
                     </div>
 
                     {/* Urgency Level */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Urgency Level
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        <FaExclamationTriangle className="inline h-4 w-4 mr-2 text-orange-500" />
+                        How urgent is this service?
                       </label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {[
-                          { value: 'normal', label: 'Normal', desc: 'Within 24-48 hours', color: 'bg-green-50 border-green-200 text-green-700' },
-                          { value: 'urgent', label: 'Urgent', desc: 'Within 2-6 hours', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
-                          { value: 'emergency', label: 'Emergency', desc: 'Within 1 hour', color: 'bg-red-50 border-red-200 text-red-700' }
+                          { 
+                            value: 'normal', 
+                            label: '🕐 Normal Priority', 
+                            desc: 'Within 24-48 hours', 
+                            detail: 'Standard scheduling',
+                            color: 'bg-green-50 border-green-200 text-green-700' 
+                          },
+                          { 
+                            value: 'urgent', 
+                            label: '⚡ Urgent Priority', 
+                            desc: 'Within 2-6 hours', 
+                            detail: 'Same day service',
+                            color: 'bg-yellow-50 border-yellow-200 text-yellow-700' 
+                          },
+                          { 
+                            value: 'emergency', 
+                            label: '🚨 Emergency Priority', 
+                            desc: 'Within 1 hour', 
+                            detail: 'Immediate response',
+                            color: 'bg-red-50 border-red-200 text-red-700' 
+                          }
                         ].map((urgency) => (
                           <button
                             key={urgency.value}
                             onClick={() => setBookingData(prev => ({ ...prev, urgency: urgency.value as any }))}
-                            className={`p-3 rounded-lg border-2 text-center transition-all ${
+                            className={`p-4 rounded-lg border-2 text-center transition-all ${
                               bookingData.urgency === urgency.value
-                                ? urgency.color
-                                : 'border-gray-200 bg-white hover:border-gray-300'
+                                ? urgency.color + ' ring-2 ring-orange-200'
+                                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
                             }`}
                           >
-                            <div className="font-medium">{urgency.label}</div>
-                            <div className="text-xs">{urgency.desc}</div>
+                            <div className="font-semibold text-sm mb-1">{urgency.label}</div>
+                            <div className="text-xs mb-1">{urgency.desc}</div>
+                            <div className="text-xs opacity-75">{urgency.detail}</div>
                           </button>
                         ))}
                       </div>
+                      <p className="text-xs text-gray-500 mt-2">Emergency services may have additional charges</p>
                     </div>
                   </div>
                 </div>
@@ -1029,63 +1085,67 @@ function BookServicePageContent() {
                 className="max-w-4xl mx-auto"
               >
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Service Location</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">📍 Where do you need the service?</h3>
+                  <p className="text-gray-600 mb-6">Provide your location so we can match you with nearby professionals</p>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Left Column - Forms */}
                     <div className="space-y-6">
                       {/* Quick Location Options */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                          <FaMapMarkerAlt className="inline h-4 w-4 mr-2" />
-                          Quick Location
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          <FaMapMarkerAlt className="inline h-4 w-4 mr-2 text-orange-500" />
+                          Quick Location Setup
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <button
                             onClick={() => handleGetCurrentLocation()}
-                            className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                            className="flex items-center justify-center px-4 py-3 border-2 border-blue-300 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm font-semibold text-blue-700"
                           >
-                            <FaMapMarkerAlt className="h-4 w-4 mr-2 text-blue-600" />
-                            Use Current Location
+                            <FaMapMarkerAlt className="h-4 w-4 mr-2" />
+                            📍 Use My Current Location
                           </button>
                           <button
                             onClick={() => handleSearchAddress()}
-                            className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                            className="flex items-center justify-center px-4 py-3 border-2 border-green-300 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm font-semibold text-green-700"
                           >
-                            <FaSearch className="h-4 w-4 mr-2 text-green-600" />
-                            Enter Address
+                            <FaSearch className="h-4 w-4 mr-2" />
+                            ✏️ Type Address Manually
                           </button>
                         </div>
+                        <p className="text-xs text-gray-500 mt-2">Choose the easiest way to share your location</p>
                       </div>
 
                       {/* Search Location (simplified) */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Search Address (Manual Entry)
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaSearch className="inline h-4 w-4 mr-2 text-orange-500" />
+                          Enter Your Full Address
                         </label>
                         <div className="relative">
                           <input
                             ref={addressSearchRef}
                             type="text"
-                            placeholder="Type your address here..."
+                            placeholder="Type your complete address here (e.g., 123 Westlands Road, Nairobi)..."
                             value={bookingData.location.address}
                             onChange={(e) => setBookingData(prev => ({ 
                               ...prev, 
                               location: { ...prev.location, address: e.target.value } 
                             }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                           />
-                          <FaSearch className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                          <FaSearch className="absolute right-3 top-4 h-4 w-4 text-gray-400" />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Google Maps autocomplete will be available in the future
-                        </p>
+                        <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                          💡 <strong>Coming Soon:</strong> Google Maps autocomplete will make address entry even easier!
+                        </div>
                       </div>
 
                       {/* Service Area */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Service Area
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaMapMarkerAlt className="inline h-4 w-4 mr-2 text-orange-500" />
+                          Which area of Nairobi are you in?
                         </label>
                         <select
                           value={bookingData.location.area}
@@ -1093,20 +1153,22 @@ function BookServicePageContent() {
                             ...prev, 
                             location: { ...prev.location, area: e.target.value } 
                           }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         >
-                          <option value="">Select your area</option>
+                          <option value="">🏙️ Choose your area/neighborhood</option>
                           {serviceAreas.map(area => (
-                            <option key={area} value={area}>{area}</option>
+                            <option key={area} value={area}>📍 {area}</option>
                           ))}
                         </select>
+                        <p className="text-xs text-gray-500 mt-1">This helps us find professionals closest to you</p>
                         {errors.area && <div className="text-red-500 text-sm mt-1">{errors.area}</div>}
                       </div>
 
                       {/* Address Details */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Complete Address
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
+                          Additional Location Details
                         </label>
                         <textarea
                           value={bookingData.location.address}
@@ -1114,10 +1176,18 @@ function BookServicePageContent() {
                             ...prev, 
                             location: { ...prev.location, address: e.target.value } 
                           }))}
-                          placeholder="Building name, apartment number, landmarks, etc."
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          placeholder="Please provide more details to help our professionals find you:
+
+🏢 Building name or house number
+🚪 Apartment/office number  
+🛣️ Nearest landmark or street
+🅿️ Parking instructions
+🚶 Gate access or security info
+📋 Any special directions"
+                          rows={4}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Clear directions help professionals arrive on time and prepared</p>
                         {errors.address && <div className="text-red-500 text-sm mt-1">{errors.address}</div>}
                       </div>
 
@@ -1217,36 +1287,57 @@ function BookServicePageContent() {
                 className="max-w-4xl mx-auto"
               >
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Available Providers</h3>
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">👥 Choose Your Professional</h3>
+                    <p className="text-gray-600">Select {bookingData.providersNeeded} qualified {bookingData.category?.name.toLowerCase()} professional{bookingData.providersNeeded > 1 ? 's' : ''} for your job</p>
+                    <div className="mt-2 flex items-center justify-center space-x-4 text-sm">
+                      <span className="flex items-center text-green-600">
+                        <FaCheck className="h-3 w-3 mr-1" />
+                        Background verified
+                      </span>
+                      <span className="flex items-center text-blue-600">
+                        <FaStar className="h-3 w-3 mr-1" />
+                        Rated professionals
+                      </span>
+                      <span className="flex items-center text-orange-600">
+                        <FaDollarSign className="h-3 w-3 mr-1" />
+                        Fixed pricing
+                      </span>
+                    </div>
+                  </div>
                   
                   {providerMatching.loading ? (
                     <div className="text-center py-12">
-                      <FaSpinner className="h-12 w-12 text-gray-300 mx-auto mb-4 animate-spin" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">Finding Providers...</h4>
-                      <p className="text-gray-600">
-                        Searching for {bookingData.providersNeeded} {bookingData.category?.name.toLowerCase()} provider(s) 
-                        in {bookingData.location.area} for {bookingData.date} at {bookingData.time}
+                      <FaSpinner className="h-12 w-12 text-orange-500 mx-auto mb-4 animate-spin" />
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">🔍 Finding Perfect Matches...</h4>
+                      <p className="text-gray-600 mb-2">
+                        Searching for <strong>{bookingData.providersNeeded}</strong> qualified <strong>{bookingData.category?.name.toLowerCase()}</strong> professional{bookingData.providersNeeded > 1 ? 's' : ''}
                       </p>
+                      <div className="text-sm text-gray-500 space-y-1">
+                        <p>📍 Location: <strong>{bookingData.location.area}</strong></p>
+                        <p>📅 Date: <strong>{bookingData.date}</strong> at <strong>{bookingData.time}</strong></p>
+                        <p>⏱️ Duration: <strong>{bookingData.duration} hour{bookingData.duration > 1 ? 's' : ''}</strong></p>
+                      </div>
                     </div>
                   ) : providerMatching.error ? (
                     <div className="text-center py-12">
-                      <FaExclamationTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No Providers Found</h4>
+                      <FaExclamationTriangle className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">😔 No Professionals Available</h4>
                       <p className="text-gray-600 mb-4">{providerMatching.error}</p>
-                      <div className="space-y-2 text-sm text-gray-500">
-                        <p>Try adjusting your criteria:</p>
-                        <ul className="list-disc list-inside space-y-1">
-                          <li>Choose a different time slot</li>
-                          <li>Consider nearby service areas</li>
-                          <li>Adjust your budget range</li>
-                          <li>Book for a later date</li>
+                      <div className="bg-blue-50 rounded-lg p-4 mb-4 text-left max-w-md mx-auto">
+                        <h5 className="font-semibold text-blue-900 mb-2">💡 Suggestions to find professionals:</h5>
+                        <ul className="text-sm text-blue-800 space-y-1">
+                          <li>✅ Try a different time slot (morning/afternoon)</li>
+                          <li>✅ Consider nearby areas ({serviceAreas.filter(area => area !== bookingData.location.area).slice(0, 2).join(', ')})</li>
+                          <li>✅ Book for tomorrow or next week</li>
+                          <li>✅ Reduce number of professionals needed</li>
                         </ul>
                       </div>
                       <button
                         onClick={() => setCurrentStep('location')}
-                        className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                        className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold"
                       >
-                        Modify Search Criteria
+                        🔄 Modify Search Criteria
                       </button>
                     </div>
                   ) : providerMatching.providers.length > 0 ? (
@@ -1374,26 +1465,52 @@ function BookServicePageContent() {
 
                       {/* Selection Summary */}
                       {selectedProviders.length > 0 && (
-                        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                          <h4 className="font-semibold text-gray-900 mb-2">
-                            Selected Providers ({selectedProviders.length}/{bookingData.providersNeeded})
+                        <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg">
+                          <h4 className="font-bold text-gray-900 mb-3 flex items-center">
+                            <FaCheck className="h-4 w-4 text-green-600 mr-2" />
+                            ✅ Selected Professionals ({selectedProviders.length}/{bookingData.providersNeeded})
                           </h4>
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {selectedProviders.map((provider: any) => (
-                              <div key={provider._id} className="flex items-center justify-between text-sm">
-                                <span className="font-medium">{provider.name}</span>
-                                <span className="text-orange-600">
-                                  {formatServicePrice(bookingData.category?.id || 'electrical')}
-                                </span>
+                              <div key={provider._id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-100">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                                    {provider.profilePicture ? (
+                                      <img src={provider.profilePicture} alt={provider.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-orange-100">
+                                        <FaUser className="h-3 w-3 text-orange-600" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-900">{provider.name}</span>
+                                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                      <span className="flex items-center">
+                                        <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
+                                        {provider.rating || 4.5}
+                                      </span>
+                                      <span>•</span>
+                                      <span>{provider.completedJobs || 0} jobs</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="font-bold text-orange-600">
+                                    {formatServicePrice(bookingData.category?.id || 'electrical')}
+                                  </div>
+                                  <div className="text-xs text-gray-500">per service</div>
+                                </div>
                               </div>
                             ))}
-                            <div className="pt-2 border-t border-orange-200">
-                              <div className="flex items-center justify-between font-semibold">
-                                <span>Total Estimated Cost:</span>
-                                <span className="text-lg text-orange-600">
+                            <div className="pt-3 border-t-2 border-green-200">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-gray-900">💰 Total Service Cost:</span>
+                                <span className="text-xl font-bold text-green-600">
                                   KES {(selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()}
                                 </span>
                               </div>
+                              <p className="text-xs text-gray-500 mt-1">Fixed pricing • No hidden fees • Payment protected</p>
                             </div>
                           </div>
                         </div>
@@ -1450,72 +1567,101 @@ function BookServicePageContent() {
                 <div className="space-y-6">
                   {/* Booking Summary */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Booking Summary</h3>
+                    <div className="text-center mb-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">📋 Your Booking Summary</h3>
+                      <p className="text-gray-600">Review your details before confirming</p>
+                    </div>
                     
                     <div className="space-y-4">
                       {/* Service Details */}
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Service:</span>
-                        <span className="font-medium">{bookingData.category?.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Date & Time:</span>
-                        <span className="font-medium">{bookingData.date} at {bookingData.time}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Duration:</span>
-                        <span className="font-medium">{bookingData.duration} hour(s)</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Location:</span>
-                        <span className="font-medium">{bookingData.location.area}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Urgency:</span>
-                        <span className={`font-medium capitalize ${
-                          bookingData.urgency === 'emergency' ? 'text-red-600' :
-                          bookingData.urgency === 'urgent' ? 'text-yellow-600' : 'text-green-600'
-                        }`}>
-                          {bookingData.urgency}
-                        </span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">🔧 Service Type:</span>
+                          <span className="font-semibold text-gray-900">{bookingData.category?.name} Service</span>
+                        </div>
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">📅 Date & Time:</span>
+                          <span className="font-semibold text-gray-900">{bookingData.date} at {bookingData.time}</span>
+                        </div>
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">⏱️ Duration:</span>
+                          <span className="font-semibold text-gray-900">{bookingData.duration} hour{bookingData.duration > 1 ? 's' : ''}</span>
+                        </div>
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">📍 Location:</span>
+                          <span className="font-semibold text-gray-900">{bookingData.location.area}</span>
+                        </div>
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">⚡ Priority:</span>
+                          <span className={`font-semibold capitalize ${
+                            bookingData.urgency === 'emergency' ? 'text-red-600' :
+                            bookingData.urgency === 'urgent' ? 'text-yellow-600' : 'text-green-600'
+                          }`}>
+                            {bookingData.urgency === 'emergency' ? '🚨 Emergency' : 
+                             bookingData.urgency === 'urgent' ? '⚡ Urgent' : '🕐 Normal'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between md:block">
+                          <span className="text-gray-600 text-sm">👥 Professionals:</span>
+                          <span className="font-semibold text-gray-900">{bookingData.providersNeeded} professional{bookingData.providersNeeded > 1 ? 's' : ''}</span>
+                        </div>
                       </div>
 
                       {/* Selected Providers */}
                       <div className="pt-4 border-t border-gray-200">
-                        <h4 className="font-medium text-gray-900 mb-3">Selected Providers:</h4>
-                        <div className="space-y-2">
+                        <h4 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <FaUsers className="h-4 w-4 text-orange-500 mr-2" />
+                          👥 Your Selected Professionals:
+                        </h4>
+                        <div className="space-y-3">
                           {selectedProviders.map((provider: any) => (
-                            <div key={provider._id} className="flex items-center justify-between text-sm">
+                            <div key={provider._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                               <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                   {provider.profilePicture ? (
                                     <img src={provider.profilePicture} alt={provider.name} className="w-full h-full object-cover" />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                                      <FaUser className="h-3 w-3 text-orange-600" />
+                                      <FaUser className="h-4 w-4 text-orange-600" />
                                     </div>
                                   )}
                                 </div>
-                                <span className="font-medium">{provider.name}</span>
+                                <div>
+                                  <div className="font-semibold text-gray-900">{provider.name}</div>
+                                  <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                    <span className="flex items-center">
+                                      <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
+                                      {provider.rating || 4.5} rating
+                                    </span>
+                                    <span>•</span>
+                                    <span>{provider.completedJobs || 0} jobs completed</span>
+                                  </div>
+                                </div>
                               </div>
-                              <span className="text-orange-600 font-medium">
-                                {formatServicePrice(bookingData.category?.id || 'electrical')}
-                              </span>
+                              <div className="text-right">
+                                <div className="font-bold text-orange-600">
+                                  {formatServicePrice(bookingData.category?.id || 'electrical')}
+                                </div>
+                                <div className="text-xs text-gray-500">fixed rate</div>
+                              </div>
                             </div>
                           ))}
                         </div>
                       </div>
 
                       {/* Total Cost */}
-                      <div className="pt-4 border-t border-gray-200">
-                        <div className="flex justify-between text-lg font-bold">
-                          <span>Total Cost:</span>
-                          <span className="text-orange-600">
-                            KES {(selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          Payment will be held in escrow until service completion
+                      <div className="pt-4 border-t-2 border-gray-200">
+                        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-gray-900">💰 Total Service Cost:</span>
+                            <span className="text-2xl font-bold text-orange-600">
+                              KES {(selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm text-gray-600 mt-2">
+                            <span>✅ Fixed pricing - No surprises</span>
+                            <span>🔒 Payment held securely until completion</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1531,37 +1677,82 @@ function BookServicePageContent() {
 
                   {/* Payment Options */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Payment Method</h3>
+                    <div className="text-center mb-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">💳 Choose Your Payment Method</h3>
+                      <p className="text-gray-600">Secure payment with full buyer protection</p>
+                    </div>
                     
                     <div className="text-center py-8">
-                      <FaDollarSign className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">Secure Escrow Payment</h4>
-                      <p className="text-gray-600 mb-4">
-                        Payment integration with M-Pesa and card payments will be implemented here.
-                        Your payment will be held securely until service completion.
+                      <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FaDollarSign className="h-8 w-8 text-white" />
+                      </div>
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">🛡️ Secure Escrow Payment System</h4>
+                      <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                        Your payment is held safely until the service is completed to your satisfaction. 
+                        <strong> 100% buyer protection guaranteed.</strong>
                       </p>
                       
                       <div className="space-y-3 max-w-sm mx-auto">
-                        <button className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                        <button className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center justify-center">
+                          <span className="mr-2">📱</span>
                           Pay with M-Pesa
+                          <span className="ml-2 text-xs bg-green-500 px-2 py-1 rounded">Most Popular</span>
                         </button>
-                        <button className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                          Pay with Card
+                        <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 flex items-center justify-center">
+                          <span className="mr-2">💳</span>
+                          Pay with Card (Visa/Mastercard)
                         </button>
-                        <button className="w-full py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors">
-                          Pay on Service Completion
+                        <button className="w-full py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg font-bold hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-105 flex items-center justify-center">
+                          <span className="mr-2">🤝</span>
+                          Pay After Service Completion
                         </button>
+                      </div>
+                      
+                      <div className="mt-6 grid grid-cols-3 gap-4 text-xs text-gray-500">
+                        <div className="flex flex-col items-center">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mb-1">
+                            <FaCheck className="h-4 w-4 text-green-600" />
+                          </div>
+                          <span>Secure Encryption</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-1">
+                            <FaDollarSign className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <span>Escrow Protection</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mb-1">
+                            <FaExclamationTriangle className="h-4 w-4 text-orange-600" />
+                          </div>
+                          <span>Dispute Resolution</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Terms and Confirmation */}
-                  <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border-2 border-blue-200">
                     <div className="flex items-start space-x-3">
-                      <input type="checkbox" className="mt-1" />
-                      <div className="text-sm text-gray-600">
-                        <p>By confirming this booking, you agree to our Terms of Service and Privacy Policy. 
-                        Your location will be shared with selected providers to facilitate service delivery.</p>
+                      <input 
+                        type="checkbox" 
+                        className="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" 
+                        id="terms-agreement"
+                      />
+                      <div className="text-sm text-gray-700">
+                        <label htmlFor="terms-agreement" className="font-medium cursor-pointer">
+                          ✅ I agree to the booking terms and conditions
+                        </label>
+                        <div className="mt-2 space-y-1 text-xs">
+                          <p>📋 By confirming this booking, you agree to:</p>
+                          <ul className="list-disc list-inside space-y-1 ml-2">
+                            <li>Our <strong>Terms of Service</strong> and <strong>Privacy Policy</strong></li>
+                            <li>Share your location with selected professionals for service delivery</li>
+                            <li>Fixed pricing with no hidden fees</li>
+                            <li>Payment protection through our secure escrow system</li>
+                            <li>Professional background verification standards</li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1569,24 +1760,24 @@ function BookServicePageContent() {
                   <div className="flex justify-between">
                     <button
                       onClick={handleStepBack}
-                      className="px-6 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                      className="px-6 py-3 text-gray-600 hover:text-gray-900 transition-colors font-semibold flex items-center"
                     >
-                      <FaArrowLeft className="inline h-4 w-4 mr-2" />
-                      Back
+                      <FaArrowLeft className="h-4 w-4 mr-2" />
+                      ← Back to Providers
                     </button>
                     <button
                       onClick={() => {
                         // Handle booking confirmation
-                        console.log('Confirming booking...', {
+                        console.log('🎉 Confirming booking...', {
                           bookingData,
                           selectedProviders,
                           location: locationSharing.location
                         })
                       }}
-                      className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                      className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg"
                     >
-                      <FaCheck className="inline h-4 w-4 mr-2" />
-                      Confirm Booking
+                      <FaCheck className="h-5 w-5 mr-2" />
+                      🎉 Confirm Booking & Pay
                     </button>
                   </div>
                 </div>
