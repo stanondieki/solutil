@@ -910,7 +910,7 @@ function BookServicePageContent() {
                           value={bookingData.date}
                           onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
                           min={new Date().toISOString().split('T')[0]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-orange-50 bg-white text-gray-900 font-medium text-base"
                         />
                         <p className="text-xs text-gray-500 mt-1">Select your preferred service date</p>
                         {errors.date && <div className="text-red-500 text-sm mt-1">{errors.date}</div>}
@@ -924,19 +924,19 @@ function BookServicePageContent() {
                         <select
                           value={bookingData.time}
                           onChange={(e) => setBookingData(prev => ({ ...prev, time: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-orange-50 bg-white text-gray-900 font-medium text-base"
                         >
-                          <option value="">Choose your preferred time</option>
-                          <option value="08:00">8:00 AM - Morning</option>
-                          <option value="09:00">9:00 AM - Morning</option>
-                          <option value="10:00">10:00 AM - Morning</option>
-                          <option value="11:00">11:00 AM - Late Morning</option>
-                          <option value="12:00">12:00 PM - Midday</option>
-                          <option value="13:00">1:00 PM - Afternoon</option>
-                          <option value="14:00">2:00 PM - Afternoon</option>
-                          <option value="15:00">3:00 PM - Afternoon</option>
-                          <option value="16:00">4:00 PM - Late Afternoon</option>
-                          <option value="17:00">5:00 PM - Evening</option>
+                          <option value="" className="text-gray-500">Choose your preferred time</option>
+                          <option value="08:00" className="text-gray-900 font-medium">8:00 AM - Morning</option>
+                          <option value="09:00" className="text-gray-900 font-medium">9:00 AM - Morning</option>
+                          <option value="10:00" className="text-gray-900 font-medium">10:00 AM - Morning</option>
+                          <option value="11:00" className="text-gray-900 font-medium">11:00 AM - Late Morning</option>
+                          <option value="12:00" className="text-gray-900 font-medium">12:00 PM - Midday</option>
+                          <option value="13:00" className="text-gray-900 font-medium">1:00 PM - Afternoon</option>
+                          <option value="14:00" className="text-gray-900 font-medium">2:00 PM - Afternoon</option>
+                          <option value="15:00" className="text-gray-900 font-medium">3:00 PM - Afternoon</option>
+                          <option value="16:00" className="text-gray-900 font-medium">4:00 PM - Late Afternoon</option>
+                          <option value="17:00" className="text-gray-900 font-medium">5:00 PM - Evening</option>
                         </select>
                         <p className="text-xs text-gray-500 mt-1">Select the time that works best for your schedule</p>
                         {errors.time && <div className="text-red-500 text-sm mt-1">{errors.time}</div>}
@@ -953,12 +953,12 @@ function BookServicePageContent() {
                         <select
                           value={bookingData.providersNeeded}
                           onChange={(e) => setBookingData(prev => ({ ...prev, providersNeeded: parseInt(e.target.value) }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base"
                         >
-                          <option value={1}>1 Professional - Standard job</option>
-                          <option value={2}>2 Professionals - Medium job</option>
-                          <option value={3}>3 Professionals - Large job</option>
-                          <option value={4}>4+ Professionals - Extra large job</option>
+                          <option value={1} className="text-gray-900 font-medium">1 Professional - Standard job</option>
+                          <option value={2} className="text-gray-900 font-medium">2 Professionals - Medium job</option>
+                          <option value={3} className="text-gray-900 font-medium">3 Professionals - Large job</option>
+                          <option value={4} className="text-gray-900 font-medium">4+ Professionals - Extra large job</option>
                         </select>
                         <p className="text-xs text-gray-500 mt-1">More professionals can complete the job faster</p>
                       </div>
@@ -974,8 +974,8 @@ function BookServicePageContent() {
                           onChange={(e) => setBookingData(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
                           min="1"
                           max="12"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          placeholder="Hours needed"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
+                          placeholder="Enter hours needed (e.g., 2)"
                         />
                         <p className="text-xs text-gray-500 mt-1">Estimate: {bookingData.category?.estimatedDuration || '2-4 hours typical'}</p>
                         {errors.duration && <div className="text-red-500 text-sm mt-1">{errors.duration}</div>}
@@ -1000,7 +1000,7 @@ Examples:
 - Any special requirements
 - Access details (stairs, parking, etc.)`}
                         rows={5}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
                       />
                       <p className="text-xs text-gray-500 mt-1">More details help us match you with the right professional and provide accurate quotes</p>
                       {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description}</div>}
@@ -1132,7 +1132,7 @@ Examples:
                               ...prev, 
                               location: { ...prev.location, address: e.target.value } 
                             }))}
-                            className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
                           />
                           <FaSearch className="absolute right-3 top-4 h-4 w-4 text-gray-400" />
                         </div>
@@ -1153,11 +1153,11 @@ Examples:
                             ...prev, 
                             location: { ...prev.location, area: e.target.value } 
                           }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base"
                         >
-                          <option value="">🏙️ Choose your area/neighborhood</option>
+                          <option value="" className="text-gray-500">🏙️ Choose your area/neighborhood</option>
                           {serviceAreas.map(area => (
-                            <option key={area} value={area}>📍 {area}</option>
+                            <option key={area} value={area} className="text-gray-900 font-medium">📍 {area}</option>
                           ))}
                         </select>
                         <p className="text-xs text-gray-500 mt-1">This helps us find professionals closest to you</p>
@@ -1185,7 +1185,7 @@ Examples:
 🚶 Gate access or security info
 📋 Any special directions"
                           rows={4}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
                         />
                         <p className="text-xs text-gray-500 mt-1">Clear directions help professionals arrive on time and prepared</p>
                         {errors.address && <div className="text-red-500 text-sm mt-1">{errors.address}</div>}
