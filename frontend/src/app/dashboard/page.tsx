@@ -16,6 +16,7 @@ import {
   FaLightbulb,
   FaBroom,
   FaHammer,
+  FaTruck,
   FaStar,
   FaBell,
   FaUser,
@@ -71,6 +72,7 @@ interface Provider {
   email: string
   profilePicture: string | null
   providerProfile: {
+    businessName?: string
     experience: string
     skills: string[]
     hourlyRate: number
@@ -104,49 +106,179 @@ interface DashboardStat {
   trend?: string
 }
 
-const services: Service[] = [
+// Enhanced Service Categories for New Booking Flow
+interface ServiceCategory {
+  id: string
+  name: string
+  description: string
+  detailedDescription: string
+  icon: React.ComponentType<any>
+  imageUrl: string
+  color: string
+  averagePrice: string
+  priceRange: string
+  rating: number
+  reviews: number
+  estimatedDuration: string
+  popularServices: string[]
+  serviceAreas: string[]
+}
+
+// Fixed Service Pricing (no hourly rates)
+const SERVICE_PRICING: Record<string, number> = {
+  'cleaning': 1800,
+  'electrical': 2000,
+  'plumbing': 2000,
+  'painting': 2500,
+  'movers': 3000,
+  'carpentry': 2000,
+  'gardening': 1500
+}
+
+// Helper function to format service price display
+const formatServicePrice = (categoryId: string): string => {
+  const price = SERVICE_PRICING[categoryId] || 2000
+  return `KES ${price.toLocaleString()}`
+}
+
+const serviceCategories: ServiceCategory[] = [
   {
-    id: '1',
+    id: 'plumbing',
     name: 'Plumbing',
     description: 'Expert plumbing services for your home',
-    icon: () => <img src="/images/services/tapper.jpg" alt="tapper" className="h-12 w-12 object-contain" />,
+    detailedDescription: 'Professional plumbers for repairs, installations, maintenance, and emergency services. From leaky faucets to complete pipe installations.',
+    icon: FaWrench,
+    imageUrl: '/images/services/tapper.jpg',
     color: 'bg-blue-100',
-    price: 'KES 1,800/hr',
+    averagePrice: 'KES 2,000',
+    priceRange: 'Fixed rate per service',
     rating: 4.8,
-    reviews: 342
+    reviews: 342,
+    estimatedDuration: '1-4 hours',
+    popularServices: ['Pipe repair', 'Faucet installation', 'Toilet repair', 'Water heater service'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
   },
   {
-    id: '2',
-    name: 'Cleaning',
-    description: 'Professional cleaning services',
-    icon: () => <img src="/images/services/cleaning.jpg" alt="Cleaning" className="h-12 w-12 object-contain" />,
-    color: 'bg-green-100',
-    price: 'KES 1,500/hr',
-    rating: 4.7,
-    reviews: 189
-  },
-  {
-    id: '3',
+    id: 'electrical',
     name: 'Electrical',
     description: 'Licensed electricians for all electrical work',
-    icon: () => <img src="/images/services/electrical.jpg" alt="Electrical" className="h-12 w-12 object-contain" />,
+    detailedDescription: 'Certified electricians for wiring, repairs, installations, and electrical maintenance. Safety-first approach with guaranteed work.',
+    icon: FaLightbulb,
+    imageUrl: '/images/services/electrical.jpg',
     color: 'bg-yellow-100',
-    price: 'KES 2,200/hr',
+    averagePrice: 'KES 2,000',
+    priceRange: 'Fixed rate per service',
     rating: 4.9,
-    reviews: 256
+    reviews: 256,
+    estimatedDuration: '2-6 hours',
+    popularServices: ['Wiring installation', 'Socket repair', 'Lighting setup', 'Electrical maintenance'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+  },
+  {
+    id: 'cleaning',
+    name: 'Cleaning',
+    description: 'Professional cleaning services',
+    detailedDescription: 'Comprehensive cleaning services for homes and offices. Deep cleaning, regular maintenance, and specialized cleaning solutions.',
+    icon: FaBroom,
+    imageUrl: '/images/services/cleaning.jpg',
+    color: 'bg-green-100',
+    averagePrice: 'KES 1,800',
+    priceRange: 'Fixed rate per cleaner',
+    rating: 4.7,
+    reviews: 189,
+    estimatedDuration: '2-8 hours',
+    popularServices: ['House cleaning', 'Deep cleaning', 'Office cleaning', 'Move-in/out cleaning'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+  },
+  {
+    id: 'carpentry',
+    name: 'Carpentry',
+    description: 'Skilled carpenters for furniture and repairs',
+    detailedDescription: 'Expert carpenters for furniture making, repairs, installations, and custom woodwork. Quality craftsmanship guaranteed.',
+    icon: FaHammer,
+    imageUrl: '/images/services/carpentry.jpg',
+    color: 'bg-orange-100',
+    averagePrice: 'KES 2,000',
+    priceRange: 'Fixed rate per service',
+    rating: 4.6,
+    reviews: 145,
+    estimatedDuration: '3-8 hours',
+    popularServices: ['Furniture repair', 'Custom cabinets', 'Door installation', 'Shelving'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+  },
+  {
+    id: 'painting',
+    name: 'Painting',
+    description: 'Professional painting and decoration',
+    detailedDescription: 'Interior and exterior painting services with premium materials. Color consultation and decorative finishes available.',
+    icon: FaBroom,
+    imageUrl: '/images/services/painting.jpg',
+    color: 'bg-purple-100',
+    averagePrice: 'KES 2,500',
+    priceRange: 'Fixed rate per service',
+    rating: 4.5,
+    reviews: 98,
+    estimatedDuration: '4-12 hours',
+    popularServices: ['Interior painting', 'Exterior painting', 'Wall decoration', 'Color consultation'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+  },
+  {
+    id: 'gardening',
+    name: 'Gardening',
+    description: 'Garden maintenance and landscaping',
+    detailedDescription: 'Complete garden care from maintenance to landscaping. Plant care, lawn maintenance, and garden design services.',
+    icon: FaWrench,
+    imageUrl: '/images/services/gardening.jpg',
+    color: 'bg-emerald-100',
+    averagePrice: 'KES 1,500',
+    priceRange: 'Fixed rate per service',
+    rating: 4.4,
+    reviews: 67,
+    estimatedDuration: '2-6 hours',
+    popularServices: ['Lawn mowing', 'Plant care', 'Garden design', 'Tree trimming'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+  },
+  {
+    id: 'movers',
+    name: 'Movers',
+    description: 'Professional moving and relocation',
+    detailedDescription: 'Reliable moving services for homes and offices. Packing, loading, transportation, and unpacking with care and efficiency.',
+    icon: FaTruck,
+    imageUrl: '/images/services/movers.jpg',
+    color: 'bg-indigo-100',
+    averagePrice: 'KES 3,000',
+    priceRange: 'Fixed rate per service',
+    rating: 4.6,
+    reviews: 124,
+    estimatedDuration: '4-10 hours',
+    popularServices: ['House moving', 'Office relocation', 'Packing services', 'Furniture moving'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
   }
 ];
+
+// Legacy service interface for backward compatibility
+interface Service {
+  id: string
+  name: string
+  description: string
+  icon: () => React.ReactElement
+  color: string
+  price: string
+  rating: number
+  reviews: number
+}
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, logout, refreshUserData } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredServices, setFilteredServices] = useState(services)
+  const [filteredServices, setFilteredServices] = useState(serviceCategories)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [showLogoutDropdown, setShowLogoutDropdown] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [dashboardData, setDashboardData] = useState<any>(null)
   const [loadingStats, setLoadingStats] = useState(true)
-  const [providers, setProviders] = useState<any[]>([])
+  const [featuredProviders, setFeaturedProviders] = useState<Provider[]>([])
   const [loadingProviders, setLoadingProviders] = useState(true)
   const router = useRouter()
 
@@ -157,9 +289,12 @@ export default function DashboardPage() {
   }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
-    const filtered = services.filter(service =>
+    const filtered = serviceCategories.filter(service =>
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase())
+      service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.popularServices.some(popular => 
+        popular.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     )
     setFilteredServices(filtered)
   }, [searchQuery])
@@ -171,7 +306,7 @@ export default function DashboardPage() {
         console.log('Auto-refreshing user data on dashboard mount...')
         await refreshUserData()
         await fetchDashboardData()
-        await fetchProviders()
+        await fetchFeaturedProviders()
       }
     }
     refreshOnMount()
@@ -183,7 +318,7 @@ export default function DashboardPage() {
     try {
       await refreshUserData()
       await fetchDashboardData()
-      await fetchProviders()
+      await fetchFeaturedProviders()
       console.log('Manual refresh completed')
     } catch (error) {
       console.error('Failed to refresh user data:', error)
@@ -284,17 +419,12 @@ export default function DashboardPage() {
     }
   }
 
-  // Fetch live providers data
-  const fetchProviders = async () => {
-    if (!user || !RoleManager.isClient(user.userType)) return
-    
+  // Fetch featured providers 
+  const fetchFeaturedProviders = async () => {
     setLoadingProviders(true)
     try {
       const token = localStorage.getItem('authToken')
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
-      
-      // 🆕 UPDATED: Use enhanced services API
-      const response = await fetch(`${BACKEND_URL}/api/v2/services?limit=3`, {
+      const response = await fetch('/api/providers/featured?limit=6', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -303,142 +433,53 @@ export default function DashboardPage() {
       
       if (response.ok) {
         const data = await response.json()
-        console.log('Providers API Response:', data) // Debug log
-        
-        // Extract providers from services data
-        const services = data.data?.services || data.services || []
-        console.log('Services found:', services.length) // Debug log
-        
-        if (services.length > 0) {
-          console.log('First service sample:', services[0]) // Debug log
-        }
-        
-        const uniqueProviders = services.reduce((acc: any[], service: any) => {
-          if (service.providerId) {
-            let existingProvider = acc.find(p => p._id === service.providerId._id);
-            
-            if (!existingProvider) {
-              // Create new provider entry
-              existingProvider = {
-                _id: service.providerId._id,
-                name: service.providerId.name,
-                email: service.providerId.email,
-                phone: service.providerId.phone,
-                profilePicture: service.providerId.profilePicture || null,
-                providerProfile: {
-                  businessName: service.providerId.providerProfile?.businessName || service.providerId.name,
-                  experience: service.providerId.providerProfile?.experience || 'Experienced professional',
-                  skills: service.providerId.providerProfile?.skills || [],
-                  hourlyRate: service.providerId.providerProfile?.hourlyRate || service.price || 0,
-                  availability: service.providerId.providerProfile?.availability || {},
-                  serviceAreas: service.serviceArea || [],
-                  bio: service.providerId.providerProfile?.bio || service.description || '',
-                  completedJobs: service.providerId.providerProfile?.completedJobs || service.totalBookings || 0,
-                  rating: service.providerId.providerProfile?.rating || service.rating || 0,
-                  reviewCount: service.providerId.providerProfile?.reviewCount || service.reviewCount || 0,
-                },
-                services: [],
-                providerStatus: 'approved', // Assume approved since they have active services
-                createdAt: service.createdAt || new Date().toISOString()
-              };
-              acc.push(existingProvider);
-            }
-            
-            // Add this service to the provider's services array
-            existingProvider.services.push({
-              _id: service._id,
-              title: service.title,
-              description: service.description,
-              category: service.category,
-              price: service.price,
-              priceType: service.priceType,
-              duration: service.duration,
-              rating: service.rating || 0,
-              reviewCount: service.reviewCount || 0,
-              totalBookings: service.totalBookings || 0
-            });
-          }
-          return acc;
-        }, [])
-        
-        console.log('Unique providers extracted:', uniqueProviders.length) // Debug log
-        setProviders(uniqueProviders)
-        
-        // If no providers found from services, try direct provider lookup
-        if (uniqueProviders.length === 0) {
-          console.log('No providers found in services, trying direct provider lookup...')
-          await fetchProvidersDirectly()
-        }
+        setFeaturedProviders(data.providers || [])
       } else {
-        console.error('Failed to fetch providers data, status:', response.status)
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
-        // Keep empty array as fallback
-        setProviders([])
+        console.error('Failed to fetch featured providers')
       }
     } catch (error) {
-      console.error('Error fetching providers:', error)
-      // Keep empty array as fallback
-      setProviders([])
+      console.error('Error fetching featured providers:', error)
     } finally {
       setLoadingProviders(false)
     }
   }
 
-  // Alternative method to fetch providers directly (backup)
-  const fetchProvidersDirectly = async () => {
-    try {
-      const token = localStorage.getItem('authToken')
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
-      
-      // Use the verified providers endpoint
-      const response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=3`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Direct providers response:', data)
-        const directProviders = data.data?.providers || data.providers || []
-        
-        console.log('Found direct providers:', directProviders.length)
-        
-        // Map to our expected format
-        const mappedProviders = directProviders.map((provider: any) => ({
-          _id: provider._id,
-          name: provider.name,
-          email: provider.email,
-          phone: provider.phone || '',
-          profilePicture: provider.avatar?.url || provider.profilePicture || null,
-          providerProfile: {
-            businessName: provider.providerProfile?.businessName || provider.name,
-            experience: provider.providerProfile?.experience || 'Experienced professional',
-            skills: provider.providerProfile?.skills || [],
-            hourlyRate: provider.providerProfile?.hourlyRate || 500, // Default rate
-            availability: provider.providerProfile?.availability || {},
-            serviceAreas: provider.providerProfile?.serviceAreas || ['Nairobi'],
-            bio: provider.providerProfile?.bio || `Professional ${provider.name} ready to help with your service needs.`,
-            completedJobs: provider.providerProfile?.completedJobs || 0,
-            rating: provider.providerProfile?.rating || provider.rating || 4.5, // Default good rating
-            reviewCount: provider.providerProfile?.reviewCount || provider.reviewCount || 0,
-            services: provider.providerProfile?.services || []
-          },
-          services: [],
-          providerStatus: provider.providerStatus || 'approved',
-          createdAt: provider.createdAt || new Date().toISOString()
-        }))
-        
-        setProviders(mappedProviders)
-        console.log('Set providers from direct call:', mappedProviders.length)
-      } else {
-        console.log('Direct providers API not available or failed')
-      }
-    } catch (error) {
-      console.error('Error in direct provider fetch:', error)
+  // Simple search functionality for service categories
+  const handleSearchService = (query: string) => {
+    setSearchQuery(query)
+    if (!query.trim()) {
+      setFilteredServices(serviceCategories)
+      return
     }
+    
+    const filtered = serviceCategories.filter(service =>
+      service.name.toLowerCase().includes(query.toLowerCase()) ||
+      service.description.toLowerCase().includes(query.toLowerCase()) ||
+      service.popularServices.some(s => s.toLowerCase().includes(query.toLowerCase()))
+    )
+    setFilteredServices(filtered)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Please log in to access your dashboard</p>
+        </div>
+      </div>
+    )
   }
 
   if (isLoading) {
@@ -476,12 +517,10 @@ export default function DashboardPage() {
     if (RoleManager.isClient(user.userType)) {
       console.log('User is client, userType:', user.userType);
       return [
-        { name: 'Browse Services', icon: FaSearch, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Find the perfect service', href: '/services' },
-        { name: 'Book Service', icon: FaCalendarAlt, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Schedule instantly', href: '/booking/plumbing' },
+        { name: 'Browse Categories', icon: FaSearch, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Explore service categories', href: '/services' },
+        { name: 'Book Service', icon: FaCalendarAlt, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Start new booking', href: '/book-service' },
         { name: 'My Bookings', icon: FaClipboardList, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'View & manage bookings', href: '/bookings' },
-        { name: 'My Profile', icon: FaUser, color: 'bg-gradient-to-r from-blue-500 to-blue-600', description: 'Manage profile & settings', href: '/profile' },
-        { name: 'Emergency', icon: FaFire, color: 'bg-gradient-to-r from-red-500 to-orange-600', description: '24/7 urgent services', href: '/services?emergency=true' },
-        { name: 'Sign Out', icon: FaSignOutAlt, color: 'bg-gradient-to-r from-red-500 to-red-600', description: 'Logout options', href: '#', onClick: () => setShowLogoutDropdown(true) }
+        { name: 'Emergency', icon: FaFire, color: 'bg-gradient-to-r from-red-500 to-orange-600', description: '24/7 urgent services', href: '/book-service?emergency=true' }
       ]
     }
 
@@ -715,57 +754,42 @@ export default function DashboardPage() {
                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
               </button>
 
-              {/* User Profile */}
-              <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
-                  {(user as any).avatar?.url ? (
-                    <SafeImage
-                      src={(user as any).avatar.url}
-                      alt={user.name || 'User'}
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
-                      fallbackIcon={<span className="text-white font-semibold text-sm">
-                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-                      </span>}
-                    />
-                  ) : (
-                    <span className="text-white font-semibold text-sm">
-                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500 flex items-center">
-                    <span className={`w-2 h-2 rounded-full mr-1 ${RoleManager.getRoleColor(user.userType).includes('blue') ? 'bg-orange-500' : 'bg-orange-600'}`}></span>
-                    {RoleManager.getRoleDisplayName(user.userType)}
-                  </p>
-                </div>
-              </div>
-
-              {/* New Logout Dropdown */}
+              {/* User Profile Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setShowLogoutDropdown(!showLogoutDropdown)}
-                  disabled={isLoggingOut}
-                  className={`p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 flex items-center space-x-1 ${
-                    isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
-                  } ${showLogoutDropdown ? 'bg-red-50 text-red-600' : ''}`}
-                  title="Logout Options"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  {isLoggingOut ? (
-                    <div className="animate-spin h-5 w-5 border-2 border-red-500 border-t-transparent rounded-full"></div>
-                  ) : (
-                    <>
-                      <FaSignOutAlt className="h-4 w-4" />
-                      <FaChevronDown className="h-3 w-3" />
-                    </>
-                  )}
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
+                    {(user as any).avatar?.url ? (
+                      <SafeImage
+                        src={(user as any).avatar.url}
+                        alt={user.name || 'User'}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                        fallbackIcon={<span className="text-white font-semibold text-sm">
+                          {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                        </span>}
+                      />
+                    ) : (
+                      <span className="text-white font-semibold text-sm">
+                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500 flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-1 ${RoleManager.getRoleColor(user.userType).includes('blue') ? 'bg-orange-500' : 'bg-orange-600'}`}></span>
+                      {RoleManager.getRoleDisplayName(user.userType)}
+                    </p>
+                  </div>
+                  <FaChevronDown className="h-3 w-3 text-gray-500" />
                 </button>
 
-                {/* Logout Dropdown Menu */}
-                {showLogoutDropdown && !isLoggingOut && (
+                {/* User Dropdown Menu */}
+                {showUserDropdown && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -773,60 +797,59 @@ export default function DashboardPage() {
                     className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden"
                   >
                     <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-sm font-semibold text-gray-900">Logout Options</h3>
-                      <p className="text-xs text-gray-500 mt-1">Choose how you want to sign out</p>
+                      <h3 className="text-sm font-semibold text-gray-900">Account Menu</h3>
+                      <p className="text-xs text-gray-500 mt-1">Manage your account and preferences</p>
                     </div>
                     
                     <div className="p-2">
-                      {/* Quick Logout */}
-                      <button
-                        onClick={handleQuickLogout}
-                        className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-orange-50 rounded-lg transition-colors group"
-                      >
-                        <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                          <FaPowerOff className="h-4 w-4 text-orange-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">Quick Logout</p>
-                          <p className="text-xs text-gray-500">Fast local cleanup & redirect</p>
-                        </div>
-                      </button>
-
-                      {/* Secure Logout */}
-                      <button
-                        onClick={handleSecureLogout}
+                      {/* Profile */}
+                      <Link
+                        href="/profile"
+                        onClick={() => setShowUserDropdown(false)}
                         className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-blue-50 rounded-lg transition-colors group"
                       >
                         <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                          <FaShieldAlt className="h-4 w-4 text-blue-600" />
+                          <FaUser className="h-4 w-4 text-blue-600" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">Secure Logout</p>
-                          <p className="text-xs text-gray-500">Proper server-side session cleanup</p>
+                          <p className="text-sm font-medium text-gray-900">My Profile</p>
+                          <p className="text-xs text-gray-500">Manage profile & settings</p>
+                        </div>
+                      </Link>
+
+                      {/* Settings */}
+                      <button
+                        onClick={() => {
+                          setShowUserDropdown(false);
+                          // Add settings logic here
+                        }}
+                        className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-gray-50 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
+                          <FaCog className="h-4 w-4 text-gray-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Settings</p>
+                          <p className="text-xs text-gray-500">App preferences & notifications</p>
                         </div>
                       </button>
 
-                      {/* Emergency Logout */}
+                      {/* Quick Logout */}
                       <button
-                        onClick={handleEmergencyLogout}
+                        onClick={() => {
+                          setShowUserDropdown(false);
+                          handleQuickLogout();
+                        }}
+                        disabled={isLoggingOut}
                         className="w-full flex items-center space-x-3 px-3 py-2.5 text-left hover:bg-red-50 rounded-lg transition-colors group"
                       >
                         <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                          <FaExclamationTriangle className="h-4 w-4 text-red-600" />
+                          <FaSignOutAlt className="h-4 w-4 text-red-600" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">Emergency Logout</p>
-                          <p className="text-xs text-gray-500">Force logout (if something's wrong)</p>
+                          <p className="text-sm font-medium text-gray-900">Sign Out</p>
+                          <p className="text-xs text-gray-500">Logout from your account</p>
                         </div>
-                      </button>
-                    </div>
-                    
-                    <div className="p-3 bg-gray-50 border-t border-gray-100">
-                      <button
-                        onClick={() => setShowLogoutDropdown(false)}
-                        className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        Cancel
                       </button>
                     </div>
                   </motion.div>
@@ -1056,13 +1079,13 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Provider Directory - Shows second on mobile, first on desktop */}
+            {/* Service Categories - Shows second on mobile, first on desktop */}
             <div className="lg:col-span-2 order-2 lg:order-1">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">Featured Providers</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Service Categories</h3>
                   <Link 
-                    href="/providers" 
+                    href="/services" 
                     className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center"
                   >
                     View All <FaArrowRight className="ml-1 h-3 w-3" />
@@ -1070,96 +1093,48 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-                  {loadingProviders ? (
-                    // Loading skeleton for providers
-                    [...Array(3)].map((_, index) => (
-                      <div key={index} className="flex items-center p-4 border border-gray-100 rounded-xl animate-pulse">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full mr-4"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-24 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-40"></div>
-                        </div>
-                        <div className="w-20 h-8 bg-gray-200 rounded"></div>
-                      </div>
-                    ))
-                  ) : providers.length > 0 ? (
-                    providers.map((provider: Provider) => (
-                    <div key={provider._id} className="border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200">
-                      {/* Provider Header */}
+                  {filteredServices.slice(0, 3).map((category) => (
+                    <motion.div
+                      key={category.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200"
+                    >
+                      {/* Category Header */}
                       <div className="flex items-center p-4 border-b border-gray-100">
-                        <div className="relative">
-                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
-                            {provider.profilePicture ? (
-                              <SafeImage
-                                src={provider.profilePicture}
-                                alt={provider.name}
-                                width={64}
-                                height={64}
-                                className="w-full h-full object-cover"
-                                fallbackIcon={<FaUser className="h-6 w-6 text-orange-600" />}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                                <FaUser className="h-6 w-6 text-orange-600" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+                        <div className={`w-16 h-16 rounded-full ${category.color} flex items-center justify-center mr-4`}>
+                          <category.icon className="h-8 w-8 text-gray-700" />
                         </div>
                         
-                        <div className="flex-1 ml-4">
+                        <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-gray-900">{provider.name}</h4>
+                            <h4 className="font-semibold text-gray-900">{category.name}</h4>
                             <span className="text-sm font-medium text-orange-600">
-                              {provider.providerProfile?.hourlyRate ? `KES ${provider.providerProfile.hourlyRate}` : 'Contact for price'}
+                              {category.averagePrice}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 mb-1">
-                            {provider.providerProfile?.experience || 'Professional Service Provider'}
+                          <p className="text-sm text-gray-600 mb-2">
+                            {category.description}
                           </p>
-                          
-                          {/* Service Categories */}
-                          {provider.providerProfile?.skills && provider.providerProfile.skills.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              {provider.providerProfile.skills.slice(0, 3).map((skill, index) => (
-                                <span 
-                                  key={index}
-                                  className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                              {provider.providerProfile.skills.length > 3 && (
-                                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                                  +{provider.providerProfile.skills.length - 3} more
-                                </span>
-                              )}
-                            </div>
-                          )}
                           
                           <div className="flex items-center space-x-4">
                             <div className="flex items-center">
                               <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
                               <span className="text-sm font-medium text-gray-700">
-                                {provider.providerProfile?.rating || 4.8}
+                                {category.rating}
                               </span>
                               <span className="text-sm text-gray-500 ml-1">
-                                ({provider.providerProfile?.reviewCount || 0} reviews)
+                                ({category.reviews} reviews)
                               </span>
                             </div>
                             <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
-                              Available
+                              Available in {category.serviceAreas.length} areas
                             </span>
                           </div>
                         </div>
                         
                         <div className="ml-4">
-                          {/* Featured providers should have Book Now as primary action */}
                           <Link 
-                            href={provider.services && provider.services.length > 0 
-                              ? `/booking/form/${provider.services[0]._id}` 
-                              : `/provider/${provider._id}/book`}
+                            href={`/book-service?category=${category.id}`}
                             className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
                           >
                             Book Now
@@ -1167,77 +1142,52 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* Provider Services */}
+                      {/* Popular Services */}
                       <div className="p-4">
                         <div className="flex items-center justify-between mb-3">
-                          <h5 className="text-sm font-semibold text-gray-800">Services Offered</h5>
-                          {provider.services && provider.services.length > 3 && (
-                            <span className="text-xs text-gray-500">
-                              +{provider.services.length - 3} more
-                            </span>
-                          )}
+                          <h5 className="text-sm font-semibold text-gray-800">Popular Services</h5>
+                          <span className="text-xs text-gray-500">
+                            {category.estimatedDuration}
+                          </span>
                         </div>
                         
-                        {provider.services && provider.services.length > 0 ? (
-                          <div className="space-y-2">
-                            {provider.services.slice(0, 3).map((service: ProviderService) => (
-                              <Link 
-                                key={service._id} 
-                                href={`/booking/form/${service._id}`}
-                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer border border-transparent hover:border-orange-200"
-                              >
-                                <div className="flex-1">
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-medium text-gray-900 capitalize">
-                                      {service.title}
-                                    </span>
-                                    <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full capitalize">
-                                      {service.category}
-                                    </span>
-                                  </div>
-                                  <p className="text-xs text-gray-600 mt-1 truncate">
-                                    {service.description}
-                                  </p>
-                                </div>
-                                <div className="text-right ml-2">
-                                  <div className="text-sm font-semibold text-orange-600">
-                                    KES {service.price.toLocaleString()}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    {service.priceType === 'hourly' ? '/hr' : service.priceType === 'fixed' ? 'fixed' : 'quote'}
-                                  </div>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-1">
-                            {provider.providerProfile?.skills?.slice(0, 3).map((skill: string, idx: number) => (
-                              <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                                {skill}
-                              </span>
-                            ))}
-                            {provider.providerProfile?.skills?.length > 3 && (
-                              <span className="text-xs text-gray-500">+{provider.providerProfile.skills.length - 3} more</span>
-                            )}
-                          </div>
-                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                          {category.popularServices.slice(0, 4).map((service, index) => (
+                            <div 
+                              key={index}
+                              className="p-2 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer border border-transparent hover:border-orange-200"
+                              onClick={() => router.push(`/book-service?category=${category.id}`)}
+                            >
+                              <div className="text-sm font-medium text-gray-900">
+                                {service}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="mt-3 text-center">
+                          <button
+                            onClick={() => router.push(`/book-service?category=${category.id}`)}
+                            className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                          >
+                            View all {category.name.toLowerCase()} services →
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    ))
-                  ) : (
-                    // Empty state when no providers
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FaUsers className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No Providers Available</h4>
-                      <p className="text-gray-600 mb-4">We're working on getting more service providers in your area.</p>
-                      <Link 
+                    </motion.div>
+                  ))}
+                  
+                  {/* Show count of additional services when there are more than 3 */}
+                  {filteredServices.length > 3 && (
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-gray-500">
+                        +{filteredServices.length - 3} more service categories available
+                      </p>
+                      <Link
                         href="/services"
-                        className="inline-flex items-center bg-orange-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+                        className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block"
                       >
-                        Browse Services
+                        View all services →
                       </Link>
                     </div>
                   )}
@@ -1245,11 +1195,11 @@ export default function DashboardPage() {
                 
                 <div className="mt-6 text-center">
                   <Link 
-                    href="/providers"
+                    href="/book-service"
                     className="inline-flex items-center bg-orange-100 text-orange-700 px-6 py-3 rounded-xl font-medium hover:bg-orange-200 transition-all duration-200"
                   >
-                    <FaUsers className="mr-2 h-4 w-4" />
-                    Browse All Providers
+                    <FaCalendarAlt className="mr-2 h-4 w-4" />
+                    Book Any Service
                   </Link>
                 </div>
               </div>
@@ -1528,6 +1478,117 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+
+        {/* Featured Providers */}
+        {RoleManager.isClient(user.userType) && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Featured Providers</h2>
+                <p className="text-gray-600">Top-rated service providers in your area</p>
+              </div>
+              <Link 
+                href="/providers" 
+                className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center"
+              >
+                View All <FaArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+            </div>
+            
+            {loadingProviders ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, index) => (
+                  <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-pulse">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-full"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredProviders.slice(0, 3).map((provider, index) => (
+                  <motion.div
+                    key={provider._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-orange-200"
+                  >
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 relative">
+                        <SafeImage
+                          src={provider.profilePicture || ''}
+                          alt={provider.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover rounded-full"
+                          fallbackIcon={
+                            <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-xl">
+                                {provider.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          }
+                        />
+                      </div>
+                      
+                      <h3 className="font-semibold text-lg text-gray-900 mb-1">
+                        {provider.providerProfile?.businessName || provider.name}
+                      </h3>
+                      
+                      <p className="text-sm text-gray-600 mb-3">
+                        {provider.providerProfile?.experience || 'Experienced professional'}
+                      </p>
+                      
+                      <div className="flex items-center justify-center space-x-4 mb-4">
+                        <div className="flex items-center">
+                          <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
+                          <span className="text-sm font-medium text-gray-700">
+                            {provider.providerProfile?.rating || 4.5}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {provider.providerProfile?.completedJobs || 0} jobs
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-center mb-6">
+                        <span className="text-lg font-bold text-orange-600">
+                          Service rates vary
+                        </span>
+                      </div>
+                      
+                      <Link
+                        href={`/providers/${provider._id}`}
+                        className="w-full bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors flex items-center justify-center"
+                      >
+                        <FaEye className="mr-2 h-4 w-4" />
+                        View Profile
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+            
+            {/* Show count of additional providers available */}
+            {!loadingProviders && featuredProviders.length > 3 && (
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500">
+                  +{featuredProviders.length - 3} more providers available
+                </p>
+                <Link
+                  href="/providers"
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block"
+                >
+                  View all providers →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Provider Status Alert */}
         {user.userType === 'provider' && user.providerStatus !== 'approved' && (

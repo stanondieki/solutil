@@ -86,6 +86,60 @@ const createProviderService = async (provider, service) => {
   }
 };
 
+// @desc    Get featured providers
+// @route   GET /api/providers/featured
+// @access  Private (for clients)
+router.get('/featured', protect, catchAsync(async (req, res, next) => {
+  const { limit = 6 } = req.query;
+
+  // Get featured providers - those with highest ratings and most completed jobs
+  const providers = await User.find({
+    userType: 'provider',
+    providerStatus: 'approved'
+  })
+  .select('name email profilePicture avatar providerProfile providerStatus createdAt')
+  .sort({ 
+    'providerProfile.rating': -1, 
+    'providerProfile.completedJobs': -1,
+    createdAt: -1 
+  })
+  .limit(parseInt(limit));
+
+  // Map providers to include enhanced data
+  const featuredProviders = providers.map(provider => {
+    const providerInfo = provider.providerProfile || {};
+    
+    return {
+      _id: provider._id,
+      name: provider.name,
+      email: provider.email,
+      profilePicture: provider.avatar?.url || provider.profilePicture || null,
+      providerProfile: {
+        businessName: providerInfo.businessName || provider.name,
+        experience: providerInfo.experience || 'Experienced professional',
+        skills: providerInfo.skills || [],
+        hourlyRate: providerInfo.hourlyRate || 1500,
+        availability: providerInfo.availability || {},
+        serviceAreas: providerInfo.serviceAreas || [],
+        bio: providerInfo.bio || '',
+        completedJobs: providerInfo.completedJobs || 0,
+        rating: providerInfo.rating || 4.5,
+        reviewCount: providerInfo.reviewCount || 0,
+        services: providerInfo.services || []
+      },
+      services: [],
+      providerStatus: provider.providerStatus,
+      createdAt: provider.createdAt
+    };
+  });
+
+  res.status(200).json({
+    success: true,
+    count: featuredProviders.length,
+    providers: featuredProviders
+  });
+}));
+
 // @desc    Get all approved providers
 // @route   GET /api/providers
 // @access  Private (for clients to see providers)
@@ -172,6 +226,74 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
     total,
     totalPages: Math.ceil(total / limitNum),
     currentPage: pageNum,
+    data: {
+      providers: mappedProviders
+    }
+  });
+}));
+
+// @desc    Get featured providers
+// @route   GET /api/providers/featured
+// @access  Private (for clients to see featured providers)
+router.get('/featured', protect, catchAsync(async (req, res, next) => {
+  const { limit = 6 } = req.query;
+
+  // Get top-rated approved providers
+  const providers = await User.find({ 
+    userType: 'provider', 
+    providerStatus: 'approved',
+    'providerProfile.rating': { $gte: 4.0 } // Only featured providers with good ratings
+  })
+    .select('name email profilePicture avatar providerProfile providerStatus createdAt')
+    .sort({ 
+      'providerProfile.rating': -1, 
+      'providerProfile.completedJobs': -1,
+      createdAt: -1 
+    })
+    .limit(parseInt(limit));
+
+  // Map providers to include enhanced data and their services
+  const mappedProviders = await Promise.all(providers.map(async (provider) => {
+    const providerInfo = provider.providerProfile || {};
+    
+    // Fetch provider's services from ProviderService model
+    let providerServices = [];
+    try {
+      providerServices = await ProviderService.find({
+        providerId: provider._id,
+        isActive: true
+      }).select('title description category price priceType duration images').limit(3); // Limit for featured view
+    } catch (error) {
+      console.error(`Error fetching services for provider ${provider._id}:`, error);
+    }
+    
+    return {
+      _id: provider._id,
+      name: provider.name,
+      email: provider.email,
+      profilePicture: provider.avatar?.url || provider.profilePicture || null,
+      providerProfile: {
+        businessName: providerInfo.businessName || provider.name,
+        experience: providerInfo.experience || 'Experienced professional',
+        skills: providerInfo.skills || [],
+        hourlyRate: providerInfo.hourlyRate || 1500,
+        availability: providerInfo.availability || {},
+        serviceAreas: providerInfo.serviceAreas || [],
+        bio: providerInfo.bio || 'Professional service provider',
+        completedJobs: providerInfo.completedJobs || 0,
+        rating: providerInfo.rating || 4.5,
+        reviewCount: providerInfo.reviewCount || 0,
+        services: providerInfo.services || []
+      },
+      services: providerServices,
+      providerStatus: provider.providerStatus,
+      createdAt: provider.createdAt
+    };
+  }));
+
+  res.status(200).json({
+    status: 'success',
+    results: mappedProviders.length,
     data: {
       providers: mappedProviders
     }

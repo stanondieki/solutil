@@ -77,7 +77,7 @@ const services = [
     title: 'Carpentry Services',
     image: '/servicetools/carpentrytools.png',
     description: 'Custom woodwork and furniture solutions',
-    price: 'From KES 2,500',
+    price: 'From KES 2,000',
     color: 'from-amber-600 to-orange-600',
     bgColor: 'from-amber-50 to-orange-100',
     features: [
@@ -96,7 +96,7 @@ const services = [
     title: 'Painting Services',
     image: '/servicetools/painting.png',
     description: 'Interior and exterior painting services',
-    price: 'From KES 2,000',
+    price: 'From KES 2,500',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'from-purple-50 to-pink-100',
     features: [
@@ -285,7 +285,7 @@ export default function ServicesPage() {
 
                     <div className="flex flex-col sm:flex-row gap-5">
                       <Link
-                        href={`/booking?service=${service.title.toLowerCase()}`}
+                        href={`/book-service?service=${service.id}`}
                         className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-center px-6 py-4 rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 font-black text-lg shadow-xl"
                       >
                         Book {service.title}

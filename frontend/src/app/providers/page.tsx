@@ -397,23 +397,21 @@ export default function ProvidersPage() {
 
                 {/* Actions */}
                 <div className="p-6 pt-0 space-y-2">
-                  {/* Primary Action - Book Now */}
+                  {/* Primary Action - View Profile */}
                   <Link
-                    href={providerServices.length > 0 
-                      ? `/booking/form/${providerServices[0]._id}` 
-                      : `/provider/${provider._id}`}
+                    href={`/provider/${provider._id}`}
                     className="w-full bg-orange-600 text-white py-2 rounded-xl font-medium hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
                   >
-                    <span>Book Now</span>
+                    <span>View Profile</span>
                     <FaArrowRight className="text-sm" />
                   </Link>
                   
-                  {/* Secondary Action - View Profile */}
+                  {/* Secondary Action - Book Service */}
                   <Link
-                    href={`/provider/${provider._id}`}
+                    href="/book-service"
                     className="w-full bg-gray-100 text-gray-700 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
                   >
-                    <span>View Profile</span>
+                    <span>Book Service</span>
                   </Link>
                 </div>
               </motion.div>
