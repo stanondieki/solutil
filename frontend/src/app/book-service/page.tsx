@@ -19,6 +19,7 @@ type PaystackConfig = {
   email: string
   amount: number
   currency: string
+  reference?: string
   callback: (response: PaystackResponse) => void
   onClose: () => void
   metadata?: Record<string, any>
@@ -226,7 +227,7 @@ interface BookingData {
   urgency: 'normal' | 'urgent' | 'emergency'
   budget: { min: number; max: number }
   paymentTiming: 'pay-now' | 'pay-after' | null
-  paymentMethod: 'card' | 'mobile-money' | null
+  paymentMethod: 'card' | 'mobile-money' | 'mpesa' | null
 }
 
 const serviceAreas = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
@@ -356,36 +357,54 @@ function BookServicePageContent() {
     return Math.round(basePrice * urgencyMultiplier * providerMultiplier)
   }
 
-  const handlePaystackPayment = async () => {
+  const handlePaystackPayment = async (bookingId: string) => {
     try {
       setLoading(true)
-      const PaystackPop = await initializePaystack()
-      const amount = calculateTotalAmount() * 100 // Convert to kobo
+      const amount = calculateTotalAmount()
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+      const token = localStorage.getItem('authToken')
 
+      // Initialize payment with backend
+      const initResponse = await fetch(`${BACKEND_URL}/api/payments/initialize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          bookingId: bookingId,
+          amount: amount,
+          email: user?.email || ''
+        })
+      })
+
+      const initResult = await initResponse.json()
+
+      if (!initResponse.ok) {
+        throw new Error(initResult.message || 'Payment initialization failed')
+      }
+
+      // Use Paystack popup with backend-generated data
+      const PaystackPop = await initializePaystack()
+      
       const paymentData: PaystackConfig = {
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_your_public_key',
         email: user?.email || '',
-        amount: amount,
-        currency: 'KES',
-        callback: (response: PaystackResponse) => {
+        amount: initResult.data.amount,
+        currency: 'NGN',
+        reference: initResult.data.reference,
+        callback: async (response: PaystackResponse) => {
           console.log('Payment successful:', response)
-          handleBookingConfirmation(response.reference)
+          await verifyPayment(response.reference, bookingId)
         },
         onClose: () => {
           console.log('Payment cancelled')
           setLoading(false)
-        },
-        metadata: {
-          bookingId: Date.now().toString(),
-          category: bookingData.category?.name,
-          providersNeeded: bookingData.providersNeeded,
-          paymentTiming: bookingData.paymentTiming,
-          paymentMethod: bookingData.paymentMethod
         }
       }
 
       // Configure STK Push for mobile money
-      if (bookingData.paymentMethod === 'mobile-money') {
+      if (bookingData.paymentMethod === 'mobile-money' || bookingData.paymentMethod === 'mpesa') {
         paymentData.channels = ['mobile_money']
       }
 
@@ -393,8 +412,48 @@ function BookServicePageContent() {
       handler.openIframe()
     } catch (error) {
       console.error('Payment initialization failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Payment setup failed'
+      alert(`Payment failed: ${errorMessage}. Please try again.`)
       setLoading(false)
-      // Show error message to user
+    }
+  }
+
+  const verifyPayment = async (reference: string, bookingId: string) => {
+    try {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
+      const token = localStorage.getItem('authToken')
+
+      const verifyResponse = await fetch(`${BACKEND_URL}/api/payments/verify/${reference}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      const verifyResult = await verifyResponse.json()
+
+      if (verifyResponse.ok && verifyResult.status === 'success') {
+        console.log('✅ Payment verified successfully:', verifyResult.data)
+        
+        // Show success message
+        alert(`🎉 Payment Successful!
+
+Booking Number: ${verifyResult.data.booking.bookingNumber}
+Payment Status: ${verifyResult.data.booking.payment.status}
+Amount Paid: KES ${verifyResult.data.transaction.amount / 100}
+
+Your booking has been confirmed and you'll receive an email confirmation shortly.`)
+
+        // Redirect to bookings page
+        window.location.href = '/bookings'
+      } else {
+        throw new Error(verifyResult.message || 'Payment verification failed')
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error)
+      alert(`Payment verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -403,33 +462,78 @@ function BookServicePageContent() {
       setLoading(true)
       
       const bookingPayload = {
-        ...bookingData,
-        selectedProviders,
-        location: locationSharing.location,
-        paymentReference,
+        category: bookingData.category,
+        date: bookingData.date,
+        time: bookingData.time,
+        location: {
+          area: bookingData.location?.area || "Nairobi",
+          address: bookingData.location?.address || "",
+          coordinates: locationSharing.location ? {
+            lat: locationSharing.location.latitude,
+            lng: locationSharing.location.longitude
+          } : {
+            lat: -1.2921,
+            lng: 36.8219
+          }
+        },
+        description: bookingData.description,
+        urgency: bookingData.urgency,
+        providersNeeded: bookingData.providersNeeded,
+        paymentTiming: bookingData.paymentTiming,
+        paymentMethod: bookingData.paymentMethod,
+        selectedProvider: selectedProviders[0] || null,
         totalAmount: calculateTotalAmount(),
-        status: bookingData.paymentTiming === 'pay-now' ? 'confirmed' : 'pending_payment',
-        createdAt: new Date().toISOString()
+        paymentReference
       }
 
-      console.log('🎉 Confirming booking...', bookingPayload)
+      console.log('🎉 Creating booking...', bookingPayload)
       
-      // Here you would make the API call to your backend
-      // const response = await fetch('/api/bookings', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(bookingPayload)
-      // })
+      // Make the API call to create booking
+      const token = localStorage.getItem('authToken')
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
       
-      // For now, just log and show success
-      alert(`Booking confirmed! ${bookingData.paymentTiming === 'pay-now' ? 'Payment processed successfully.' : 'You will receive a payment link when service is completed.'}`)
+      const response = await fetch(`${BACKEND_URL}/api/bookings/simple`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bookingPayload)
+      })
       
-      // Redirect to booking confirmation page or dashboard
-      // router.push('/dashboard/bookings')
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Booking creation failed')
+      }
+      
+      console.log('✅ Booking created successfully:', result.data.booking)
+      
+      // Handle payment flow
+      if (bookingData.paymentTiming === 'pay-now') {
+        console.log('🔄 Initiating payment flow...')
+        // Start payment process
+        await handlePaystackPayment(result.data.booking.id)
+        return
+      }
+      
+      // For pay-later bookings, show success message and redirect
+      alert(`🎉 Booking Confirmed!
+
+Booking Number: ${result.data.booking.bookingNumber}
+Service: ${bookingData.category?.name}
+Date: ${bookingData.date} at ${bookingData.time}
+Status: ${result.data.booking.status}
+
+📧 You will receive a payment link when service is completed.`)
+      
+      // Redirect to bookings page to see the booking
+      window.location.href = '/bookings'
       
     } catch (error) {
-      console.error('Booking confirmation failed:', error)
-      alert('Booking failed. Please try again.')
+      console.error('❌ Booking creation failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`Booking failed: ${errorMessage}. Please try again.`)
     } finally {
       setLoading(false)
     }
@@ -893,11 +997,11 @@ function BookServicePageContent() {
       case 'details':
         if (!bookingData.date) newErrors.date = 'Please select a date'
         if (!bookingData.time) newErrors.time = 'Please select a time'
-        if (bookingData.duration < 1) newErrors.duration = 'Duration must be at least 1 hour'
-        if (!bookingData.description.trim()) newErrors.description = 'Please describe what you need'
+        // Description is now optional - no validation required
+        // Duration has default value, no validation needed
         break
       case 'location':
-        if (!bookingData.location.address.trim()) newErrors.address = 'Please enter your address'
+        // Address is now optional - area is required for provider matching
         if (!bookingData.location.area) newErrors.area = 'Please select your area'
         break
     }
@@ -1149,12 +1253,12 @@ function BookServicePageContent() {
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
-                        Tell us more about your specific needs
+                        Tell us more about your specific needs <span className="text-gray-500 font-normal">(Optional)</span>
                       </label>
                       <textarea
                         value={bookingData.description}
                         onChange={(e) => setBookingData(prev => ({ ...prev, description: e.target.value }))}
-                        placeholder={`Describe what you need done for ${bookingData.category?.name?.toLowerCase()} service...
+                        placeholder={`Optional: Describe what you need done for ${bookingData.category?.name?.toLowerCase()} service...
 
 Examples:
 - Specific repairs needed
@@ -1162,11 +1266,10 @@ Examples:
 - Materials you have/need
 - Any special requirements
 - Access details (stairs, parking, etc.)`}
-                        rows={5}
+                        rows={4}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
                       />
-                      <p className="text-xs text-gray-500 mt-1">More details help us match you with the right professional and provide accurate quotes</p>
-                      {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description}</div>}
+                      <p className="text-xs text-gray-500 mt-1">Adding details helps us match you with the right professional, but you can book without them</p>
                     </div>
 
                     {/* Urgency Level */}
@@ -1331,7 +1434,7 @@ Examples:
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
-                          Additional Location Details
+                          Additional Location Details <span className="text-gray-500 font-normal">(Optional)</span>
                         </label>
                         <textarea
                           value={bookingData.location.address}
@@ -1339,7 +1442,7 @@ Examples:
                             ...prev, 
                             location: { ...prev.location, address: e.target.value } 
                           }))}
-                          placeholder="Please provide more details to help our professionals find you:
+                          placeholder="Optional: Provide more details to help our professionals find you:
 
 🏢 Building name or house number
 🚪 Apartment/office number  
@@ -1347,11 +1450,10 @@ Examples:
 🅿️ Parking instructions
 🚶 Gate access or security info
 📋 Any special directions"
-                          rows={4}
+                          rows={3}
                           className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Clear directions help professionals arrive on time and prepared</p>
-                        {errors.address && <div className="text-red-500 text-sm mt-1">{errors.address}</div>}
+                        <p className="text-xs text-gray-500 mt-1">Adding details helps professionals find you, but your area selection is sufficient to book</p>
                       </div>
 
                       {/* Location Status */}
@@ -2016,7 +2118,8 @@ Examples:
                         }
                         
                         if (bookingData.paymentTiming === 'pay-now') {
-                          handlePaystackPayment()
+                          // For pay-now, create booking first then handle payment
+                          handleBookingConfirmation()
                         } else {
                           // Pay after service - confirm booking without payment
                           handleBookingConfirmation()

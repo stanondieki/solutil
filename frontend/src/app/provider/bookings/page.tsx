@@ -53,7 +53,8 @@ interface Client {
 
 interface Service {
   _id: string
-  title: string
+  title?: string
+  name?: string  // Added for simplified bookings
   category: string
   duration?: number
   price?: number
@@ -63,8 +64,9 @@ interface Service {
 interface Booking {
   _id: string
   bookingNumber: string
+  serviceCategory?: string  // Added for simplified bookings
   client: Client
-  service: Service
+  service: Service | null  // Made nullable for simplified bookings
   scheduledDate: string
   scheduledTime: {
     start: string
@@ -164,6 +166,15 @@ const BookingsPage: React.FC = () => {
     loadBookings()
   }, [statusFilter, dateFilter])
 
+  // Auto-refresh bookings every 30 seconds for real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadBookings()
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
+  }, [statusFilter, dateFilter])
+
   const loadBookings = async () => {
     setLoading(true)
     try {
@@ -237,7 +248,7 @@ const BookingsPage: React.FC = () => {
   const filteredBookings = bookings.filter(booking => {
     const matchesSearch = 
       getClientName(booking.client).toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (booking.service?.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (booking.service?.title || booking.service?.name || booking.serviceCategory || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (booking.bookingNumber || '').toLowerCase().includes(searchQuery.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter
@@ -279,7 +290,11 @@ const BookingsPage: React.FC = () => {
 
   const updateBookingStatus = async (bookingId: string, newStatus: Booking['status']) => {
     try {
+      console.log('🔄 Updating booking status:', { bookingId, newStatus });
+      
       const response = await providerBookingsAPI.updateBookingStatus(bookingId, newStatus, '')
+      
+      console.log('📊 Status update response:', response);
       
       if (response.status === 'success') {
         setBookings(prev => prev.map(booking => 
@@ -290,10 +305,10 @@ const BookingsPage: React.FC = () => {
         alert(getSuccessMessage('Booking status update'))
         loadBookings() // Refresh stats
       } else {
-        throw new Error('Failed to update booking status')
+        throw new Error(response.message || 'Failed to update booking status')
       }
     } catch (error) {
-      console.error('Error updating booking status:', error)
+      console.error('❌ Error updating booking status:', error)
       alert(handleAPIError(error))
     }
   }
@@ -524,7 +539,7 @@ const BookingsPage: React.FC = () => {
                           {statusInfo.label}
                         </span>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-1">{booking.service?.title || 'Service'}</h3>
+                      <h3 className="font-medium text-gray-900 mb-1">{booking.service?.title || booking.service?.name || booking.serviceCategory || 'Service'}</h3>
                       <p className="text-sm text-gray-600 mb-2">{getClientName(booking.client)}</p>
                       <p className="text-xs text-gray-500 flex items-center">
                         <FaMapMarkerAlt className="h-3 w-3 mr-1" />
@@ -716,7 +731,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1">Service</p>
-              <p className="text-sm text-gray-600">{booking.service.title}</p>
+              <p className="text-sm text-gray-600">{booking.service?.title || booking.service?.name || booking.serviceCategory || 'Service'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1">Date & Time</p>
@@ -936,16 +951,16 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Service</p>
-                      <p className="text-sm text-gray-600">{booking.service.title}</p>
+                      <p className="text-sm text-gray-600">{booking.service?.title || booking.service?.name || booking.serviceCategory || 'Service'}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Category</p>
-                      <p className="text-sm text-gray-600 capitalize">{booking.service.category}</p>
+                      <p className="text-sm text-gray-600 capitalize">{booking.service?.category || 'General'}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 mb-1">Duration</p>
                       <p className="text-sm text-gray-600">
-                        {booking.service.duration 
+                        {booking.service?.duration 
                           ? `${Math.floor(booking.service.duration / 60)}h ${booking.service.duration % 60}m`
                           : `${booking.scheduledTime.start} - ${booking.scheduledTime.end}`
                         }

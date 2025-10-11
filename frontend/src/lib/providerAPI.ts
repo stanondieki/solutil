@@ -127,18 +127,34 @@ export const providerAPI = {
   // Update booking status
   updateBookingStatus: async (bookingId: string, status: string, notes?: string) => {
     try {
-      const token = localStorage.getItem('token');
+      // Try multiple token storage locations for compatibility
+      const token = localStorage.getItem('token') || 
+                   localStorage.getItem('authToken') || 
+                   sessionStorage.getItem('token') ||
+                   sessionStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('🔐 No authentication token found for status update');
+        return { success: false, error: 'No authentication token found' };
+      }
+      
+      console.log('🔄 Updating booking status:', { bookingId, status, notes });
+      
       const response = await fetch(`${API_BASE}/api/provider-bookings/${bookingId}/status`, {
-        method: 'PUT',
+        method: 'PATCH', // Changed from PUT to PATCH
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status, notes })
       });
-      return response.json();
+      
+      const result = await response.json();
+      console.log('📊 Status update response:', result);
+      
+      return result;
     } catch (error) {
-      console.error('Error updating booking status:', error);
+      console.error('❌ Error updating booking status:', error);
       return { success: false, message: 'Failed to update booking status' };
     }
   },

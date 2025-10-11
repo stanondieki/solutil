@@ -27,12 +27,13 @@ import RoleGuard from '@/components/RoleGuard'
 interface BookingDetails {
   _id: string
   bookingNumber: string
+  serviceCategory?: string  // For simplified bookings
   service: {
     _id: string
     name: string
     category: string
     description?: string
-  }
+  } | null
   provider: {
     _id: string
     name?: string
@@ -44,7 +45,7 @@ interface BookingDetails {
       email: string
       phone: string
     }
-  }
+  } | null
   client: {
     _id: string
     name: string
@@ -223,8 +224,8 @@ export default function BookingDetailsPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Service Information</h2>
                 <div className="space-y-3">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{booking.service?.name || 'Service'}</h3>
-                    <p className="text-gray-600 capitalize">{booking.service?.category || 'Category not specified'}</p>
+                    <h3 className="text-lg font-medium text-gray-900">{booking.service?.name || booking.serviceCategory || 'Service'}</h3>
+                    <p className="text-gray-600 capitalize">{booking.service?.category || 'General Service'}</p>
                     {booking.service?.description && (
                       <p className="text-gray-600 mt-2">{booking.service.description}</p>
                     )}
@@ -279,25 +280,25 @@ export default function BookingDetailsPage() {
                     <div>
                       <p className="text-sm text-gray-600">Provider</p>
                       <p className="font-medium text-gray-900">
-                        {booking.provider.businessName || booking.provider.name || booking.provider.user?.name || 'Provider'}
+                        {booking.provider?.businessName || booking.provider?.name || booking.provider?.user?.name || 'Provider assignment pending'}
                       </p>
                     </div>
                   </div>
-                  {(booking.provider.email || booking.provider.user?.email) && (
+                  {(booking.provider?.email || booking.provider?.user?.email) && (
                     <div className="flex items-center space-x-3">
                       <FaEnvelope className="text-orange-500 text-lg" />
                       <div>
                         <p className="text-sm text-gray-600">Email</p>
-                        <p className="font-medium text-gray-900">{booking.provider.email || booking.provider.user?.email}</p>
+                        <p className="font-medium text-gray-900">{booking.provider?.email || booking.provider?.user?.email}</p>
                       </div>
                     </div>
                   )}
-                  {(booking.provider.phone || booking.provider.user?.phone) && (
+                  {(booking.provider?.phone || booking.provider?.user?.phone) && (
                     <div className="flex items-center space-x-3">
                       <FaPhone className="text-orange-500 text-lg" />
                       <div>
                         <p className="text-sm text-gray-600">Phone</p>
-                        <p className="font-medium text-gray-900">{booking.provider.phone || booking.provider.user?.phone}</p>
+                        <p className="font-medium text-gray-900">{booking.provider?.phone || booking.provider?.user?.phone}</p>
                       </div>
                     </div>
                   )}

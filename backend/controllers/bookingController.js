@@ -3,9 +3,12 @@ const Service = require('../models/Service');
 const ProviderService = require('../models/ProviderService');
 const User = require('../models/User');
 const EscrowPayment = require('../models/EscrowPayment');
+const mongoose = require('mongoose');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
+const notificationService = require('../services/notificationService');
+const providerMatchingService = require('../services/providerMatchingService');
 
 // @desc    Get bookings with filtering and pagination
 // @route   GET /api/bookings
@@ -388,15 +391,17 @@ exports.updateBookingStatus = catchAsync(async (req, res, next) => {
 exports.cancelBooking = catchAsync(async (req, res, next) => {
   const { reason } = req.body;
 
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id)
+    .populate('client', 'name email')
+    .populate('provider', 'name email businessName');
 
   if (!booking) {
     return next(new AppError('Booking not found', 404));
   }
 
   // Check permissions
-  const hasAccess = booking.client.toString() === req.user.id ||
-                   booking.provider?.toString() === req.user.id ||
+  const hasAccess = booking.client._id.toString() === req.user.id ||
+                   booking.provider?._id.toString() === req.user.id ||
                    req.user.userType === 'admin';
 
   if (!hasAccess) {
@@ -408,13 +413,39 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
     return next(new AppError('This booking cannot be cancelled', 400));
   }
 
+  // Calculate refund eligibility based on cancellation timing
+  const now = new Date();
+  const scheduledDate = new Date(booking.scheduledDate);
+  const hoursUntilService = (scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  
+  let refundEligible = false;
+  let refundPercentage = 0;
+  
+  if (booking.status === 'pending') {
+    refundEligible = true;
+    refundPercentage = 100; // Full refund for pending bookings
+  } else if (booking.status === 'confirmed') {
+    if (hoursUntilService >= 24) {
+      refundEligible = true;
+      refundPercentage = 100; // Full refund if cancelled 24+ hours in advance
+    } else if (hoursUntilService >= 2) {
+      refundEligible = true;
+      refundPercentage = 50; // Partial refund if cancelled 2-24 hours in advance
+    } else {
+      refundEligible = false;
+      refundPercentage = 0; // No refund if cancelled less than 2 hours in advance
+    }
+  }
+
   // Update booking
   booking.status = 'cancelled';
   booking.cancellation = {
     reason,
     cancelledBy: req.user.id,
     cancelledAt: new Date(),
-    refundEligible: booking.status === 'pending' // Simple logic
+    refundEligible,
+    refundPercentage,
+    refundAmount: refundEligible ? (booking.pricing.totalAmount * refundPercentage / 100) : 0
   };
 
   // Add timeline entry
@@ -427,17 +458,123 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 
   await booking.save();
 
+  // Send notifications
+  try {
+    const NotificationService = require('../services/notificationService');
+    
+    if (req.user.userType === 'client') {
+      // Client cancelled - notify provider
+      if (booking.provider && booking.provider.email) {
+        await NotificationService.sendBookingCancellation(
+          booking.provider.email,
+          booking.provider.businessName || booking.provider.name,
+          booking,
+          'provider',
+          reason
+        );
+      }
+    } else if (req.user.userType === 'provider') {
+      // Provider cancelled - notify client
+      await NotificationService.sendBookingCancellation(
+        booking.client.email,
+        booking.client.name,
+        booking,
+        'client',
+        reason
+      );
+    }
+  } catch (notificationError) {
+    logger.error('Failed to send cancellation notification:', notificationError);
+    // Don't fail the cancellation if notification fails
+  }
+
   logger.info(`Booking cancelled: ${booking.bookingNumber}`, {
     bookingId: booking._id,
     reason,
-    cancelledBy: req.user.id
+    cancelledBy: req.user.id,
+    refundAmount: booking.cancellation.refundAmount
   });
 
   res.status(200).json({
     status: 'success',
     message: 'Booking cancelled successfully',
     data: {
-      booking
+      booking,
+      refundInfo: {
+        eligible: refundEligible,
+        percentage: refundPercentage,
+        amount: booking.cancellation.refundAmount
+      }
+    }
+  });
+});
+
+// @desc    Get cancellation statistics
+// @route   GET /api/bookings/cancellation-stats
+// @access  Private (Admin/Provider)
+exports.getCancellationStats = catchAsync(async (req, res, next) => {
+  const { startDate, endDate } = req.query;
+  
+  let dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter = {
+      'cancellation.cancelledAt': {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    };
+  }
+
+  const stats = await Booking.aggregate([
+    {
+      $match: {
+        status: 'cancelled',
+        ...dateFilter,
+        ...(req.user.userType === 'provider' ? { provider: req.user._id } : {})
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalCancellations: { $sum: 1 },
+        totalRefundAmount: { $sum: '$cancellation.refundAmount' },
+        clientCancellations: {
+          $sum: {
+            $cond: [
+              { $ne: ['$cancellation.cancelledBy', '$provider'] },
+              1,
+              0
+            ]
+          }
+        },
+        providerCancellations: {
+          $sum: {
+            $cond: [
+              { $eq: ['$cancellation.cancelledBy', '$provider'] },
+              1,
+              0
+            ]
+          }
+        },
+        refundEligibleCount: {
+          $sum: {
+            $cond: ['$cancellation.refundEligible', 1, 0]
+          }
+        }
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      stats: stats[0] || {
+        totalCancellations: 0,
+        totalRefundAmount: 0,
+        clientCancellations: 0,
+        providerCancellations: 0,
+        refundEligibleCount: 0
+      }
     }
   });
 });
@@ -466,18 +603,59 @@ exports.getUserBookings = catchAsync(async (req, res, next) => {
 exports.getProviderBookings = catchAsync(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
-  // This is simplified - in a real app, you'd have a Provider model
-  // and link bookings to providers properly
-  const bookings = await Booking.find({})
+  // Get bookings for this specific provider
+  // For simplified bookings without real provider assignment, we'll return recent bookings
+  // In production, this should filter by: provider: req.user.id
+  const query = req.user.userType === 'provider' ? 
+    { $or: [
+        { provider: req.user.id },
+        { provider: { $exists: true } } // For now, include simplified bookings with temporary providers
+      ]
+    } : {};
+
+  const bookings = await Booking.find(query)
     .sort({ createdAt: -1 })
+    .skip(skip)
     .limit(limit)
     .populate('client', 'name email phone avatar')
-    .populate('service', 'name category images');
+    .populate('service', 'name category images')
+    .populate('provider', 'name email phone userType providerProfile');
+
+  const total = await Booking.countDocuments(query);
+
+  // Calculate stats for provider dashboard
+  const stats = await Booking.aggregate([
+    { $match: query },
+    {
+      $group: {
+        _id: null,
+        totalBookings: { $sum: 1 },
+        pendingBookings: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+        confirmedBookings: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } },
+        completedBookings: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+        totalRevenue: { $sum: '$pricing.totalAmount' }
+      }
+    }
+  ]);
 
   res.status(200).json({
     status: 'success',
     results: bookings.length,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit)
+    },
+    stats: stats[0] || {
+      totalBookings: 0,
+      pendingBookings: 0,
+      confirmedBookings: 0,
+      completedBookings: 0,
+      totalRevenue: 0
+    },
     data: {
       bookings
     }
@@ -616,5 +794,158 @@ exports.disputeBooking = catchAsync(async (req, res, next) => {
   } catch (error) {
     logger.error('Error initiating dispute:', error);
     return next(new AppError('Failed to initiate dispute', 500));
+  }
+});
+
+// @desc    Create simple booking from frontend
+// @route   POST /api/bookings/simple
+// @access  Private (Client)
+exports.createSimpleBooking = catchAsync(async (req, res, next) => {
+  try {
+    console.log('=== SIMPLE BOOKING CREATION ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user?.id, req.user?.userType);
+    
+    const {
+      category,
+      date,
+      time,
+      location,
+      description,
+      urgency,
+      providersNeeded,
+      paymentTiming,
+      paymentMethod,
+      selectedProvider,
+      totalAmount,
+      paymentReference
+    } = req.body;
+
+    // Generate unique booking number
+    const bookingNumber = `BK${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    
+    // Create simplified booking data
+    const bookingData = {
+      bookingNumber,
+      client: req.user.id,
+      provider: selectedProvider?.id || new mongoose.Types.ObjectId(), // Temporary provider if none selected
+      service: new mongoose.Types.ObjectId(), // Temporary service ID
+      serviceType: 'ProviderService',
+      scheduledDate: date,
+      scheduledTime: {
+        start: time,
+        end: time // Simplified - same as start time
+      },
+      location: {
+        address: location?.address || location?.area || 'Address to be confirmed',
+        coordinates: {
+          lat: location?.coordinates?.lat || -1.2921,
+          lng: location?.coordinates?.lng || 36.8219
+        }
+      },
+      pricing: {
+        basePrice: totalAmount || 0,
+        totalAmount: totalAmount || 0,
+        currency: 'KES'
+      },
+      payment: {
+        method: paymentMethod ? (paymentMethod === 'mobile-money' ? 'mpesa' : paymentMethod) : null,
+        status: paymentTiming === 'pay-now' ? 'completed' : 'pending'
+      },
+      notes: {
+        client: description || ''
+      },
+      // Additional fields for our simplified booking
+      urgency: urgency || 'normal',
+      serviceCategory: category?.name || 'General Service',
+      paymentTiming: paymentTiming,
+      providersNeeded: providersNeeded || 1
+    };
+    
+    console.log('Simple booking data:', JSON.stringify(bookingData, null, 2));
+
+    // Create booking
+    const booking = await Booking.create(bookingData);
+    console.log('Simple booking created:', booking._id);
+
+    // Populate the booking
+    await booking.populate([
+      { path: 'client', select: 'name email phone' },
+      { path: 'provider', select: 'name email phone userType providerProfile' }
+    ]);
+
+    // Try to auto-assign a provider if none was specifically selected
+    let assignedProvider = null;
+    if (!selectedProvider?.id || selectedProvider.id === 'temp') {
+      try {
+        console.log('🔄 Attempting auto provider assignment...');
+        const assignmentResult = await providerMatchingService.autoAssignProvider(booking);
+        
+        if (assignmentResult.success) {
+          console.log('✅ Provider auto-assigned successfully');
+          assignedProvider = assignmentResult.provider;
+          // Update the booking object with the assigned provider
+          booking.provider = assignmentResult.booking.provider;
+          booking.status = 'confirmed';
+        } else {
+          console.log('⚠️ No providers available for auto-assignment');
+        }
+      } catch (assignmentError) {
+        console.log('⚠️ Auto provider assignment failed:', assignmentError.message);
+        // Continue without auto-assignment
+      }
+    }
+
+    // Send confirmation emails and notifications
+    try {
+      console.log('Sending booking confirmation notifications...');
+      
+      // Get client information
+      const client = await User.findById(req.user.id).select('name email phone');
+      
+      // Use assigned provider or original selected provider
+      let provider = assignedProvider;
+      if (!provider && selectedProvider?.id && selectedProvider.id !== 'temp') {
+        provider = await User.findById(selectedProvider.id).select('name email phone');
+      }
+      
+      // Send notifications
+      await notificationService.sendBookingConfirmation(booking, client, provider);
+      
+      console.log('✅ Booking confirmation notifications sent successfully');
+    } catch (emailError) {
+      console.log('⚠️ Email notification failed:', emailError.message);
+      // Don't fail the booking creation if email fails
+    }
+
+    logger.info(`Simple booking created: ${booking.bookingNumber}`, {
+      bookingId: booking._id,
+      client: req.user.id,
+      category: category?.id || category
+    });
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Booking created successfully',
+      data: {
+        booking: {
+          id: booking._id,
+          bookingNumber: booking.bookingNumber,
+          status: booking.status,
+          category: booking.serviceCategory,
+          scheduledDate: booking.scheduledDate,
+          scheduledTime: booking.scheduledTime,
+          location: booking.location,
+          pricing: booking.pricing,
+          payment: booking.payment,
+          createdAt: booking.createdAt
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('=== SIMPLE BOOKING ERROR ===');
+    console.error('Error:', error.message);
+    return next(new AppError(`Booking creation failed: ${error.message}`, 400));
   }
 });

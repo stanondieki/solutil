@@ -4,12 +4,14 @@ const {
   getBookings,
   getBooking,
   createBooking,
+  createSimpleBooking,
   updateBookingStatus,
   cancelBooking,
   getUserBookings,
   getProviderBookings,
   completeBooking,
-  disputeBooking
+  disputeBooking,
+  getCancellationStats
 } = require('../controllers/bookingController');
 const { protect, restrictTo } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
@@ -29,7 +31,28 @@ router.get('/', [
 
 router.get('/my-bookings', getUserBookings);
 
+router.get('/cancellation-stats', restrictTo('admin', 'provider'), getCancellationStats);
+
 router.get('/provider-bookings', restrictTo('provider'), getProviderBookings);
+
+// Simple booking endpoint for frontend
+router.post('/simple', [
+  body('category.id').notEmpty().withMessage('Service category is required'),
+  body('date').isISO8601().withMessage('Valid date is required'),
+  body('time').notEmpty().withMessage('Time is required'),
+  body('location.area').notEmpty().withMessage('Service area is required'),
+  body('paymentTiming').isIn(['pay-now', 'pay-after']).withMessage('Valid payment timing is required'),
+  body('paymentMethod').custom((value, { req }) => {
+    if (req.body.paymentTiming === 'pay-now' && !value) {
+      throw new Error('Payment method is required when paying now');
+    }
+    if (value && !['card', 'mobile-money'].includes(value)) {
+      throw new Error('Valid payment method is required');
+    }
+    return true;
+  }),
+  validate
+], createSimpleBooking);
 
 router.get('/:id', getBooking);
 

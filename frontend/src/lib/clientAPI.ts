@@ -299,11 +299,11 @@ export const clientAPI = {
   },
 
   // Cancel booking
-  cancelBooking: async (bookingId: string, reason?: string) => {
+  cancelBooking: async (bookingId: string, reason: string) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_BASE}/api/bookings/${bookingId}/cancel`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE}/api/bookings/${bookingId}`, {
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -311,10 +311,57 @@ export const clientAPI = {
         body: JSON.stringify({ reason })
       });
       
-      return response.json();
+      const result = await response.json();
+      
+      if (!response.ok) {
+        return { 
+          success: false, 
+          message: result.message || 'Failed to cancel booking' 
+        };
+      }
+      
+      return {
+        success: true,
+        data: result.data,
+        message: result.message || 'Booking cancelled successfully'
+      };
     } catch (error) {
       console.error('Error canceling booking:', error);
       return { success: false, message: 'Failed to cancel booking' };
+    }
+  },
+
+  // Get user bookings
+  getUserBookings: async (page = 1, limit = 10) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE}/api/bookings/my-bookings?page=${page}&limit=${limit}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        return { 
+          success: false, 
+          message: result.message || 'Failed to fetch bookings',
+          bookings: []
+        };
+      }
+      
+      return {
+        success: true,
+        bookings: result.data?.bookings || [],
+        totalPages: result.totalPages || 1,
+        currentPage: result.currentPage || 1
+      };
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+      return { success: false, message: 'Failed to fetch bookings', bookings: [] };
     }
   }
 };

@@ -142,7 +142,15 @@ const bookingSchema = new mongoose.Schema({
       ref: 'User'
     },
     cancelledAt: Date,
-    refundEligible: Boolean
+    refundEligible: Boolean,
+    refundPercentage: {
+      type: Number,
+      default: 0
+    },
+    refundAmount: {
+      type: Number,
+      default: 0
+    }
   },
   review: {
     type: mongoose.Schema.Types.ObjectId,
