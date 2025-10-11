@@ -11,6 +11,19 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.live
+*/.env
+*/.env.local
+*/.env.production
+*/.env.live
+
+# Sensitive configuration files
+azure-env-vars.json
+config/production.json
+config/secrets.json
+**/secrets/**
+**/credentials/**
 
 # Logs
 *.log

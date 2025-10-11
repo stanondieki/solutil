@@ -7,7 +7,7 @@ Your real admin account is now live and ready to manage your Solutil platform!
 ## 🔐 **Admin Login Credentials**
 
 ### **Email:** `infosolu31@gmail.com`
-### **Password:** `AdminSolu2024!`
+### **Password:** `[Contact admin for current password]`
 
 ## 🌐 **Access Your Admin Panel**
 

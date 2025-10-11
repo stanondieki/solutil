@@ -6,6 +6,30 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleGuard from '@/components/RoleGuard'
 import LocationSharing from '@/components/LocationSharing'
+
+// Paystack types
+type PaystackResponse = {
+  reference: string
+  message: string
+  status: string
+}
+
+type PaystackConfig = {
+  key: string
+  email: string
+  amount: number
+  currency: string
+  callback: (response: PaystackResponse) => void
+  onClose: () => void
+  metadata?: Record<string, any>
+  channels?: string[]
+}
+
+type PaystackPopup = {
+  setup: (config: PaystackConfig) => {
+    openIframe: () => void
+  }
+}
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -28,6 +52,17 @@ import {
   FaEnvelope,
   FaFileAlt
 } from 'react-icons/fa'
+
+// TypeScript declarations for Paystack
+declare global {
+  interface Window {
+    PaystackPop: {
+      setup: (options: any) => {
+        openIframe: () => void
+      }
+    }
+  }
+}
 
 // Fixed Service Pricing (no hourly rates)
 const SERVICE_PRICING: Record<string, number> = {
@@ -190,6 +225,8 @@ interface BookingData {
   description: string
   urgency: 'normal' | 'urgent' | 'emergency'
   budget: { min: number; max: number }
+  paymentTiming: 'pay-now' | 'pay-after' | null
+  paymentMethod: 'card' | 'mobile-money' | null
 }
 
 const serviceAreas = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
@@ -220,7 +257,9 @@ function BookServicePageContent() {
     location: { address: '', area: '' },
     description: '',
     urgency: 'normal',
-    budget: { min: 1000, max: 5000 }
+    budget: { min: 1000, max: 5000 },
+    paymentTiming: null,
+    paymentMethod: null
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -285,6 +324,130 @@ function BookServicePageContent() {
   const handleCategorySelect = (category: ServiceCategory) => {
     setBookingData(prev => ({ ...prev, category }))
     setCurrentStep('details')
+  }
+
+  // Paystack Payment Integration Functions
+  const initializePaystack = (): Promise<PaystackPopup> => {
+    return new Promise((resolve, reject) => {
+      if ((window as any).PaystackPop) {
+        resolve((window as any).PaystackPop)
+        return
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://js.paystack.co/v1/inline.js'
+      script.onload = () => {
+        if ((window as any).PaystackPop) {
+          resolve((window as any).PaystackPop)
+        } else {
+          reject(new Error('Paystack failed to load'))
+        }
+      }
+      script.onerror = () => reject(new Error('Failed to load Paystack script'))
+      document.head.appendChild(script)
+    })
+  }
+
+  const calculateTotalAmount = () => {
+    if (!bookingData.category) return 0
+    const basePrice = getServicePrice(bookingData.category.id)
+    const urgencyMultiplier = bookingData.urgency === 'urgent' ? 1.5 : bookingData.urgency === 'emergency' ? 2 : 1
+    const providerMultiplier = bookingData.providersNeeded
+    return Math.round(basePrice * urgencyMultiplier * providerMultiplier)
+  }
+
+  const handlePaystackPayment = async () => {
+    try {
+      setLoading(true)
+      const PaystackPop = await initializePaystack()
+      const amount = calculateTotalAmount() * 100 // Convert to kobo
+
+      const paymentData: PaystackConfig = {
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_your_public_key',
+        email: user?.email || '',
+        amount: amount,
+        currency: 'KES',
+        callback: (response: PaystackResponse) => {
+          console.log('Payment successful:', response)
+          handleBookingConfirmation(response.reference)
+        },
+        onClose: () => {
+          console.log('Payment cancelled')
+          setLoading(false)
+        },
+        metadata: {
+          bookingId: Date.now().toString(),
+          category: bookingData.category?.name,
+          providersNeeded: bookingData.providersNeeded,
+          paymentTiming: bookingData.paymentTiming,
+          paymentMethod: bookingData.paymentMethod
+        }
+      }
+
+      // Configure STK Push for mobile money
+      if (bookingData.paymentMethod === 'mobile-money') {
+        paymentData.channels = ['mobile_money']
+      }
+
+      const handler = PaystackPop.setup(paymentData)
+      handler.openIframe()
+    } catch (error) {
+      console.error('Payment initialization failed:', error)
+      setLoading(false)
+      // Show error message to user
+    }
+  }
+
+  const handleBookingConfirmation = async (paymentReference?: string) => {
+    try {
+      setLoading(true)
+      
+      const bookingPayload = {
+        ...bookingData,
+        selectedProviders,
+        location: locationSharing.location,
+        paymentReference,
+        totalAmount: calculateTotalAmount(),
+        status: bookingData.paymentTiming === 'pay-now' ? 'confirmed' : 'pending_payment',
+        createdAt: new Date().toISOString()
+      }
+
+      console.log('🎉 Confirming booking...', bookingPayload)
+      
+      // Here you would make the API call to your backend
+      // const response = await fetch('/api/bookings', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(bookingPayload)
+      // })
+      
+      // For now, just log and show success
+      alert(`Booking confirmed! ${bookingData.paymentTiming === 'pay-now' ? 'Payment processed successfully.' : 'You will receive a payment link when service is completed.'}`)
+      
+      // Redirect to booking confirmation page or dashboard
+      // router.push('/dashboard/bookings')
+      
+    } catch (error) {
+      console.error('Booking confirmation failed:', error)
+      alert('Booking failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const validatePaymentStep = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!bookingData.paymentTiming) {
+      newErrors.paymentTiming = 'Please select when you would like to pay'
+    }
+    
+    if (!bookingData.paymentMethod) {
+      newErrors.paymentMethod = 'Please select a payment method'
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleStepForward = () => {
@@ -1678,56 +1841,137 @@ Examples:
                   {/* Payment Options */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">💳 Choose Your Payment Method</h3>
-                      <p className="text-gray-600">Secure payment with full buyer protection</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">💳 Payment & Timing Options</h3>
+                      <p className="text-gray-600">Choose when and how you'd like to pay for your service</p>
                     </div>
                     
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FaDollarSign className="h-8 w-8 text-white" />
+                    {/* Payment Timing Selection */}
+                    <div className="mb-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">When would you like to pay?</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button
+                          onClick={() => setBookingData(prev => ({ ...prev, paymentTiming: 'pay-now' }))}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            bookingData.paymentTiming === 'pay-now'
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 hover:border-green-300'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">💳</div>
+                            <h5 className="font-bold text-gray-900">Pay Now</h5>
+                            <p className="text-sm text-gray-600">Secure your booking immediately</p>
+                            <div className="mt-2 text-xs text-green-600 font-medium">Most Popular</div>
+                          </div>
+                        </button>
+                        
+                        <button
+                          onClick={() => setBookingData(prev => ({ ...prev, paymentTiming: 'pay-after' }))}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            bookingData.paymentTiming === 'pay-after'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-blue-300'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">🤝</div>
+                            <h5 className="font-bold text-gray-900">Pay After Service</h5>
+                            <p className="text-sm text-gray-600">Pay once service is completed</p>
+                            <div className="mt-2 text-xs text-blue-600 font-medium">Flexible Option</div>
+                          </div>
+                        </button>
                       </div>
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">🛡️ Secure Escrow Payment System</h4>
-                      <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                        Your payment is held safely until the service is completed to your satisfaction. 
-                        <strong> 100% buyer protection guaranteed.</strong>
-                      </p>
+                      {errors.paymentTiming && (
+                        <p className="mt-2 text-sm text-red-600">{errors.paymentTiming}</p>
+                      )}
+                    </div>
+
+                    {/* Payment Method Selection - Only show if payment timing is selected */}
+                    {bookingData.paymentTiming && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                          {bookingData.paymentTiming === 'pay-now' ? 'Pay Now With:' : 'Payment Method for Later:'}
+                        </h4>
+                        <div className="space-y-3">
+                          <button
+                            onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'mobile-money' }))}
+                            className={`w-full py-4 rounded-lg border-2 transition-all flex items-center justify-center ${
+                              bookingData.paymentMethod === 'mobile-money'
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-gray-200 hover:border-green-300'
+                            }`}
+                          >
+                            <span className="mr-3 text-2xl">📱</span>
+                            <div className="text-left">
+                              <div className="font-bold text-gray-900">M-Pesa Mobile Money</div>
+                              <div className="text-sm text-gray-600">Instant STK Push • Most Popular</div>
+                            </div>
+                            {bookingData.paymentTiming === 'pay-now' && (
+                              <span className="ml-auto bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                                Instant
+                              </span>
+                            )}
+                          </button>
+                          
+                          <button
+                            onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'card' }))}
+                            className={`w-full py-4 rounded-lg border-2 transition-all flex items-center justify-center ${
+                              bookingData.paymentMethod === 'card'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                          >
+                            <span className="mr-3 text-2xl">💳</span>
+                            <div className="text-left">
+                              <div className="font-bold text-gray-900">Debit/Credit Card</div>
+                              <div className="text-sm text-gray-600">Visa, Mastercard accepted</div>
+                            </div>
+                            {bookingData.paymentTiming === 'pay-now' && (
+                              <span className="ml-auto bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                                Secure
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                        {errors.paymentMethod && (
+                          <p className="mt-2 text-sm text-red-600">{errors.paymentMethod}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Payment Security Features */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h5 className="font-semibold text-gray-900 mb-3">🛡️ Payment Security & Protection</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <FaCheck className="h-4 w-4 text-green-600" />
+                          <span>256-bit SSL Encryption</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <FaDollarSign className="h-4 w-4 text-blue-600" />
+                          <span>Paystack Secure Gateway</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <FaExclamationTriangle className="h-4 w-4 text-orange-600" />
+                          <span>Full Buyer Protection</span>
+                        </div>
+                      </div>
                       
-                      <div className="space-y-3 max-w-sm mx-auto">
-                        <button className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center justify-center">
-                          <span className="mr-2">📱</span>
-                          Pay with M-Pesa
-                          <span className="ml-2 text-xs bg-green-500 px-2 py-1 rounded">Most Popular</span>
-                        </button>
-                        <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 flex items-center justify-center">
-                          <span className="mr-2">💳</span>
-                          Pay with Card (Visa/Mastercard)
-                        </button>
-                        <button className="w-full py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg font-bold hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-105 flex items-center justify-center">
-                          <span className="mr-2">🤝</span>
-                          Pay After Service Completion
-                        </button>
-                      </div>
+                      {bookingData.paymentTiming === 'pay-after' && (
+                        <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
+                          <p className="text-sm text-blue-800">
+                            <strong>Pay After Service:</strong> You'll receive a secure payment link once the provider marks your service as completed. No payment required now.
+                          </p>
+                        </div>
+                      )}
                       
-                      <div className="mt-6 grid grid-cols-3 gap-4 text-xs text-gray-500">
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mb-1">
-                            <FaCheck className="h-4 w-4 text-green-600" />
-                          </div>
-                          <span>Secure Encryption</span>
+                      {bookingData.paymentTiming === 'pay-now' && bookingData.paymentMethod === 'mobile-money' && (
+                        <div className="mt-3 p-3 bg-green-50 rounded border-l-4 border-green-400">
+                          <p className="text-sm text-green-800">
+                            <strong>STK Push:</strong> You'll receive a payment prompt on your phone to complete the transaction securely.
+                          </p>
                         </div>
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-1">
-                            <FaDollarSign className="h-4 w-4 text-blue-600" />
-                          </div>
-                          <span>Escrow Protection</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mb-1">
-                            <FaExclamationTriangle className="h-4 w-4 text-orange-600" />
-                          </div>
-                          <span>Dispute Resolution</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
@@ -1767,17 +2011,34 @@ Examples:
                     </button>
                     <button
                       onClick={() => {
-                        // Handle booking confirmation
-                        console.log('🎉 Confirming booking...', {
-                          bookingData,
-                          selectedProviders,
-                          location: locationSharing.location
-                        })
+                        if (!validatePaymentStep()) {
+                          return
+                        }
+                        
+                        if (bookingData.paymentTiming === 'pay-now') {
+                          handlePaystackPayment()
+                        } else {
+                          // Pay after service - confirm booking without payment
+                          handleBookingConfirmation()
+                        }
                       }}
-                      className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg"
+                      disabled={loading}
+                      className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <FaCheck className="h-5 w-5 mr-2" />
-                      🎉 Confirm Booking & Pay
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <FaCheck className="h-5 w-5 mr-2" />
+                          {bookingData.paymentTiming === 'pay-now' 
+                            ? '💳 Confirm & Pay Now' 
+                            : '📝 Confirm Booking'
+                          }
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
