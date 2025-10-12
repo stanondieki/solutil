@@ -159,6 +159,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/payments/mpesa', mpesaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/verification', require('./routes/adminVerification')); // Enhanced email verification admin panel
 app.use('/api/provider', providerOnboardingRoutes);
 app.use('/api/provider-services', providerServiceRoutes);
 app.use('/api/provider-bookings', providerBookingRoutes);

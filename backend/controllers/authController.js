@@ -318,6 +318,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
 // @access  Public
 exports.resendVerification = catchAsync(async (req, res, next) => {
   const { email } = req.body;
+  const AlternativeVerificationService = require('../services/alternativeVerificationService');
 
   const user = await User.findOne({ email });
 
@@ -329,30 +330,62 @@ exports.resendVerification = catchAsync(async (req, res, next) => {
     return next(new AppError('Email is already verified', 400));
   }
 
-  // Generate new verification token
-  const verificationToken = user.generateEmailVerificationToken();
-  await user.save({ validateBeforeSave: false });
-
   try {
-    const verificationURL = `${process.env.CLIENT_URL}/auth/verify-email/${verificationToken}`;
-    
-    await sendEmail({
-      email: user.email,
-      subject: 'Email Verification - Solutil',
-      template: 'emailVerification',
-      data: {
-        name: user.name,
-        verificationURL
+    // Use enhanced verification service with fallbacks
+    const verificationResult = await AlternativeVerificationService.sendVerificationWithFallbacks(
+      user,
+      {
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip || req.connection.remoteAddress
       }
-    });
+    );
+
+    // Determine response based on verification result
+    let message = 'Verification email sent successfully';
+    let additionalInfo = {};
+
+    if (!verificationResult.primaryEmailSuccess) {
+      message = 'Email delivery encountered issues, but alternatives are available';
+      additionalInfo = {
+        deliveryIssue: true,
+        fallbacksUsed: verificationResult.fallbacksUsed,
+        recommendedActions: verificationResult.recommendedActions,
+        userInstructions: verificationResult.userInstructions
+      };
+    } else {
+      additionalInfo = {
+        messageId: verificationResult.messageId,
+        userInstructions: verificationResult.userInstructions
+      };
+    }
 
     res.status(200).json({
       status: 'success',
-      message: 'Verification email sent successfully'
+      message: message,
+      data: {
+        email: user.email,
+        deliveryTracking: true,
+        ...additionalInfo
+      }
     });
+
   } catch (error) {
-    logger.error('Error sending verification email:', error);
-    return next(new AppError('Error sending email. Please try again later.', 500));
+    logger.error('Error in enhanced verification process:', error);
+    
+    // Fallback to basic error response
+    return res.status(500).json({
+      status: 'error',
+      message: 'Email delivery failed. Please try again or contact support for manual verification.',
+      data: {
+        email: user.email,
+        supportContact: 'infosolu31@gmail.com',
+        alternativeOptions: [
+          'Check spam/junk folder',
+          'Add infosolu31@gmail.com to safe senders',
+          'Contact support for manual verification'
+        ]
+      }
+    });
   }
 });
 
