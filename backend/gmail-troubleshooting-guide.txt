@@ -1,0 +1,64 @@
+📧 GMAIL DELIVERY TROUBLESHOOTING CHECKLIST
+
+✅ IMMEDIATE ACTIONS:
+
+1. CHECK SPAM FOLDER:
+   • Look in Gmail spam/junk folder
+   • Search for "SolUtil", "Email Test", or "infosolu31"
+   • If found, click "Not Spam" on all emails
+
+2. ADD TO CONTACTS:
+   • Add infosolu31@gmail.com to your Gmail contacts
+   • This tells Gmail the sender is trusted
+
+3. CHECK ALL GMAIL SECTIONS:
+   • Primary inbox
+   • Promotions tab
+   • Spam folder  
+   • All Mail folder
+   • Search "from:infosolu31@gmail.com"
+
+4. GMAIL SETTINGS CHECK:
+   • Gmail Settings > Filters and Blocked Addresses
+   • Make sure infosolu31@gmail.com is not blocked
+   • Check forwarding settings
+
+✅ ALTERNATIVE TESTING METHODS:
+
+1. USE CONSOLE VERIFICATION (Immediate):
+   - Set USE_REAL_SMTP=false in .env
+   - Restart backend
+   - Register/resend verification
+   - Copy URL from backend console
+   - Paste in browser to verify
+
+2. USE DIFFERENT EMAIL:
+   - Try with Yahoo: yourname@yahoo.com
+   - Try with Outlook: yourname@outlook.com
+   - These might have better delivery
+
+3. MANUAL VERIFICATION:
+   - We can manually verify your account in database
+   - Skip email verification for testing
+
+🔧 TECHNICAL EXPLANATION:
+
+The emails ARE being sent successfully:
+• SMTP connection works ✅
+• Gmail accepts emails (250 OK responses) ✅  
+• Messages get Message IDs ✅
+
+But Gmail's internal filtering might be:
+• Moving emails to spam automatically
+• Categorizing them differently
+• Applying content filters
+• Having delivery delays
+
+🎯 NEXT STEPS:
+
+1. Check spam folder first (most likely solution)
+2. If not there, try console verification mode
+3. Add sender to contacts for future emails
+4. Consider using a different email service
+
+The system is working correctly - it's just Gmail's aggressive filtering!

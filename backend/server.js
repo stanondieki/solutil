@@ -65,6 +65,8 @@ const dashboardRoutes = require('./routes/dashboard');
 console.log('Loaded dashboardRoutes');
 const providerMatchingRoutes = require('./routes/providerMatching');
 console.log('Loaded providerMatchingRoutes');
+const enhancedProviderMatchingRoutes = require('./routes/enhancedProviderMatching');
+console.log('Loaded enhancedProviderMatchingRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 console.log('Loaded errorHandler');
@@ -162,6 +164,7 @@ app.use('/api/provider-services', providerServiceRoutes);
 app.use('/api/provider-bookings', providerBookingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/booking', providerMatchingRoutes);
+app.use('/api/booking', enhancedProviderMatchingRoutes);
 
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

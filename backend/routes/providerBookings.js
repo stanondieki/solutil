@@ -20,21 +20,37 @@ router.get('/', protect, catchAsync(async (req, res, next) => {
 
   const { status, date, limit = 50, page = 1 } = req.query;
 
-  // Build query - include both real provider assignments and simplified bookings
-  let query;
+  // SECURITY FIX: Get provider's services first, then filter bookings by those services
+  const Service = require('../models/Service');
+  const ProviderService = require('../models/ProviderService');
   
-  // For now, include all recent bookings for providers to see activity
-  // In production, this should strictly filter by: { provider: req.user._id }
-  if (req.user.userType === 'provider') {
-    query = {
-      $or: [
-        { provider: req.user._id }, // Real provider assignments
-        { provider: { $exists: true } } // Simplified bookings with temporary providers
-      ]
-    };
-  } else {
-    query = { provider: req.user._id };
-  }
+  // Get all services owned by this provider from both Service and ProviderService models
+  const [services, providerServices] = await Promise.all([
+    Service.find({ providerId: req.user._id }).select('_id'),
+    ProviderService.find({ providerId: req.user._id }).select('_id')
+  ]);
+  
+  // Combine service IDs from both models
+  const serviceIds = [
+    ...services.map(s => s._id),
+    ...providerServices.map(s => s._id)
+  ];
+  
+  // Debug logging for security verification
+  console.log(`🔒 Provider ${req.user.email} (${req.user._id}) accessing bookings`);
+  console.log(`📋 Provider owns ${serviceIds.length} services`);
+  
+  // Build query - STRICT SECURITY: Only bookings for this provider's services AND provider assignment
+  let query = {
+    $and: [
+      {
+        $or: [
+          { provider: req.user._id }, // Direct provider assignment
+          { service: { $in: serviceIds } } // Booking uses one of provider's services
+        ]
+      }
+    ]
+  };
 
   if (status && status !== 'all') {
     query.status = status;
@@ -128,8 +144,33 @@ router.get('/provider', protect, catchAsync(async (req, res, next) => {
 
   const { status, date, limit = 50, page = 1 } = req.query;
 
-  // Use the provider field directly since we fixed the dashboard query
-  let query = { provider: req.user._id };
+  // SECURITY FIX: Get provider's services first, then filter bookings by those services
+  const Service = require('../models/Service');
+  const ProviderService = require('../models/ProviderService');
+  
+  // Get all services owned by this provider from both Service and ProviderService models
+  const [services, providerServices] = await Promise.all([
+    Service.find({ providerId: req.user._id }).select('_id'),
+    ProviderService.find({ providerId: req.user._id }).select('_id')
+  ]);
+  
+  // Combine service IDs from both models
+  const serviceIds = [
+    ...services.map(s => s._id),
+    ...providerServices.map(s => s._id)
+  ];
+  
+  // Build query - STRICT SECURITY: Only bookings for this provider's services AND provider assignment
+  let query = {
+    $and: [
+      {
+        $or: [
+          { provider: req.user._id }, // Direct provider assignment
+          { service: { $in: serviceIds } } // Booking uses one of provider's services
+        ]
+      }
+    ]
+  };
 
   if (status && status !== 'all') {
     query.status = status;
@@ -216,8 +257,30 @@ router.get('/:id', protect, catchAsync(async (req, res, next) => {
     return next(new AppError('Booking not found', 404));
   }
 
-  // Verify booking belongs to provider
-  if (booking.provider.toString() !== req.user._id.toString()) {
+  // SECURITY FIX: Verify booking belongs to provider through multiple checks
+  let hasAccess = false;
+  
+  // Check 1: Direct provider assignment
+  if (booking.provider && booking.provider.toString() === req.user._id.toString()) {
+    hasAccess = true;
+  }
+  
+  // Check 2: Provider owns the service
+  if (!hasAccess && booking.service) {
+    const Service = require('../models/Service');
+    const ProviderService = require('../models/ProviderService');
+    
+    const [service, providerService] = await Promise.all([
+      Service.findOne({ _id: booking.service._id, providerId: req.user._id }),
+      ProviderService.findOne({ _id: booking.service._id, providerId: req.user._id })
+    ]);
+    
+    if (service || providerService) {
+      hasAccess = true;
+    }
+  }
+  
+  if (!hasAccess) {
     return next(new AppError('Access denied. This booking does not belong to you.', 403));
   }
 
@@ -255,6 +318,9 @@ router.patch('/:id/status', protect, catchAsync(async (req, res, next) => {
     return next(new AppError('Booking not found', 404));
   }
 
+  console.log(`🔒 Provider ${req.user.email} attempting to update booking ${req.params.id}`);
+  console.log(`📋 Booking provider: ${booking.provider?._id}, Current user: ${req.user._id}`);
+
   // Verify booking belongs to provider (handle both simplified and complex bookings)
   let hasAccess = false;
   
@@ -276,10 +342,8 @@ router.patch('/:id/status', protect, catchAsync(async (req, res, next) => {
     }
   }
   
-  // For now, allow all providers to update bookings (temporary for simplified system)
-  if (req.user.userType === 'provider') {
-    hasAccess = true;
-  }
+  // SECURITY FIX: Only allow access if provider owns this booking
+  // Remove the blanket access that was allowing all providers to update any booking
   
   if (!hasAccess) {
     return next(new AppError('Access denied. This booking does not belong to you.', 403));
@@ -404,10 +468,6 @@ router.get('/analytics/provider', protect, catchAsync(async (req, res, next) => 
 
   const { period = '30d' } = req.query;
 
-  // Get provider's services
-  const providerServices = await Service.find({ providerId: req.user._id }).select('_id title');
-  const serviceIds = providerServices.map(service => service._id);
-
   // Calculate date range
   let startDate = new Date();
   switch (period) {
@@ -424,8 +484,9 @@ router.get('/analytics/provider', protect, catchAsync(async (req, res, next) => 
       startDate.setDate(startDate.getDate() - 30);
   }
 
+  // SECURITY FIX: Get bookings directly by provider, not by services
   const bookings = await Booking.find({
-    serviceId: { $in: serviceIds },
+    provider: req.user._id,
     createdAt: { $gte: startDate }
   });
 

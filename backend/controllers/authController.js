@@ -151,7 +151,15 @@ exports.login = catchAsync(async (req, res, next) => {
 
     // Check if email is verified
     if (!user.isVerified) {
-      return next(new AppError('Please verify your email address before logging in. Check your inbox for the verification link.', 401));
+      return res.status(401).json({
+        status: 'fail',
+        message: 'Please verify your email address before logging in.',
+        error: 'EMAIL_NOT_VERIFIED',
+        data: {
+          email: user.email,
+          resendEndpoint: '/api/auth/resend-verification'
+        }
+      });
     }
 
     // Set default providerStatus for existing provider users who don't have it

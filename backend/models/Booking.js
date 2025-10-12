@@ -224,17 +224,32 @@ bookingSchema.statics.getStats = function(filters = {}) {
 };
 
 // Static method to get recent bookings
-bookingSchema.statics.getRecentBookings = function(userId, userType, limit = 10) {
+bookingSchema.statics.getRecentBookings = async function(userId, userType, limit = 10) {
   const matchCriteria = userType === 'client' 
     ? { client: userId }
     : { 'provider.user': userId };
 
-  return this.find(matchCriteria)
+  const bookings = await this.find(matchCriteria)
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate('client', 'name email phone avatar')
-    .populate('provider', 'name email phone userType providerProfile')
-    .populate('service', 'name category images');
+    .populate('provider', 'name email phone userType');
+
+  // Manually populate services based on serviceType
+  for (let booking of bookings) {
+    if (booking.service && booking.serviceType === 'ProviderService') {
+      const ProviderService = require('./ProviderService');
+      const service = await ProviderService.findById(booking.service)
+        .populate('providerId', 'name email');
+      booking.service = service;
+    } else if (booking.service && booking.serviceType === 'Service') {
+      const Service = require('./Service');
+      const service = await Service.findById(booking.service);
+      booking.service = service;
+    }
+  }
+
+  return bookings;
 };
 
 // Index for better query performance

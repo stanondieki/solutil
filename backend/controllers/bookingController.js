@@ -824,12 +824,87 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
     // Generate unique booking number
     const bookingNumber = `BK${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
     
-    // Create simplified booking data
+    // Find and assign a real provider and service BEFORE creating booking
+    let assignedProvider = null;
+    let assignedService = null;
+
+    if (selectedProvider?.id && selectedProvider.id !== 'temp') {
+      // Use the selected provider
+      assignedProvider = selectedProvider.id;
+      assignedService = selectedProvider.serviceId;
+    } else {
+      // Auto-assign a provider based on category
+      console.log('🔄 Auto-assigning provider for category:', category?.id);
+      
+      const ProviderService = require('../models/ProviderService');
+      
+      const categoryMapping = {
+        'plumbing': 'plumbing',
+        'electrical': 'electrical', 
+        'cleaning': 'cleaning',
+        'carpentry': 'carpentry',
+        'painting': 'painting',
+        'gardening': 'gardening',
+        'other': 'other'
+      };
+      
+      const searchCategory = categoryMapping[category?.id] || 'other';
+      console.log('Searching for providers in category:', searchCategory);
+      
+      // Find ProviderServices in this category
+      const availableServices = await ProviderService.find({ 
+        category: searchCategory,
+        isActive: true 
+      }).populate({
+        path: 'providerId',
+        match: { 
+          userType: 'provider',
+          providerStatus: 'approved' // ONLY approved providers
+        },
+        select: 'name email userType providerStatus providerProfile'
+      });
+      
+      // Filter out services where provider didn't match the criteria (suspended/rejected providers)
+      const validServices = availableServices.filter(service => service.providerId);
+      
+      console.log(`Found ${validServices.length} valid services with approved providers in ${searchCategory}`);
+      
+      if (validServices.length > 0) {
+        // Smart provider selection - prefer providers with better ratings and more experience
+        const bestService = validServices.reduce((best, current) => {
+          const currentProvider = current.providerId.providerProfile || {};
+          const bestProvider = best.providerId.providerProfile || {};
+          
+          // Calculate selection score
+          const currentScore = (currentProvider.rating || 4.0) * 10 + (currentProvider.totalJobs || 0);
+          const bestScore = (bestProvider.rating || 4.0) * 10 + (bestProvider.totalJobs || 0);
+          
+          return currentScore > bestScore ? current : best;
+        });
+        
+        assignedProvider = bestService.providerId._id;
+        assignedService = bestService._id;
+        
+        console.log('✅ Smart-selected provider:', bestService.providerId.name);
+        console.log('✅ Smart-selected service:', bestService.title);
+        console.log('✅ Provider status:', bestService.providerId.providerStatus);
+      } else {
+        console.log('❌ No providers available for category:', searchCategory);
+        return next(new AppError(`No providers available for ${searchCategory} services`, 400));
+      }
+    }
+
+    // Ensure we have valid provider and service
+    if (!assignedProvider || !assignedService) {
+      return next(new AppError('Unable to assign provider and service for this booking', 400));
+    }
+
+    // Create simplified booking data with REAL provider and service
     const bookingData = {
       bookingNumber,
       client: req.user.id,
-      provider: selectedProvider?.id || new mongoose.Types.ObjectId(), // Temporary provider if none selected
-      service: new mongoose.Types.ObjectId(), // Temporary service ID
+      provider: assignedProvider, // Real provider ID
+      service: assignedService, // Real service ID  
       serviceType: 'ProviderService',
       scheduledDate: date,
       scheduledTime: {
@@ -844,12 +919,12 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
         }
       },
       pricing: {
-        basePrice: totalAmount || 0,
-        totalAmount: totalAmount || 0,
+        basePrice: totalAmount || 3000, // Default reasonable price
+        totalAmount: totalAmount || 3000,
         currency: 'KES'
       },
       payment: {
-        method: paymentMethod ? (paymentMethod === 'mobile-money' ? 'mpesa' : paymentMethod) : null,
+        method: paymentMethod ? (paymentMethod === 'mobile-money' ? 'mpesa' : paymentMethod) : 'cash',
         status: paymentTiming === 'pay-now' ? 'completed' : 'pending'
       },
       notes: {
@@ -871,30 +946,9 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
     // Populate the booking
     await booking.populate([
       { path: 'client', select: 'name email phone' },
-      { path: 'provider', select: 'name email phone userType providerProfile' }
+      { path: 'provider', select: 'name email phone userType' },
+      { path: 'service', select: 'title category price priceType' }
     ]);
-
-    // Try to auto-assign a provider if none was specifically selected
-    let assignedProvider = null;
-    if (!selectedProvider?.id || selectedProvider.id === 'temp') {
-      try {
-        console.log('🔄 Attempting auto provider assignment...');
-        const assignmentResult = await providerMatchingService.autoAssignProvider(booking);
-        
-        if (assignmentResult.success) {
-          console.log('✅ Provider auto-assigned successfully');
-          assignedProvider = assignmentResult.provider;
-          // Update the booking object with the assigned provider
-          booking.provider = assignmentResult.booking.provider;
-          booking.status = 'confirmed';
-        } else {
-          console.log('⚠️ No providers available for auto-assignment');
-        }
-      } catch (assignmentError) {
-        console.log('⚠️ Auto provider assignment failed:', assignmentError.message);
-        // Continue without auto-assignment
-      }
-    }
 
     // Send confirmation emails and notifications
     try {
@@ -903,11 +957,8 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       // Get client information
       const client = await User.findById(req.user.id).select('name email phone');
       
-      // Use assigned provider or original selected provider
-      let provider = assignedProvider;
-      if (!provider && selectedProvider?.id && selectedProvider.id !== 'temp') {
-        provider = await User.findById(selectedProvider.id).select('name email phone');
-      }
+      // Provider is already populated
+      const provider = booking.provider;
       
       // Send notifications
       await notificationService.sendBookingConfirmation(booking, client, provider);

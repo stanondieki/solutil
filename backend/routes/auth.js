@@ -133,4 +133,51 @@ router.post('/change-password', [
   validate
 ], changePassword);
 
+// Temporary test email endpoint for production debugging
+router.post('/test-email', async (req, res) => {
+  try {
+    const { sendWelcomeEmail } = require('../utils/email');
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Email is required'
+      });
+    }
+    
+    console.log('🧪 Testing production email to:', email);
+    console.log('Environment:', {
+      NODE_ENV: process.env.NODE_ENV,
+      USE_REAL_SMTP: process.env.USE_REAL_SMTP,
+      CLIENT_URL: process.env.CLIENT_URL,
+      EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not set',
+      EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not set'
+    });
+    
+    const verificationURL = `${process.env.CLIENT_URL}/auth/verify-email/test-token-${Date.now()}`;
+    
+    await sendWelcomeEmail(email, 'Production Test User', verificationURL);
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Test email sent successfully! Check your inbox and spam folder.',
+      data: {
+        email,
+        verificationURL,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Production email test failed:', error);
+    
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to send test email',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

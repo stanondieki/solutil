@@ -13,6 +13,7 @@ const {
   disputeBooking,
   getCancellationStats
 } = require('../controllers/bookingController');
+const { createEnhancedSimpleBooking } = require('../controllers/enhancedBookingController');
 const { protect, restrictTo } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
 
@@ -34,6 +35,17 @@ router.get('/my-bookings', getUserBookings);
 router.get('/cancellation-stats', restrictTo('admin', 'provider'), getCancellationStats);
 
 router.get('/provider-bookings', restrictTo('provider'), getProviderBookings);
+
+// Enhanced simple booking endpoint (v2) for frontend
+router.post('/simple-v2', [
+  body('category.id').notEmpty().withMessage('Service category is required'),
+  body('date').isISO8601().withMessage('Valid date is required'),
+  body('time').notEmpty().withMessage('Time is required'),
+  body('location.area').notEmpty().withMessage('Service area is required'),
+  body('paymentTiming').optional().isIn(['pay-now', 'pay-after']).withMessage('Valid payment timing is required'),
+  body('paymentMethod').optional().isIn(['card', 'mobile-money', 'mpesa', 'cash']).withMessage('Valid payment method is required'),
+  validate
+], createEnhancedSimpleBooking);
 
 // Simple booking endpoint for frontend
 router.post('/simple', [

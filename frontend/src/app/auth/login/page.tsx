@@ -64,14 +64,15 @@ function LoginPageContent() {
     e.preventDefault()
     setIsLoading(true)
     setError('')
+    setShowResendVerification(false)
 
     try {
       console.log('Attempting login with email:', formData.email);
       
       // Use auth context login method directly (it handles the API call)
-      const loginSuccess = await login(formData.email, formData.password)
+      const loginResult = await login(formData.email, formData.password)
       
-      if (loginSuccess) {
+      if (loginResult.success) {
         console.log('Login successful via auth context')
         
         // Get user data from localStorage since auth context state might not be updated yet
@@ -99,13 +100,13 @@ function LoginPageContent() {
         console.log(`Redirecting ${userData.userType} (${userData.providerStatus || 'N/A'}) to: ${redirectPath}`)
         router.push(redirectPath)
       } else {
-        console.error('Login failed');
-        setError('Invalid email or password. Please check your credentials and try again.')
+        console.error('Login failed:', loginResult.error);
+        setError(loginResult.error || 'Invalid email or password. Please check your credentials and try again.')
         
-        // TODO: Add resend verification logic if needed
-        // if (errorMessage.toLowerCase().includes('verify your email')) {
-        //   setShowResendVerification(true)
-        // }
+        // Show resend verification option if email is not verified
+        if (loginResult.needsVerification) {
+          setShowResendVerification(true)
+        }
       }
     } catch (err) {
       console.error('Login error:', err);

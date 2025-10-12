@@ -91,7 +91,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string }>
   logout: () => Promise<void>
   refreshToken: () => Promise<boolean>
   updateUser: (user: User) => void
@@ -215,7 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string }> => {
     dispatch({ type: 'LOGIN_START' })
 
     try {
@@ -243,16 +243,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             type: 'LOGIN_SUCCESS', 
             payload: { user, token } 
           })
-          return true
+          return { success: true }
+        }
+      }
+
+      // Check for specific error types
+      if (data.error === 'EMAIL_NOT_VERIFIED') {
+        dispatch({ type: 'LOGIN_FAILURE' })
+        return { 
+          success: false, 
+          error: data.message || 'Please verify your email address before logging in.',
+          needsVerification: true,
+          email: data.data?.email || email
         }
       }
 
       dispatch({ type: 'LOGIN_FAILURE' })
-      return false
+      return { 
+        success: false, 
+        error: data.message || 'Invalid email or password' 
+      }
     } catch (error) {
       console.error('Login error:', error)
       dispatch({ type: 'LOGIN_FAILURE' })
-      return false
+      return { 
+        success: false, 
+        error: 'Login failed. Please check your connection and try again.' 
+      }
     }
   }
 
