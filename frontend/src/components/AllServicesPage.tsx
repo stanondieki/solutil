@@ -11,9 +11,9 @@ const allServices = [
     bgColor: 'bg-blue-50',
     textColor: 'text-blue-700',
     services: [
-      { name: 'Air Conditioning', icon: '/images/services/air-condition.jpg', rating: 4.8, startingPrice: 'KES 2,500', description: 'AC installation, repair & maintenance' },
-      { name: 'Electrical Work', icon: '/images/services/electrical.jpg', rating: 4.9, startingPrice: 'KES 2,200', description: 'Wiring, fixtures & electrical repairs' },
-      { name: 'Siding Repair', icon: '/images/services/siding-repair.jpg', rating: 4.6, startingPrice: 'KES 3,000', description: 'Exterior siding installation & repair' },
+      { name: 'Air Conditioning', icon: '/servicetools/aircondition.png', rating: 4.8, startingPrice: 'KES 2,500', description: 'AC installation, repair & maintenance' },
+      { name: 'Electrical Work', icon: '/servicetools/elecrepair.png', rating: 4.9, startingPrice: 'KES 2,200', description: 'Wiring, fixtures & electrical repairs' },
+      { name: 'Siding Repair', icon: '/servicetools/slidigrepair.jpg', rating: 4.6, startingPrice: 'KES 3,000', description: 'Exterior siding installation & repair' },
     ],
   },
   {
@@ -23,9 +23,9 @@ const allServices = [
     bgColor: 'bg-green-50',
     textColor: 'text-green-700',
     services: [
-      { name: 'Home Flooring', icon: '/images/services/home-flooring.jpg', rating: 4.7, startingPrice: 'KES 1,800', description: 'Floor cleaning & maintenance' },
-      { name: 'Gutter Cleaning', icon: '/images/services/gutter.jpg', rating: 4.5, startingPrice: 'KES 2,000', description: 'Gutter cleaning & repair services' },
-      { name: 'Carpet Cleaning', icon: '/images/services/carpet.jpg', rating: 4.8, startingPrice: 'KES 1,500', description: 'Deep carpet cleaning & stain removal' },
+      { name: 'Home Flooring', icon: '/servicetools/cleaning.jpg', rating: 4.7, startingPrice: 'KES 1,800', description: 'Floor cleaning & maintenance' },
+      { name: 'Office Cleaning', icon: '/servicetools/office.jpg', rating: 4.5, startingPrice: 'KES 2,000', description: 'Gutter cleaning & repair services' },
+      { name: 'Carpet Cleaning', icon: '/servicetools/carpet.jpg', rating: 4.8, startingPrice: 'KES 1,500', description: 'Deep carpet cleaning & stain removal' },
     ],
   },
   {
@@ -35,9 +35,9 @@ const allServices = [
     bgColor: 'bg-purple-50',
     textColor: 'text-purple-700',
     services: [
-      { name: 'Drilling Services', icon: '/images/services/drill.jpg', rating: 4.6, startingPrice: 'KES 1,200', description: 'Professional drilling & mounting' },
-      { name: 'Lawn Care', icon: '/images/services/lawn-mower.jpg', rating: 4.7, startingPrice: 'KES 2,500', description: 'Lawn mowing & garden maintenance' },
-      { name: 'Landscaping', icon: '/images/services/plant.jpg', rating: 4.9, startingPrice: 'KES 3,500', description: 'Garden design & plant installation' },
+      { name: 'Drilling Services', icon: '/servicetools/drill.png', rating: 4.6, startingPrice: 'KES 1,200', description: 'Professional drilling & mounting' },
+      { name: 'Lawn Care', icon: '/servicetools/lawnmowing.jpg', rating: 4.7, startingPrice: 'KES 2,500', description: 'Lawn mowing & garden maintenance' },
+      { name: 'Landscaping', icon: '/servicetools/landscaping.jpg', rating: 4.9, startingPrice: 'KES 3,500', description: 'Garden design & plant installation' },
     ],
   },
   {
@@ -47,9 +47,9 @@ const allServices = [
     bgColor: 'bg-orange-50',
     textColor: 'text-orange-700',
     services: [
-      { name: 'Interior Painting', icon: '/images/services/interior.jpg', rating: 4.8, startingPrice: 'KES 4,000', description: 'Professional interior painting' },
-      { name: 'Exterior Painting', icon: '/images/services/exterior.jpg', rating: 4.7, startingPrice: 'KES 5,000', description: 'Weather-resistant exterior painting' },
-      { name: 'Wall Treatments', icon: '/images/services/wall.jpg', rating: 4.6, startingPrice: 'KES 3,000', description: 'Wallpaper & special wall finishes' },
+      { name: 'Interior Painting', icon: '/servicetools/interior.jpg', rating: 4.8, startingPrice: 'KES 4,000', description: 'Professional interior painting' },
+      { name: 'Exterior Painting', icon: '/servicetools/exterior.jpg', rating: 4.7, startingPrice: 'KES 5,000', description: 'Weather-resistant exterior painting' },
+      { name: 'Wall Treatments', icon: '/servicetools/walltreatment.jpg', rating: 4.6, startingPrice: 'KES 3,000', description: 'Wallpaper & special wall finishes' },
     ],
   },
   {
@@ -59,9 +59,9 @@ const allServices = [
     bgColor: 'bg-teal-50',
     textColor: 'text-teal-700',
     services: [
-      { name: 'Dishwashing', icon: '/images/services/dish-wash.jpg', rating: 4.5, startingPrice: 'KES 800', description: 'Professional dishwashing service' },
-      { name: 'Moving & Loading', icon: '/images/services/loading.jpg', rating: 4.7, startingPrice: 'KES 3,500', description: 'Furniture moving & loading services' },
-      { name: 'Cutting Services', icon: '/images/services/cutting.jpg', rating: 4.4, startingPrice: 'KES 1,500', description: 'Material cutting & shaping' },
+      { name: 'Dishwashing', icon: '/servicetools/dishes.jpg', rating: 4.5, startingPrice: 'KES 800', description: 'Professional dishwashing service' },
+      { name: 'Moving & Loading', icon: '/servicetools/movers1.png', rating: 4.7, startingPrice: 'KES 3,500', description: 'Furniture moving & loading services' },
+      { name: 'Cutting Services', icon: '/servicetools/material.jpg', rating: 4.4, startingPrice: 'KES 1,500', description: 'Material cutting & shaping' },
     ],
   },
 ];
