@@ -46,10 +46,10 @@ interface ProviderDetail {
     country?: string
   }
   providerDocuments?: {
-    nationalId?: { uploaded: boolean; verified: boolean; url?: string }
-    businessLicense?: { uploaded: boolean; verified: boolean; url?: string }
-    certificate?: { uploaded: boolean; verified: boolean; url?: string }
-    goodConductCertificate?: { uploaded: boolean; verified: boolean; url?: string }
+    nationalId?: { uploaded?: Date | string; verified: boolean; url?: string; public_id?: string }
+    businessLicense?: { uploaded?: Date | string; verified: boolean; url?: string; public_id?: string }
+    certificate?: { uploaded?: Date | string; verified: boolean; url?: string; public_id?: string }
+    goodConductCertificate?: { uploaded?: Date | string; verified: boolean; url?: string; public_id?: string }
   }
   stats?: {
     totalJobs: number
@@ -147,6 +147,7 @@ export default function ProviderDetailPage() {
       if (response.ok) {
         const data = await response.json()
         const foundProvider = data.data.provider
+        
         if (foundProvider) {
           // Transform the real data to match our interface with comprehensive profile data
           const transformedProvider: ProviderDetail = {
@@ -171,6 +172,7 @@ export default function ProviderDetailPage() {
             providerProfile: foundProvider.providerProfile || {},
             profilePicture: foundProvider.profilePicture || ''
           }
+          
           setProvider(transformedProvider)
         } else {
           setProvider(null)
@@ -490,6 +492,24 @@ export default function ProviderDetailPage() {
                   <FaHome className="w-5 h-5 text-green-600 mr-2" />
                   Contact & Address Information
                 </h2>
+                
+                {/* Debug Section */}
+                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-4">
+                  <h3 className="font-semibold text-yellow-900 mb-2">🔍 DEBUG: Address Data</h3>
+                  <div className="text-sm text-yellow-800">
+                    <p>Provider Profile exists: {provider.providerProfile ? 'Yes' : 'No'}</p>
+                    <p>Home Address exists: {provider.providerProfile?.homeAddress ? 'Yes' : 'No'}</p>
+                    {provider.providerProfile?.homeAddress && (
+                      <>
+                        <p>Street: {provider.providerProfile.homeAddress.street || 'Not set'}</p>
+                        <p>Area: {provider.providerProfile.homeAddress.area || 'Not set'}</p>
+                        <p>Postal Code: {provider.providerProfile.homeAddress.postalCode || 'Not set'}</p>
+                      </>
+                    )}
+                    <p>Emergency Contact exists: {provider.providerProfile?.emergencyContact ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Home Address */}
                   {provider.providerProfile?.homeAddress && (
@@ -786,7 +806,7 @@ export default function ProviderDetailPage() {
                           <div>
                             <p className="font-medium capitalize">{type.replace(/([A-Z])/g, ' $1')}</p>
                             <p className="text-sm text-gray-600">
-                              {doc.uploaded ? 'Uploaded' : 'Not uploaded'} • 
+                              {doc.uploaded ? `Uploaded on ${new Date(doc.uploaded).toLocaleDateString()}` : 'Not uploaded'} • 
                               {doc.verified ? ' Verified' : ' Pending verification'}
                             </p>
                           </div>
