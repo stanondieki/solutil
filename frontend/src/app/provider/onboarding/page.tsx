@@ -22,7 +22,13 @@ import {
   FaExclamationTriangle,
   FaEye,
   FaPlus,
-  FaCamera
+  FaCamera,
+  FaPhone,
+  FaGlobe,
+  FaCreditCard,
+  FaTools,
+  FaImages,
+  FaImage
 } from 'react-icons/fa'
 
 interface DocumentUpload {
@@ -2527,9 +2533,14 @@ export default function ProviderOnboardingPage() {
                       <div key={category} className="bg-white p-6 rounded-lg border-2 border-green-200 shadow-sm">
                         <div className="flex items-start justify-between mb-4">
                           <h4 className="font-bold text-gray-900 text-lg">{category}</h4>
-                          <span className="text-sm font-bold text-green-700 bg-green-200 px-4 py-2 rounded-full">
-                            {categoryData.subServices.length} services
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-bold text-green-700 bg-green-200 px-4 py-2 rounded-full">
+                              {categoryData.subServices.length} services
+                            </span>
+                            <span className="text-sm font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded">
+                              KES {STANDARD_PRICING[category as keyof typeof STANDARD_PRICING]} fixed
+                            </span>
+                          </div>
                         </div>
                         
                         {/* Sub-services */}
@@ -2547,7 +2558,7 @@ export default function ProviderOnboardingPage() {
                         {/* Experience */}
                         {categoryData.experience && (
                           <div className="mb-4">
-                            <h5 className="font-semibold text-gray-800 mb-1">Experience:</h5>
+                            <h5 className="font-semibold text-gray-800 mb-1">Experience Level:</h5>
                             <p className="text-sm font-medium text-gray-700 bg-gray-50 p-3 rounded border">
                               {categoryData.experience}
                             </p>
@@ -2557,12 +2568,233 @@ export default function ProviderOnboardingPage() {
                         {/* Description */}
                         {categoryData.description && (
                           <div className="mb-4">
-                            <h5 className="font-semibold text-gray-800 mb-1">Description:</h5>
+                            <h5 className="font-semibold text-gray-800 mb-1">Your Approach & Specializations:</h5>
                             <p className="text-sm font-medium text-gray-700 bg-gray-50 p-3 rounded border">
                               {categoryData.description}
                             </p>
                           </div>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Information Review */}
+              <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaPhone className="w-6 h-6 text-indigo-600 mr-3" />
+                  Contact Information
+                </h3>
+                <div className="grid gap-4">
+                  {/* Phone Number */}
+                  <div className="bg-white p-4 rounded-lg border border-indigo-200">
+                    <span className="font-black text-gray-900 text-base">Phone Number:</span> 
+                    <span className="font-bold text-indigo-700 ml-2">{profile.phoneNumber}</span>
+                  </div>
+                  
+                  {/* Home Address */}
+                  <div className="bg-white p-4 rounded-lg border border-indigo-200">
+                    <span className="font-black text-gray-900 text-base mb-2 block">Home Address:</span>
+                    <div className="text-gray-800 font-medium">
+                      <p>{profile.homeAddress.street}</p>
+                      <p>{profile.homeAddress.area}</p>
+                      {profile.homeAddress.postalCode && <p>Postal Code: {profile.homeAddress.postalCode}</p>}
+                    </div>
+                  </div>
+
+                  {/* Emergency Contact */}
+                  <div className="bg-white p-4 rounded-lg border border-indigo-200">
+                    <span className="font-black text-gray-900 text-base mb-2 block">Emergency Contact:</span>
+                    <div className="text-gray-800 font-medium">
+                      <p><strong>Name:</strong> {profile.emergencyContact.name}</p>
+                      <p><strong>Relationship:</strong> {profile.emergencyContact.relationship}</p>
+                      <p><strong>Phone:</strong> {profile.emergencyContact.phoneNumber}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Languages & Professional Info */}
+              <div className="bg-cyan-50 border-2 border-cyan-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaGlobe className="w-6 h-6 text-cyan-600 mr-3" />
+                  Languages & Professional Details
+                </h3>
+                <div className="grid gap-4">
+                  {/* Languages */}
+                  <div className="bg-white p-4 rounded-lg border border-cyan-200">
+                    <span className="font-black text-gray-900 text-base mb-2 block">Languages:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.languages.map((language, index) => (
+                        <span key={index} className="bg-cyan-100 text-cyan-800 font-bold px-3 py-1 rounded-full text-sm">
+                          {language}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Professional Memberships */}
+                  {profile.professionalMemberships.length > 0 && (
+                    <div className="bg-white p-4 rounded-lg border border-cyan-200">
+                      <span className="font-black text-gray-900 text-base mb-3 block">Professional Memberships:</span>
+                      <div className="space-y-2">
+                        {profile.professionalMemberships.map((membership, index) => (
+                          <div key={index} className="bg-gray-50 p-3 rounded border flex justify-between items-center">
+                            <div>
+                              <p className="font-bold text-gray-900">{membership.organization}</p>
+                              <p className="text-sm text-gray-600">ID: {membership.membershipId}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Information Review */}
+              <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaCreditCard className="w-6 h-6 text-emerald-600 mr-3" />
+                  Payment Information
+                </h3>
+                <div className="bg-white p-4 rounded-lg border border-emerald-200">
+                  <div className="mb-4">
+                    <span className="font-black text-gray-900 text-base">Preferred Method:</span>
+                    <span className="font-bold text-emerald-700 ml-2 capitalize">
+                      {profile.paymentInfo.preferredMethod === 'mpesa' ? 'M-Pesa Only' : 
+                       profile.paymentInfo.preferredMethod === 'bank' ? 'Bank Account Only' : 
+                       'Both M-Pesa & Bank'}
+                    </span>
+                  </div>
+
+                  {/* M-Pesa Details */}
+                  {(profile.paymentInfo.preferredMethod === 'mpesa' || profile.paymentInfo.preferredMethod === 'both') && profile.paymentInfo.mpesaNumber && (
+                    <div className="mb-4 bg-green-50 p-3 rounded border border-green-200">
+                      <h5 className="font-bold text-gray-900 mb-1">📱 M-Pesa Information:</h5>
+                      <p className="text-sm font-medium text-gray-700">Number: {profile.paymentInfo.mpesaNumber}</p>
+                    </div>
+                  )}
+
+                  {/* Bank Details */}
+                  {(profile.paymentInfo.preferredMethod === 'bank' || profile.paymentInfo.preferredMethod === 'both') && profile.paymentInfo.bankDetails.bankName && (
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <h5 className="font-bold text-gray-900 mb-2">🏦 Bank Account Information:</h5>
+                      <div className="space-y-1 text-sm font-medium text-gray-700">
+                        <p><strong>Bank:</strong> {profile.paymentInfo.bankDetails.bankName}</p>
+                        <p><strong>Account Name:</strong> {profile.paymentInfo.bankDetails.accountName}</p>
+                        <p><strong>Account Number:</strong> {profile.paymentInfo.bankDetails.accountNumber}</p>
+                        {profile.paymentInfo.bankDetails.branchCode && (
+                          <p><strong>Branch Code:</strong> {profile.paymentInfo.bankDetails.branchCode}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Material Sourcing & Availability Review */}
+              <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                  <FaTools className="w-6 h-6 text-orange-600 mr-3" />
+                  Materials & Availability
+                </h3>
+                <div className="grid gap-4">
+                  {/* Material Sourcing */}
+                  <div className="bg-white p-4 rounded-lg border border-orange-200">
+                    <span className="font-black text-gray-900 text-base mb-2 block">Material Availability:</span>
+                    <div className={`p-3 rounded-lg border-2 ${profile.materialSourcing.hasOwnMaterials ? 'border-green-500 bg-green-100' : 'border-orange-500 bg-orange-100'}`}>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">{profile.materialSourcing.hasOwnMaterials ? '✅' : '🛠️'}</span>
+                        <div>
+                          <h4 className="font-bold text-gray-900">
+                            {profile.materialSourcing.hasOwnMaterials ? 'I have my own materials' : 'Client provides materials'}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            {profile.materialSourcing.hasOwnMaterials ? 'Provider brings tools and materials' : 'Client will provide necessary materials'}
+                          </p>
+                        </div>
+                      </div>
+                      {profile.materialSourcing.hasOwnMaterials && profile.materialSourcing.materialsList && (
+                        <div className="mt-3 pt-3 border-t border-green-300">
+                          <p className="text-sm font-bold text-gray-900 mb-1">Materials & Tools Available:</p>
+                          <p className="text-sm text-gray-700 bg-white p-2 rounded border">{profile.materialSourcing.materialsList}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Detailed Availability */}
+                  <div className="bg-white p-4 rounded-lg border border-orange-200">
+                    <span className="font-black text-gray-900 text-base mb-3 block">Schedule & Booking Preferences:</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                        <h5 className="font-bold text-gray-900 mb-1">Working Days:</h5>
+                        <p className="text-sm font-medium text-gray-700">{profile.availability.days.join(', ')}</p>
+                      </div>
+                      <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                        <h5 className="font-bold text-gray-900 mb-1">Working Hours:</h5>
+                        <p className="text-sm font-medium text-gray-700">{profile.availability.hours.start} - {profile.availability.hours.end}</p>
+                      </div>
+                      <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                        <h5 className="font-bold text-gray-900 mb-1">Minimum Notice:</h5>
+                        <p className="text-sm font-medium text-gray-700">{profile.availability.minimumNotice} hours</p>
+                      </div>
+                      <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                        <h5 className="font-bold text-gray-900 mb-1">Advance Booking:</h5>
+                        <p className="text-sm font-medium text-gray-700">Up to {profile.availability.advanceBooking} days</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Portfolio Review */}
+              {profile.portfolio.length > 0 && (
+                <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
+                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
+                    <FaImages className="w-6 h-6 text-purple-600 mr-3" />
+                    Portfolio Projects ({profile.portfolio.length})
+                  </h3>
+                  <div className="grid gap-4">
+                    {profile.portfolio.map((item, index) => (
+                      <div key={item.id} className="bg-white p-4 rounded-lg border border-purple-200">
+                        <h4 className="font-bold text-gray-900 mb-2">Project {index + 1}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm font-bold text-gray-700 mb-1">Title:</p>
+                            <p className="text-sm text-gray-600">{item.title || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-700 mb-1">Category:</p>
+                            <p className="text-sm text-gray-600">{item.category || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-700 mb-1">Completion Date:</p>
+                            <p className="text-sm text-gray-600">{item.completionDate ? new Date(item.completionDate).toLocaleDateString() : 'Not specified'}</p>
+                          </div>
+                        </div>
+                        {item.description && (
+                          <div className="mt-3">
+                            <p className="text-sm font-bold text-gray-700 mb-1">Description:</p>
+                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border">{item.description}</p>
+                          </div>
+                        )}
+                        <div className="mt-3 flex items-center space-x-4">
+                          {item.beforeImage && (
+                            <div className="flex items-center space-x-2">
+                              <FaImage className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm font-medium text-green-600">Before photo ready</span>
+                            </div>
+                          )}
+                          {item.afterImage && (
+                            <div className="flex items-center space-x-2">
+                              <FaImage className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm font-medium text-green-600">After photo ready</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
