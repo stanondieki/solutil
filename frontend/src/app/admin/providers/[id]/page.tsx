@@ -17,7 +17,16 @@ import {
   FaCalendarAlt,
   FaStar,
   FaTools,
-  FaEdit
+  FaEdit,
+  FaGlobe,
+  FaCreditCard,
+  FaImages,
+  FaImage,
+  FaCertificate,
+  FaHome,
+  FaClock,
+  FaLanguage,
+  FaMoneyBillWave
 } from 'react-icons/fa'
 
 interface ProviderDetail {
@@ -40,6 +49,7 @@ interface ProviderDetail {
     nationalId?: { uploaded: boolean; verified: boolean; url?: string }
     businessLicense?: { uploaded: boolean; verified: boolean; url?: string }
     certificate?: { uploaded: boolean; verified: boolean; url?: string }
+    goodConductCertificate?: { uploaded: boolean; verified: boolean; url?: string }
   }
   stats?: {
     totalJobs: number
@@ -47,6 +57,68 @@ interface ProviderDetail {
     rating: number
     earnings: number
   }
+  // Enhanced provider profile data for comprehensive review
+  providerProfile?: {
+    experience?: string
+    bio?: string
+    skills?: string[]
+    hourlyRate?: number
+    availability?: {
+      days?: string[]
+      hours?: {
+        start: string
+        end: string
+      }
+      minimumNotice?: number
+      advanceBooking?: number
+    }
+    serviceAreas?: string[]
+    homeAddress?: {
+      street?: string
+      area?: string
+      postalCode?: string
+    }
+    emergencyContact?: {
+      name?: string
+      relationship?: string
+      phoneNumber?: string
+    }
+    languages?: string[]
+    professionalMemberships?: Array<{
+      organization?: string
+      membershipId?: string
+      certificateUrl?: string
+    }>
+    paymentInfo?: {
+      preferredMethod?: string
+      mpesaNumber?: string
+      bankDetails?: {
+        bankName?: string
+        accountName?: string
+        accountNumber?: string
+        branchCode?: string
+      }
+    }
+    materialSourcing?: {
+      option?: string
+      details?: string
+    }
+    portfolio?: Array<{
+      title?: string
+      description?: string
+      category?: string
+      beforeImageUrl?: string
+      afterImageUrl?: string
+      completionDate?: string
+    }>
+    services?: Array<{
+      category?: string
+      subServices?: string[]
+      experience?: string
+      description?: string
+    }>
+  }
+  profilePicture?: string
 }
 
 export default function ProviderDetailPage() {
@@ -76,7 +148,7 @@ export default function ProviderDetailPage() {
         const data = await response.json()
         const foundProvider = data.data.provider
         if (foundProvider) {
-          // Transform the real data to match our interface
+          // Transform the real data to match our interface with comprehensive profile data
           const transformedProvider: ProviderDetail = {
             _id: foundProvider._id,
             firstName: foundProvider.name?.split(' ')[0] || foundProvider.name,
@@ -94,7 +166,10 @@ export default function ProviderDetailPage() {
               completedJobs: foundProvider.providerProfile?.completedJobs || 0,
               rating: foundProvider.providerProfile?.rating || 0,
               earnings: 0 // Add real earnings if available
-            }
+            },
+            // Include comprehensive provider profile data
+            providerProfile: foundProvider.providerProfile || {},
+            profilePicture: foundProvider.profilePicture || ''
           }
           setProvider(transformedProvider)
         } else {
@@ -300,54 +375,406 @@ export default function ProviderDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Provider Information */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Basic Info */}
+              {/* Profile Photo and Basic Info */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-3">
-                    <FaUser className="text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Name</p>
-                      <p className="font-medium">{provider.firstName} {provider.lastName}</p>
-                    </div>
+                <div className="flex items-start space-x-6 mb-6">
+                  {/* Profile Photo */}
+                  <div className="flex-shrink-0">
+                    {provider.profilePicture ? (
+                      <img 
+                        src={provider.profilePicture} 
+                        alt="Profile" 
+                        className="w-24 h-24 rounded-full object-cover border-4 border-blue-200 shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                        <FaUser className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <FaEnvelope className="text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-medium">{provider.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <FaPhone className="text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Phone</p>
-                      <p className="font-medium">{provider.phone || 'Not provided'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <FaCalendarAlt className="text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Registered</p>
-                      <p className="font-medium">{new Date(provider.createdAt).toLocaleDateString()}</p>
+                  
+                  {/* Basic Details */}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {provider.firstName} {provider.lastName}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-3">
+                        <FaEnvelope className="text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-600">Email</p>
+                          <p className="font-medium">{provider.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <FaPhone className="text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-600">Phone</p>
+                          <p className="font-medium">{provider.phone || provider.providerProfile?.emergencyContact?.phoneNumber || 'Not provided'}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <FaCalendarAlt className="text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-600">Registered</p>
+                          <p className="font-medium">{new Date(provider.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <FaTools className="text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-600">Experience</p>
+                          <p className="font-medium">{provider.providerProfile?.experience || 'Not specified'}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Professional Bio */}
+                {provider.providerProfile?.bio && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Professional Bio</h3>
+                    <p className="text-gray-700 leading-relaxed">{provider.providerProfile.bio}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Services */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Services Offered</h2>
-                <div className="flex flex-wrap gap-2">
-                  {provider.services.map((service, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                      {service}
-                    </span>
-                  ))}
+              {/* Service Categories & Specializations */}
+              {provider.providerProfile?.services && provider.providerProfile.services.length > 0 && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FaCertificate className="w-5 h-5 text-blue-600 mr-2" />
+                    Service Categories & Specializations
+                  </h2>
+                  <div className="space-y-4">
+                    {provider.providerProfile.services.map((service, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-semibold text-gray-900">{service.category}</h3>
+                          {service.experience && (
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                              {service.experience}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {service.subServices && service.subServices.length > 0 && (
+                          <div className="mb-3">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">Sub-services:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {service.subServices.map((subService, subIndex) => (
+                                <span key={subIndex} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                                  {subService}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {service.description && (
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-700 mb-1">Description:</h4>
+                            <p className="text-sm text-gray-600">{service.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              )}
+
+              {/* Contact & Address Information */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <FaHome className="w-5 h-5 text-green-600 mr-2" />
+                  Contact & Address Information
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Home Address */}
+                  {provider.providerProfile?.homeAddress && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-gray-900 mb-2">Home Address</h3>
+                      <div className="space-y-1 text-gray-700">
+                        {provider.providerProfile.homeAddress.street && (
+                          <p>{provider.providerProfile.homeAddress.street}</p>
+                        )}
+                        {provider.providerProfile.homeAddress.area && (
+                          <p>{provider.providerProfile.homeAddress.area}</p>
+                        )}
+                        {provider.providerProfile.homeAddress.postalCode && (
+                          <p>Postal Code: {provider.providerProfile.homeAddress.postalCode}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Emergency Contact */}
+                  {provider.providerProfile?.emergencyContact && (
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-gray-900 mb-2">Emergency Contact</h3>
+                      <div className="space-y-1 text-gray-700">
+                        {provider.providerProfile.emergencyContact.name && (
+                          <p><strong>Name:</strong> {provider.providerProfile.emergencyContact.name}</p>
+                        )}
+                        {provider.providerProfile.emergencyContact.relationship && (
+                          <p><strong>Relationship:</strong> {provider.providerProfile.emergencyContact.relationship}</p>
+                        )}
+                        {provider.providerProfile.emergencyContact.phoneNumber && (
+                          <p><strong>Phone:</strong> {provider.providerProfile.emergencyContact.phoneNumber}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Service Areas */}
+                {provider.providerProfile?.serviceAreas && provider.providerProfile.serviceAreas.length > 0 && (
+                  <div className="mt-4 bg-indigo-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Service Areas</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {provider.providerProfile.serviceAreas.map((area, index) => (
+                        <span key={index} className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Documents */}
+              {/* Languages & Professional Details */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <FaGlobe className="w-5 h-5 text-cyan-600 mr-2" />
+                  Languages & Professional Details
+                </h2>
+                
+                {/* Languages */}
+                {provider.providerProfile?.languages && provider.providerProfile.languages.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">Languages</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {provider.providerProfile.languages.map((language, index) => (
+                        <span key={index} className="px-3 py-1 bg-cyan-100 text-cyan-800 text-sm rounded-full">
+                          {language}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Professional Memberships */}
+                {provider.providerProfile?.professionalMemberships && provider.providerProfile.professionalMemberships.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Professional Memberships</h3>
+                    <div className="space-y-2">
+                      {provider.providerProfile.professionalMemberships.map((membership, index) => (
+                        <div key={index} className="bg-gray-50 p-3 rounded border">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-gray-900">{membership.organization}</p>
+                              <p className="text-sm text-gray-600">ID: {membership.membershipId}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Availability & Schedule */}
+              {provider.providerProfile?.availability && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FaClock className="w-5 h-5 text-yellow-600 mr-2" />
+                    Availability & Schedule
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {provider.providerProfile.availability.days && provider.providerProfile.availability.days.length > 0 && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">Working Days</h3>
+                        <p className="text-gray-700">{provider.providerProfile.availability.days.join(', ')}</p>
+                      </div>
+                    )}
+                    
+                    {provider.providerProfile.availability.hours && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">Working Hours</h3>
+                        <p className="text-gray-700">
+                          {provider.providerProfile.availability.hours.start} - {provider.providerProfile.availability.hours.end}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {provider.providerProfile.availability.minimumNotice && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">Minimum Notice</h3>
+                        <p className="text-gray-700">{provider.providerProfile.availability.minimumNotice} hours</p>
+                      </div>
+                    )}
+                    
+                    {provider.providerProfile.availability.advanceBooking && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">Advance Booking</h3>
+                        <p className="text-gray-700">Up to {provider.providerProfile.availability.advanceBooking} days</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Information */}
+              {provider.providerProfile?.paymentInfo && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FaCreditCard className="w-5 h-5 text-emerald-600 mr-2" />
+                    Payment Information
+                  </h2>
+                  <div className="space-y-4">
+                    {provider.providerProfile.paymentInfo.preferredMethod && (
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Preferred Method</h3>
+                        <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full capitalize">
+                          {provider.providerProfile.paymentInfo.preferredMethod.replace('_', ' ')}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* M-Pesa Details */}
+                    {provider.providerProfile.paymentInfo.mpesaNumber && (
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">📱 M-Pesa Information</h3>
+                        <p className="text-gray-700">Number: {provider.providerProfile.paymentInfo.mpesaNumber}</p>
+                      </div>
+                    )}
+
+                    {/* Bank Details */}
+                    {provider.providerProfile.paymentInfo.bankDetails && Object.values(provider.providerProfile.paymentInfo.bankDetails).some(val => val) && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">🏦 Bank Account Details</h3>
+                        <div className="space-y-1 text-gray-700 text-sm">
+                          {provider.providerProfile.paymentInfo.bankDetails.bankName && (
+                            <p><strong>Bank:</strong> {provider.providerProfile.paymentInfo.bankDetails.bankName}</p>
+                          )}
+                          {provider.providerProfile.paymentInfo.bankDetails.accountName && (
+                            <p><strong>Account Name:</strong> {provider.providerProfile.paymentInfo.bankDetails.accountName}</p>
+                          )}
+                          {provider.providerProfile.paymentInfo.bankDetails.accountNumber && (
+                            <p><strong>Account Number:</strong> {provider.providerProfile.paymentInfo.bankDetails.accountNumber}</p>
+                          )}
+                          {provider.providerProfile.paymentInfo.bankDetails.branchCode && (
+                            <p><strong>Branch Code:</strong> {provider.providerProfile.paymentInfo.bankDetails.branchCode}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Material Sourcing */}
+              {provider.providerProfile?.materialSourcing && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FaTools className="w-5 h-5 text-orange-600 mr-2" />
+                    Material Sourcing & Tools
+                  </h2>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <span className="text-2xl">
+                        {provider.providerProfile.materialSourcing.option === 'provider' ? '✅' : '🛠️'}
+                      </span>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {provider.providerProfile.materialSourcing.option === 'provider' 
+                            ? 'Provides own materials' 
+                            : 'Client provides materials'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {provider.providerProfile.materialSourcing.option === 'provider'
+                            ? 'This provider brings their own tools and materials'
+                            : 'This provider expects client to provide materials'}
+                        </p>
+                      </div>
+                    </div>
+                    {provider.providerProfile.materialSourcing.details && (
+                      <div className="mt-3 pt-3 border-t border-orange-200">
+                        <p className="text-sm font-medium text-gray-900 mb-1">Details:</p>
+                        <p className="text-sm text-gray-700 bg-white p-2 rounded border">
+                          {provider.providerProfile.materialSourcing.details}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Portfolio Projects */}
+              {provider.providerProfile?.portfolio && provider.providerProfile.portfolio.length > 0 && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FaImages className="w-5 h-5 text-purple-600 mr-2" />
+                    Portfolio Projects ({provider.providerProfile.portfolio.length})
+                  </h2>
+                  <div className="space-y-4">
+                    {provider.providerProfile.portfolio.map((project, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2">
+                          Project {index + 1}: {project.title || 'Untitled'}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                          {project.category && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">Category:</p>
+                              <p className="text-sm text-gray-600">{project.category}</p>
+                            </div>
+                          )}
+                          {project.completionDate && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">Completed:</p>
+                              <p className="text-sm text-gray-600">
+                                {new Date(project.completionDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Photos:</p>
+                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                              {project.beforeImageUrl && (
+                                <span className="flex items-center space-x-1">
+                                  <FaImage className="w-3 h-3" />
+                                  <span>Before</span>
+                                </span>
+                              )}
+                              {project.afterImageUrl && (
+                                <span className="flex items-center space-x-1">
+                                  <FaImage className="w-3 h-3" />
+                                  <span>After</span>
+                                </span>
+                              )}
+                              {!project.beforeImageUrl && !project.afterImageUrl && (
+                                <span>No photos</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {project.description && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Description:</p>
+                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                              {project.description}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Verification Documents */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Verification Documents</h2>
                 <div className="space-y-4">
