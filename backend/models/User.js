@@ -146,6 +146,66 @@ const userSchema = new mongoose.Schema({
     },
     serviceAreas: [String], // Cities/areas they serve
     bio: String,
+    homeAddress: {
+      street: String,
+      area: String,
+      postalCode: String
+    },
+    emergencyContact: {
+      name: String,
+      relationship: String,
+      phoneNumber: String
+    },
+    languages: [String],
+    professionalMemberships: [{
+      organization: String,
+      membershipId: String,
+      certificateUrl: String
+    }],
+    paymentInfo: {
+      preferredMethod: { type: String, enum: ['mpesa', 'bank', 'both'], default: 'mpesa' },
+      mpesaNumber: String,
+      bankDetails: {
+        bankName: String,
+        accountNumber: String,
+        accountName: String,
+        branchCode: String
+      }
+    },
+    materialSourcing: {
+      option: { type: String, enum: ['provider', 'client', 'both'], default: 'client' },
+      markup: { type: Number, default: 0 },
+      details: String
+    },
+    policies: {
+      cancellation: {
+        allowCancellation: { type: Boolean, default: true },
+        timeLimit: { type: Number, default: 24 },
+        refundPercentage: { type: Number, default: 100 },
+        conditions: String
+      },
+      refund: {
+        timeframe: { type: Number, default: 5 },
+        method: { type: String, enum: ['full', 'partial', 'none'], default: 'full' },
+        conditions: String
+      }
+    },
+    rateStructure: {
+      baseHourlyRate: { type: Number, default: 0 },
+      emergencyRate: { type: Number, default: 1.5 },
+      weekendRate: { type: Number, default: 1.2 },
+      materialHandling: { type: Number, default: 0 },
+      travelFee: { type: Number, default: 0 }
+    },
+    portfolio: [{
+      title: String,
+      description: String,
+      category: String,
+      beforeImageUrl: String,
+      afterImageUrl: String,
+      completionDate: Date,
+      clientFeedback: String
+    }],
     services: [{ // Services created during onboarding
       title: String,
       description: String,

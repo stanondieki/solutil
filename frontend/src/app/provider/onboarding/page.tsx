@@ -810,9 +810,48 @@ export default function ProviderOnboardingPage() {
         }
       }
 
+      // Transform serviceCategories to skills and services for backend compatibility
+      const skills = Object.keys(profile.serviceCategories)
+      const services = Object.entries(profile.serviceCategories).map(([category, details]) => ({
+        category,
+        subServices: details.subServices,
+        experience: details.experience,
+        description: details.description,
+        pricing: {
+          hourlyRate: STANDARD_PRICING[category as keyof typeof STANDARD_PRICING] || 1000,
+          fixedRate: STANDARD_PRICING[category as keyof typeof STANDARD_PRICING] || 1000,
+          currency: 'KES'
+        }
+      }))
+
+      // Calculate average hourly rate from selected categories
+      const hourlyRate = skills.length > 0 
+        ? skills.reduce((sum, skill) => sum + (STANDARD_PRICING[skill as keyof typeof STANDARD_PRICING] || 1000), 0) / skills.length
+        : 1000
+
+      // Transform materialSourcing to match backend schema
+      const materialSourcing = {
+        option: profile.materialSourcing.hasOwnMaterials ? 'provider' : 'client',
+        markup: 0,
+        details: profile.materialSourcing.materialsList || ''
+      }
+
+      // Transform availability to include missing fields
+      const availability = {
+        ...profile.availability,
+        timeSlots: profile.availability.timeSlots || [],
+        advanceBooking: profile.availability.advanceBooking || 30,
+        minimumNotice: profile.availability.minimumNotice || 24
+      }
+
       // Prepare profile data including services and photo
       const profileData = {
         ...profile,
+        skills, // Transform serviceCategories to skills array
+        services, // Transform serviceCategories to services array with details
+        hourlyRate, // Calculate average hourly rate
+        materialSourcing, // Transform to backend schema
+        availability, // Include all availability fields
         profilePhoto: profilePhotoUrl ? { url: profilePhotoUrl } : undefined
       }
 

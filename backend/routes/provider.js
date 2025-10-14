@@ -6,7 +6,26 @@ const catchAsync = require('../utils/catchAsync');
 const logger = require('../utils/logger');
 const { sendEmail } = require('../utils/email');
 const providerEmailTemplates = require('../utils/providerEmailTemplates');
-const { uploadMiddleware } = require('../utils/cloudinary');
+
+// Try to use Cloudinary first, fallback to local uploads
+let uploadMiddleware, transformFileData, getFileUrl;
+
+try {
+  // Check if Cloudinary is configured
+  const cloudinaryConfig = require('../utils/cloudinary');
+  if (process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_KEY !== 'your_api_key') {
+    uploadMiddleware = cloudinaryConfig.uploadMiddleware;
+    console.log('✅ Using Cloudinary for uploads');
+  } else {
+    throw new Error('Cloudinary not configured');
+  }
+} catch (error) {
+  console.log('⚠️ Cloudinary not available, using local uploads:', error.message);
+  const localUpload = require('../utils/localUpload');
+  uploadMiddleware = localUpload.uploadMiddleware;
+  transformFileData = localUpload.transformFileData;
+  getFileUrl = localUpload.getFileUrl;
+}
 
 const router = express.Router();
 
@@ -62,15 +81,21 @@ router.post('/upload-document', protect, (req, res, next) => {
   });
 
   try {
-    // Update user document in database with Cloudinary data
+    // Transform file data for local uploads if needed
+    let fileData = req.file;
+    if (transformFileData) {
+      fileData = transformFileData(req, req.file);
+    }
+
+    // Update user document in database with upload data
     const updateField = `providerDocuments.${documentType}`;
     const documentData = {
-      url: req.file.path, // Cloudinary secure URL
-      secure_url: req.file.path, // Also store as secure_url for consistency
-      public_id: req.file.filename, // Cloudinary public ID
-      originalName: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
+      url: fileData.path || fileData.secure_url, // File URL
+      secure_url: fileData.path || fileData.secure_url, // Also store as secure_url for consistency
+      public_id: fileData.filename || fileData.public_id, // File identifier
+      originalName: fileData.originalname,
+      mimetype: fileData.mimetype,
+      size: fileData.size,
       uploaded: new Date(),
       verified: false
     };
@@ -87,11 +112,11 @@ router.post('/upload-document', protect, (req, res, next) => {
       return next(new AppError('User not found', 404));
     }
 
-    logger.info(`Document uploaded to Cloudinary: ${documentType} for user ${user.email} - ${req.file.filename}`);
+    logger.info(`Document uploaded: ${documentType} for user ${user.email} - ${fileData.filename || fileData.public_id}`);
 
     res.status(200).json({
       status: 'success',
-      message: 'Document uploaded successfully to Cloudinary',
+      message: 'Document uploaded successfully',
       data: {
         documentType,
         url: documentData.url,
@@ -116,11 +141,40 @@ router.put('/profile', protect, catchAsync(async (req, res, next) => {
     return next(new AppError('Only providers can update provider profile', 403));
   }
 
-  const { experience, skills, hourlyRate, availability, serviceAreas, bio, services, profilePhoto } = req.body;
+  const { 
+    experience, 
+    skills, 
+    hourlyRate, 
+    availability, 
+    serviceAreas, 
+    bio, 
+    services, 
+    profilePhoto, 
+    homeAddress, 
+    phoneNumber, 
+    emergencyContact, 
+    languages, 
+    professionalMemberships, 
+    paymentInfo,
+    materialSourcing,
+    policies,
+    rateStructure,
+    portfolio
+  } = req.body;
 
-  // Validation
-  if (!experience || !skills || !hourlyRate || !serviceAreas || !bio || !availability) {
+    // Validation
+  if (!experience || !skills || !hourlyRate || !serviceAreas || !bio || !availability || !homeAddress || !phoneNumber || !emergencyContact || !languages || !paymentInfo) {
     return next(new AppError('All profile fields are required', 400));
+  }
+
+  // Validate home address
+  if (!homeAddress.street || !homeAddress.area) {
+    return next(new AppError('Street address and area are required', 400));
+  }
+
+  // Validate phone number
+  if (!phoneNumber.trim()) {
+    return next(new AppError('Phone number is required', 400));
   }
 
   if (!Array.isArray(skills) || skills.length === 0) {
@@ -151,7 +205,17 @@ router.put('/profile', protect, catchAsync(async (req, res, next) => {
       'providerProfile.hourlyRate': parseFloat(hourlyRate),
       'providerProfile.availability': availability,
       'providerProfile.serviceAreas': serviceAreas,
-      'providerProfile.bio': bio
+      'providerProfile.bio': bio,
+      'providerProfile.homeAddress': homeAddress,
+      'providerProfile.emergencyContact': emergencyContact,
+      'providerProfile.languages': languages,
+      'providerProfile.professionalMemberships': professionalMemberships,
+      'providerProfile.paymentInfo': paymentInfo,
+      'providerProfile.materialSourcing': materialSourcing,
+      'providerProfile.policies': policies,
+      'providerProfile.rateStructure': rateStructure,
+      'providerProfile.portfolio': portfolio,
+      'phone': phoneNumber
     };
 
     // Include services if provided (from onboarding)
