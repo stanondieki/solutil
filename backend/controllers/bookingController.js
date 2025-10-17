@@ -828,10 +828,63 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
     let assignedProvider = null;
     let assignedService = null;
 
-    if (selectedProvider?.id && selectedProvider.id !== 'temp') {
+    const hasValidProviderId = selectedProvider?.id || selectedProvider?._id;
+    if (hasValidProviderId && hasValidProviderId !== 'temp') {
       // Use the selected provider
-      assignedProvider = selectedProvider.id;
-      assignedService = selectedProvider.serviceId;
+      console.log('👤 User selected specific provider:', selectedProvider.name || selectedProvider.Name);
+      console.log('👤 Provider ID:', selectedProvider.id || selectedProvider._id);
+      console.log('👤 Service ID:', selectedProvider.serviceId || selectedProvider.service?._id);
+      console.log('👤 Full selectedProvider object:', JSON.stringify(selectedProvider, null, 2));
+      
+      // Handle different possible field names from frontend
+      const providerId = selectedProvider.id || selectedProvider._id;
+      const serviceId = selectedProvider.serviceId || selectedProvider.service?._id || selectedProvider.service;
+      
+      if (!providerId || !serviceId) {
+        console.log('❌ Invalid provider selection data');
+        return next(new AppError('Invalid provider selection data. Please try selecting the provider again.', 400));
+      }
+      
+      // Handle fallback provider selection (when serviceId equals providerId)
+      if (serviceId === providerId) {
+        console.log('🔄 Fallback provider selection detected - will create dynamic service');
+        
+        // Find the provider to create a service
+        const User = require('../models/User');
+        const ProviderService = require('../models/ProviderService');
+        
+        const provider = await User.findById(providerId).select('name userType providerStatus');
+        if (!provider) {
+          return next(new AppError('Selected provider not found.', 400));
+        }
+        
+        // Create a dynamic service
+        try {
+          const dynamicService = await ProviderService.create({
+            providerId: providerId,
+            title: `${category?.name || 'Service'} by ${provider.name}`,
+            description: `Professional ${category?.name || 'service'} provided by ${provider.name}`,
+            category: category?.id || 'other',
+            price: totalAmount || 3000,
+            priceType: 'fixed',
+            duration: 120, // Default 2 hours in minutes
+            location: location?.area || 'Nairobi',
+            isActive: true,
+            createdFromFallback: true
+          });
+          
+          assignedService = dynamicService._id;
+          console.log('✅ Dynamic service created for fallback selection:', dynamicService.title);
+        } catch (error) {
+          console.log('❌ Failed to create dynamic service:', error.message);
+          return next(new AppError('Failed to create service for selected provider.', 500));
+        }
+      }
+      
+      assignedProvider = providerId;
+      
+      console.log('✅ Using selected provider:', providerId);
+      console.log('✅ Using selected service:', assignedService);
     } else {
       // Auto-assign a provider based on category
       console.log('🔄 Auto-assigning provider for category:', category?.id);
@@ -875,9 +928,30 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
           const currentProvider = current.providerId.providerProfile || {};
           const bestProvider = best.providerId.providerProfile || {};
           
-          // Calculate selection score
-          const currentScore = (currentProvider.rating || 4.0) * 10 + (currentProvider.totalJobs || 0);
-          const bestScore = (bestProvider.rating || 4.0) * 10 + (bestProvider.totalJobs || 0);
+          // Calculate selection score with multiple factors
+          const currentRating = currentProvider.rating || 4.0;
+          const bestRating = bestProvider.rating || 4.0;
+          const currentJobs = currentProvider.totalJobs || 0;
+          const bestJobs = bestProvider.totalJobs || 0;
+          
+          const currentScore = currentRating * 10 + currentJobs;
+          const bestScore = bestRating * 10 + bestJobs;
+          
+          console.log(`   Comparing: ${current.providerId.name} (${currentScore.toFixed(1)}) vs ${best.providerId.name} (${bestScore.toFixed(1)})`);
+          
+          // If scores are equal, use name as tiebreaker for consistent selection
+          if (Math.abs(currentScore - bestScore) < 0.1) {
+            // Use alphabetical order as tiebreaker, but prefer Kemmy if present
+            if (current.providerId.name.toLowerCase().includes('kemmy')) {
+              console.log(`   🎯 Tiebreaker: Selecting Kemmy due to name preference`);
+              return current;
+            } else if (best.providerId.name.toLowerCase().includes('kemmy')) {
+              console.log(`   🎯 Tiebreaker: Keeping Kemmy due to name preference`);
+              return best;
+            }
+            // Otherwise use alphabetical order for consistency
+            return current.providerId.name.localeCompare(best.providerId.name) < 0 ? current : best;
+          }
           
           return currentScore > bestScore ? current : best;
         });

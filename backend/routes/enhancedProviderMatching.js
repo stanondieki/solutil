@@ -134,7 +134,8 @@ router.post('/match-providers-v2', protect, roleGuard(['client']), async (req, r
         name: provider.name,
         email: provider.email,
         phone: provider.phone,
-        profilePicture: provider.profilePicture,
+        profilePicture: getEnhancedProfilePicture(provider, searchCategory).url,
+        profilePictureType: getEnhancedProfilePicture(provider, searchCategory).type,
         matchType: 'service',
         serviceId: service._id,
         serviceName: service.title,
@@ -148,6 +149,8 @@ router.post('/match-providers-v2', protect, roleGuard(['client']), async (req, r
           experience: profile.experience || 'Professional service provider',
           skills: profile.skills || [],
           serviceAreas: profile.serviceAreas || ['Nairobi'],
+          avatar: getEnhancedProfilePicture(provider, searchCategory).url,
+          avatarType: getEnhancedProfilePicture(provider, searchCategory).type,
           hourlyRate: service.price || profile.hourlyRate || 2000,
           availability: profile.availability || 'Available',
           responseTime: '10-30 min',
@@ -178,7 +181,8 @@ router.post('/match-providers-v2', protect, roleGuard(['client']), async (req, r
             name: provider.name,
             email: provider.email,
             phone: provider.phone,
-            profilePicture: provider.profilePicture,
+            profilePicture: getEnhancedProfilePicture(provider, searchCategory).url,
+            profilePictureType: getEnhancedProfilePicture(provider, searchCategory).type,
             matchType: 'skill',
             profile: {
               businessName: profile.businessName || provider.name,
@@ -191,7 +195,9 @@ router.post('/match-providers-v2', protect, roleGuard(['client']), async (req, r
               hourlyRate: profile.hourlyRate || 2000,
               availability: profile.availability || 'Available',
               responseTime: '10-30 min',
-              verified: profile.isVerified || false
+              verified: profile.isVerified || false,
+              avatar: getEnhancedProfilePicture(provider, searchCategory).url,
+              avatarType: getEnhancedProfilePicture(provider, searchCategory).type
             },
             matchScore: calculateMatchScore({
               matchType: 'skill',
@@ -314,6 +320,56 @@ function calculateMatchScore({
   }
 
   return Math.round(score);
+}
+
+/**
+ * Get enhanced profile picture with intelligent fallbacks
+ */
+function getEnhancedProfilePicture(provider, category) {
+  // If provider has a profile picture, use it
+  if (provider.profilePicture && provider.profilePicture.trim()) {
+    // Ensure proper URL format
+    let imageUrl = provider.profilePicture;
+    
+    // If it's a relative path, make it absolute
+    if (imageUrl.startsWith('/uploads')) {
+      imageUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}${imageUrl}`;
+    }
+    
+    return {
+      url: imageUrl,
+      type: 'uploaded'
+    };
+  }
+  
+  // Generate category-specific avatar using UI Avatars service
+  const name = encodeURIComponent(provider.name || 'Provider');
+  const categoryColor = getCategoryColor(category);
+  
+  // Use UI Avatars service for professional-looking avatars
+  const avatarUrl = `https://ui-avatars.com/api/?name=${name}&size=200&background=${categoryColor}&color=ffffff&bold=true&format=png`;
+  
+  return {
+    url: avatarUrl,
+    type: 'generated'
+  };
+}
+
+/**
+ * Get category-specific colors for avatars
+ */
+function getCategoryColor(category) {
+  const colorMap = {
+    'electrical': 'f59e0b', // Yellow/amber for electrical
+    'plumbing': '3b82f6',   // Blue for plumbing
+    'cleaning': '10b981',   // Green for cleaning
+    'carpentry': '8b5cf6',  // Purple for carpentry
+    'painting': 'ef4444',   // Red for painting
+    'gardening': '22c55e',  // Bright green for gardening
+    'moving': '6366f1'      // Indigo for moving
+  };
+  
+  return colorMap[category?.toLowerCase()] || '6b7280'; // Default gray
 }
 
 module.exports = router;

@@ -481,7 +481,16 @@ Your booking has been confirmed and you'll receive an email confirmation shortly
         providersNeeded: bookingData.providersNeeded,
         paymentTiming: bookingData.paymentTiming,
         paymentMethod: bookingData.paymentMethod,
-        selectedProvider: selectedProviders[0] || null,
+        selectedProvider: selectedProviders[0] ? {
+          id: selectedProviders[0]._id || selectedProviders[0].id,
+          name: selectedProviders[0].name || selectedProviders[0].Name,
+          serviceId: selectedProviders[0].serviceId || 
+                    selectedProviders[0].mainServiceId || 
+                    selectedProviders[0].service?._id ||
+                    selectedProviders[0].service ||
+                    selectedProviders[0]._id, // Use provider ID as fallback for service ID
+          isFromFallback: selectedProviders[0].isFromFallback || false
+        } : null,
         totalAmount: calculateTotalAmount(),
         paymentReference
       }
@@ -492,7 +501,7 @@ Your booking has been confirmed and you'll receive an email confirmation shortly
       const token = localStorage.getItem('authToken')
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
       
-      const response = await fetch(`${BACKEND_URL}/api/bookings/simple`, {
+      const response = await fetch(`${BACKEND_URL}/api/bookings/simple-v2`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -596,8 +605,9 @@ Status: ${result.data.booking.status}
 
       console.log('Fetching providers with criteria:', requestData)
 
-      // Try the intelligent matching first
-      let response = await fetch(`${BACKEND_URL}/api/booking/match-providers`, {
+      // Try the NEW Ultimate Provider Discovery system first! 🚀
+      console.log('🚀 Using Ultimate Provider Discovery System...')
+      let response = await fetch(`${BACKEND_URL}/api/booking/ultimate-provider-discovery`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -607,7 +617,34 @@ Status: ${result.data.booking.status}
       })
 
       let data = await response.json()
-      console.log('Provider matching API response:', data)
+      console.log('Ultimate Provider Discovery response:', data)
+      
+      if (data.success && data.data.providers?.length > 0) {
+        console.log(`✅ Ultimate Discovery found ${data.data.providers.length} providers!`)
+        console.log('Search strategies used:', data.data.searchStrategies)
+        
+        setProviderMatching({
+          loading: false,
+          providers: data.data.providers || [],
+          error: null,
+          totalFound: data.data.totalFound || 0
+        })
+        return
+      }
+
+      // Fallback: Enhanced matching (should rarely be needed now)
+      console.log('⚠️ Ultimate Discovery found no providers, trying enhanced matching...')
+      response = await fetch(`${BACKEND_URL}/api/booking/match-providers-v2`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      })
+
+      data = await response.json()
+      console.log('Enhanced matching fallback response:', data)
       
       if (data.success && data.data.providers?.length > 0) {
         setProviderMatching({
@@ -616,7 +653,7 @@ Status: ${result.data.booking.status}
           error: null,
           totalFound: data.data.matching?.totalFound || 0
         })
-        console.log('Found providers through matching:', data.data.providers?.length || 0)
+        console.log('Found providers through enhanced matching:', data.data.providers?.length || 0)
         return
       }
 
@@ -681,22 +718,58 @@ Status: ${result.data.booking.status}
           const categoryId = bookingData.category?.id || 'electrical'
           const requiredSkill = categoryMappings[categoryId] || categoryId
           
-          // Filter providers by skills client-side
+          // STRICT category filtering - only exact category matches
+          const strictCategoryKeywords: Record<string, string[]> = {
+            'electrical': ['electrical', 'wiring', 'lighting', 'electrical repair', 'electrician'],
+            'plumbing': ['plumbing', 'pipe repair', 'water systems', 'plumber', 'plumbing services'],
+            'cleaning': ['cleaning', 'house cleaning', 'deep cleaning', 'office cleaning', 'cleaner'],
+            'carpentry': ['carpentry', 'furniture', 'woodwork', 'cabinet making', 'carpenter'],
+            'painting': ['painting', 'interior painting', 'exterior painting', 'painter'],
+            'gardening': ['gardening', 'landscaping', 'lawn care', 'gardener'],
+            'movers': ['moving', 'relocation', 'packing', 'furniture moving', 'mover']
+          }
+          
+          const allowedSkills = strictCategoryKeywords[requiredSkill] || [requiredSkill]
+          console.log(`Strict filtering for ${requiredSkill}. Allowed skills:`, allowedSkills)
+          
           const matchingProviders = testData.data.providers.filter((provider: any) => {
             const providerSkills = provider.providerProfile?.skills || provider.skills || []
-            const hasMatchingSkill = providerSkills.some((skill: string) => 
-              skill.toLowerCase().includes(requiredSkill.toLowerCase()) ||
-              requiredSkill.toLowerCase().includes(skill.toLowerCase())
+            
+            // STRICT matching - skill must be in the allowed list for this category
+            const hasExactMatch = providerSkills.some((skill: string) => 
+              allowedSkills.some((allowedSkill: string) => 
+                skill.toLowerCase().includes(allowedSkill.toLowerCase()) ||
+                allowedSkill.toLowerCase().includes(skill.toLowerCase())
+              )
             )
             
             console.log(`Provider ${provider.name}:`, {
               skills: providerSkills,
               requiredSkill,
-              hasMatchingSkill,
+              allowedSkills,
+              hasExactMatch,
               providerStatus: provider.providerStatus
             })
             
-            return hasMatchingSkill && provider.providerStatus === 'approved'
+            return hasExactMatch && provider.providerStatus === 'approved'
+          }).map((provider: any) => {
+            // Enrich provider with service information for booking
+            const enrichedProvider = {
+              ...provider,
+              serviceId: provider._id, // Use provider ID as fallback service ID
+              serviceName: `${requiredSkill.charAt(0).toUpperCase() + requiredSkill.slice(1)} Services`,
+              category: requiredSkill,
+              price: 3000, // Default price
+              isFromFallback: true
+            }
+            
+            console.log(`Enriched provider ${provider.name}:`, {
+              id: enrichedProvider._id,
+              serviceId: enrichedProvider.serviceId,
+              serviceName: enrichedProvider.serviceName
+            })
+            
+            return enrichedProvider
           })
           
           if (matchingProviders.length > 0) {
@@ -741,6 +814,14 @@ Status: ${result.data.booking.status}
   }
 
   const handleProviderSelection = (provider: any) => {
+    console.log('Provider selection - Full provider object:', provider)
+    console.log('Provider keys:', Object.keys(provider))
+    console.log('Provider._id:', provider._id)
+    console.log('Provider.id:', provider.id)
+    console.log('Provider.serviceId:', provider.serviceId)
+    console.log('Provider.mainServiceId:', provider.mainServiceId)
+    console.log('Provider.service:', provider.service)
+    
     setSelectedProviders(prev => {
       const isSelected = prev.find(p => p._id === provider._id)
       if (isSelected) {
@@ -1622,6 +1703,11 @@ Examples:
                                   src={provider.profilePicture} 
                                   alt={provider.name}
                                   className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback to generated avatar if image fails to load
+                                    const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=200&background=6b7280&color=ffffff&bold=true&format=png`;
+                                    (e.target as HTMLImageElement).src = fallback;
+                                  }}
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-orange-100">
@@ -1741,7 +1827,15 @@ Examples:
                                 <div className="flex items-center space-x-3">
                                   <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
                                     {provider.profilePicture ? (
-                                      <img src={provider.profilePicture} alt={provider.name} className="w-full h-full object-cover" />
+                                      <img 
+                                        src={provider.profilePicture} 
+                                        alt={provider.name} 
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=64&background=6b7280&color=ffffff&bold=true&format=png`;
+                                          (e.target as HTMLImageElement).src = fallback;
+                                        }}
+                                      />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center bg-orange-100">
                                         <FaUser className="h-3 w-3 text-orange-600" />
@@ -1884,7 +1978,15 @@ Examples:
                               <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                   {provider.profilePicture ? (
-                                    <img src={provider.profilePicture} alt={provider.name} className="w-full h-full object-cover" />
+                                    <img 
+                                      src={provider.profilePicture} 
+                                      alt={provider.name} 
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=80&background=6b7280&color=ffffff&bold=true&format=png`;
+                                        (e.target as HTMLImageElement).src = fallback;
+                                      }}
+                                    />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-orange-100">
                                       <FaUser className="h-4 w-4 text-orange-600" />

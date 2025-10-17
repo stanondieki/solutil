@@ -55,12 +55,94 @@ exports.createEnhancedSimpleBooking = catchAsync(async (req, res, next) => {
     let assignedService = null;
     let providerAssignmentMethod = '';
 
-    if (selectedProvider?.id && selectedProvider.id !== 'temp') {
+    const hasValidProviderId = selectedProvider?.id || selectedProvider?._id;
+    if (hasValidProviderId && hasValidProviderId !== 'temp') {
       // User selected a specific provider
-      console.log('👤 Using user-selected provider:', selectedProvider.name);
-      assignedProvider = selectedProvider.id;
-      assignedService = selectedProvider.serviceId;
+      console.log('👤 User selected specific provider:', selectedProvider.name || selectedProvider.Name);
+      console.log('👤 Provider ID:', selectedProvider.id || selectedProvider._id);
+      console.log('👤 Service ID:', selectedProvider.serviceId || selectedProvider.service?._id);
+      console.log('👤 Full selectedProvider object:', JSON.stringify(selectedProvider, null, 2));
+      
+      // Handle different possible field names from frontend
+      const providerId = selectedProvider.id || selectedProvider._id;
+      const serviceId = selectedProvider.serviceId || selectedProvider.service?._id || selectedProvider.service;
+      
+      if (!providerId || !serviceId) {
+        console.log('❌ Invalid provider selection data');
+        console.log('   Expected: { id, serviceId }');
+        console.log('   Received:', { 
+          id: providerId, 
+          serviceId: serviceId,
+          fullObject: Object.keys(selectedProvider) 
+        });
+        return next(new AppError('Invalid provider selection data. Please try selecting the provider again.', 400));
+      }
+      
+      // Verify the provider and service exist
+      const User = require('../models/User');
+      const ProviderService = require('../models/ProviderService');
+      
+      const [providerExists, serviceExists] = await Promise.all([
+        User.findById(providerId).select('name userType providerStatus'),
+        ProviderService.findById(serviceId).select('title providerId')
+      ]);
+      
+      if (!providerExists) {
+        console.log('❌ Selected provider not found in database:', providerId);
+        return next(new AppError('Selected provider not found. Please try selecting again.', 400));
+      }
+      
+      let validService = serviceExists;
+      
+      if (!serviceExists) {
+        console.log('⚠️ Selected service not found, checking if this is a fallback provider selection...');
+        
+        // Check if serviceId equals providerId (fallback scenario)
+        if (serviceId === providerId) {
+          console.log('🔄 Creating dynamic service for fallback provider selection...');
+          
+          // Create a dynamic service for this provider
+          try {
+            validService = await ProviderService.create({
+              providerId: providerId,
+              title: `${category.name || 'Service'} by ${providerExists.name}`,
+              description: `Professional ${category.name || 'service'} provided by ${providerExists.name}`,
+              category: category.id || 'other',
+              price: totalAmount || 3000,
+              priceType: 'fixed',
+              duration: 120, // Default 2 hours in minutes
+              location: location.area || 'Nairobi',
+              isActive: true,
+              createdFromFallback: true
+            });
+            
+            console.log('✅ Dynamic service created:', validService.title);
+            assignedService = validService._id;
+          } catch (serviceCreationError) {
+            console.log('❌ Failed to create dynamic service:', serviceCreationError.message);
+            return next(new AppError('Failed to create service for selected provider. Please try again.', 500));
+          }
+        } else {
+          console.log('❌ Selected service not found in database:', serviceId);
+          return next(new AppError('Selected service not found. Please try selecting again.', 400));
+        }
+      } else {
+        // Verify the service belongs to the provider (for normal services)
+        if (validService.providerId.toString() !== providerId.toString()) {
+          console.log('❌ Service does not belong to selected provider');
+          console.log('   Service provider:', validService.providerId.toString());
+          console.log('   Selected provider:', providerId.toString());
+          return next(new AppError('Service does not belong to selected provider. Please try again.', 400));
+        }
+      }
+      
+      assignedProvider = providerId;
+      assignedService = serviceId;
       providerAssignmentMethod = 'user-selected';
+      
+      console.log('✅ Provider selection validated successfully');
+      console.log('   Assigned Provider:', providerExists.name);
+      console.log('   Assigned Service:', validService.title);
     } else {
       // Auto-assign using enhanced matching
       console.log('🤖 Auto-assigning provider using enhanced matching...');

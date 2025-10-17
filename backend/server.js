@@ -166,6 +166,7 @@ app.use('/api/provider-bookings', providerBookingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/booking', providerMatchingRoutes);
 app.use('/api/booking', enhancedProviderMatchingRoutes);
+app.use('/api/booking', require('./routes/ultimateProviderDiscovery')); // 🚀 Ultimate provider discovery system
 
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
