@@ -18,7 +18,8 @@ import {
   FaFileAlt,
   FaCheckCircle,
   FaExclamationTriangle,
-  FaTimesCircle
+  FaTimesCircle,
+  FaEye
 } from 'react-icons/fa'
 import { clientAPI } from '@/lib/clientAPI'
 import { useAuth } from '@/contexts/AuthContext'
@@ -273,7 +274,18 @@ export default function BookingDetailsPage() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-xl shadow-lg p-6 border border-orange-100"
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Provider Information</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">Provider Information</h2>
+                  {booking.provider?._id && (
+                    <Link 
+                      href={`/provider/${booking.provider._id}`}
+                      className="inline-flex items-center px-3 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                    >
+                      <FaUser className="mr-2 h-4 w-4" />
+                      View Profile
+                    </Link>
+                  )}
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <FaUser className="text-orange-500 text-lg" />

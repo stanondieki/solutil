@@ -222,12 +222,22 @@ export default function BookingsPage() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <Link 
-                    href={`/bookings/${booking._id}`}
-                    className="text-orange-600 hover:text-orange-700 font-medium"
-                  >
-                    View Details
-                  </Link>
+                  <div className="flex space-x-3">
+                    <Link 
+                      href={`/bookings/${booking._id}`}
+                      className="text-orange-600 hover:text-orange-700 font-medium"
+                    >
+                      View Details
+                    </Link>
+                    {booking.provider?._id && (
+                      <Link 
+                        href={`/provider/${booking.provider._id}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View Provider
+                      </Link>
+                    )}
+                  </div>
                   <div className="flex space-x-2">
                     {booking.status === 'completed' && !booking.rating && (
                       <button className="flex items-center space-x-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-lg hover:bg-orange-200 transition-colors">

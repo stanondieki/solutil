@@ -523,6 +523,62 @@ router.get('/verified/all', catchAsync(async (req, res, next) => {
   });
 }));
 
+// @desc    Get single verified provider profile (public)
+// @route   GET /api/providers/public/:id
+// @access  Public
+router.get('/public/:id', catchAsync(async (req, res, next) => {
+  const provider = await User.findById(req.params.id)
+    .select('name email phone profilePicture avatar providerProfile providerStatus createdAt address')
+    .populate('approvedBy', 'name email');
+
+  if (!provider || provider.userType !== 'provider' || provider.providerStatus !== 'approved') {
+    return next(new AppError('Provider not found or not available', 404));
+  }
+
+  // Fetch provider's services
+  let providerServices = [];
+  try {
+    providerServices = await ProviderService.find({
+      providerId: provider._id,
+      isActive: true
+    }).select('title description category price priceType duration images rating reviewCount totalBookings');
+  } catch (error) {
+    console.error(`Error fetching services for provider ${provider._id}:`, error);
+  }
+
+  // Format provider data for public viewing
+  const publicProviderData = {
+    _id: provider._id,
+    name: provider.name,
+    email: provider.email,
+    phone: provider.phone,
+    profilePicture: provider.avatar?.url || provider.profilePicture || null,
+    providerProfile: {
+      businessName: provider.providerProfile?.businessName || provider.name,
+      experience: provider.providerProfile?.experience || 'Experienced professional',
+      skills: provider.providerProfile?.skills || [],
+      hourlyRate: provider.providerProfile?.hourlyRate || 0,
+      availability: provider.providerProfile?.availability || {},
+      serviceAreas: provider.providerProfile?.serviceAreas || [],
+      bio: provider.providerProfile?.bio || '',
+      completedJobs: provider.providerProfile?.completedJobs || 0,
+      rating: provider.providerProfile?.rating || 0,
+      reviewCount: provider.providerProfile?.reviewCount || 0
+    },
+    services: providerServices,
+    providerStatus: provider.providerStatus,
+    memberSince: provider.createdAt,
+    address: provider.address || {}
+  };
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      provider: publicProviderData
+    }
+  });
+}));
+
 // @desc    Backfill services for existing approved providers
 // @route   POST /api/providers/backfill-services
 // @access  Private (Admin only)
