@@ -89,12 +89,13 @@ export default function ProviderProfilePage() {
       
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
       
-      // Fetch single provider details using the new public endpoint
-      const providerResponse = await fetch(`${BACKEND_URL}/api/providers/public/${providerId}`);
+      // Fetch provider details from the working verified/all endpoint
+      const providerResponse = await fetch(`${BACKEND_URL}/api/providers/verified/all`);
       
       if (providerResponse.ok) {
         const providerData = await providerResponse.json();
-        const foundProvider = providerData.data?.provider;
+        const allProviders = providerData.data?.providers || [];
+        const foundProvider = allProviders.find((p: any) => p._id === providerId);
         
         if (foundProvider) {
           // Map to our interface
