@@ -1561,7 +1561,7 @@ export default function DashboardPage() {
                       </div>
                       
                       <Link
-                        href={`/providers/${provider._id}`}
+                        href={`/provider/${provider._id}`}
                         className="w-full bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors flex items-center justify-center"
                       >
                         <FaEye className="mr-2 h-4 w-4" />
