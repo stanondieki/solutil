@@ -448,11 +448,14 @@ router.post('/:id/approve', protect, catchAsync(async (req, res, next) => {
 // @route   GET /api/providers/public/:id
 // @access  Public
 router.get('/public/:id', catchAsync(async (req, res, next) => {
-  const provider = await User.findById(req.params.id)
-    .select('name email phone profilePicture avatar providerProfile providerStatus createdAt address')
+  const provider = await User.findOne({
+    _id: req.params.id,
+    userType: 'provider',
+    providerStatus: 'approved'
+  }).select('name email phone profilePicture avatar providerProfile providerStatus createdAt address')
     .populate('approvedBy', 'name email');
 
-  if (!provider || provider.userType !== 'provider' || provider.providerStatus !== 'approved') {
+  if (!provider) {
     return next(new AppError('Provider not found or not available', 404));
   }
 
