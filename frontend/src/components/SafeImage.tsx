@@ -10,6 +10,7 @@ interface SafeImageProps {
   className?: string;
   fallbackSrc?: string;
   fallbackIcon?: React.ReactNode;
+  sizes?: string;
 }
 
 export default function SafeImage({
@@ -20,7 +21,8 @@ export default function SafeImage({
   height,
   className = '',
   fallbackSrc = '/images/default-avatar.svg',
-  fallbackIcon
+  fallbackIcon,
+  sizes
 }: SafeImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
@@ -62,7 +64,8 @@ export default function SafeImage({
     alt,
     className,
     onError: handleError,
-    ...(fill ? { fill: true } : { width, height })
+    ...(fill ? { fill: true } : { width, height }),
+    ...(sizes && { sizes })
   };
 
   return <Image {...imageProps} />;
