@@ -122,11 +122,29 @@ export default function ProvidersPage() {
   const fetchVerifiedProviders = async () => {
     try {
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
-      const response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=50`);
+      
+      // Try to get token for featured providers endpoint (which includes service pricing)
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      
+      let response;
+      if (token) {
+        // Use featured providers endpoint that includes service pricing
+        response = await fetch(`${BACKEND_URL}/api/providers/featured?limit=50`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+      
+      // Fallback to verified providers if featured endpoint fails
+      if (!response || !response.ok) {
+        response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=50`);
+      }
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Verified providers response:', data);
+        console.log('Providers response:', data);
         
         const verifiedProviders = data.data?.providers || [];
         
@@ -150,6 +168,7 @@ export default function ProvidersPage() {
             serviceAreas: provider.providerProfile?.serviceAreas || ['Nairobi'],
             specializations: provider.providerProfile?.skills || []
           },
+          services: provider.services || [], // Add services array from featured providers endpoint
           isVerified: provider.providerStatus === 'approved',
           isActive: true
         }));
