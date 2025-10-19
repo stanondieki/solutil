@@ -102,24 +102,32 @@ export default function ProvidersPage() {
   const fetchVerifiedProviders = async () => {
     try {
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+      console.log('Using BACKEND_URL:', BACKEND_URL);
       
       // Try to get token for featured providers endpoint (which includes service pricing)
       const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      console.log('Auth token available:', !!token);
       
       let response;
       if (token) {
         // Use featured providers endpoint that includes service pricing
-        response = await fetch(`${BACKEND_URL}/api/providers/featured?limit=50`, {
+        const featuredUrl = `${BACKEND_URL}/api/providers/featured?limit=50`;
+        console.log('Trying featured providers endpoint:', featuredUrl);
+        response = await fetch(featuredUrl, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
+        console.log('Featured providers response status:', response?.status);
       }
       
       // Fallback to verified providers if featured endpoint fails
       if (!response || !response.ok) {
-        response = await fetch(`${BACKEND_URL}/api/providers/verified/all?limit=50`);
+        const verifiedUrl = `${BACKEND_URL}/api/providers/verified/all?limit=50`;
+        console.log('Falling back to verified providers endpoint:', verifiedUrl);
+        response = await fetch(verifiedUrl);
+        console.log('Verified providers response status:', response?.status);
       }
       
       if (response.ok) {
