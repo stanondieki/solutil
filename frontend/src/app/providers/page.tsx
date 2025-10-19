@@ -133,9 +133,20 @@ export default function ProvidersPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Providers response:', data);
-        console.log('Raw providers count:', data.data?.providers?.length || 0);
         
-        const verifiedProviders = data.data?.providers || [];
+        // Handle different response structures
+        let verifiedProviders = [];
+        if (data.data?.providers) {
+          // Verified providers endpoint format: {data: {providers: [...]}}
+          verifiedProviders = data.data.providers;
+          console.log('Using verified providers format, count:', verifiedProviders.length);
+        } else if (data.providers) {
+          // Featured providers endpoint format: {success: true, providers: [...]}
+          verifiedProviders = data.providers;
+          console.log('Using featured providers format, count:', verifiedProviders.length);
+        }
+        
+        console.log('Raw providers count:', verifiedProviders.length);
         console.log('Verified providers array:', verifiedProviders);
         
         // Map to our Provider interface
