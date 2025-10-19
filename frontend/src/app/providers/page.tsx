@@ -89,31 +89,11 @@ export default function ProvidersPage() {
       setLoading(true);
       setError(null);
       
-      // First try to fetch providers through services
-      const response = await clientAPI.getServicesByCategory('all');
-      
-      if (response.success && response.data?.services && response.data.services.length > 0) {
-        setServices(response.data.services);
-        
-        // Extract unique providers from services
-        const uniqueProviders = response.data.services.reduce((acc: Provider[], service: Service) => {
-          const existingProvider = acc.find(p => p._id === service.providerId._id);
-          if (!existingProvider && service.providerId) {
-            acc.push(service.providerId as Provider);
-          }
-          return acc;
-        }, []);
-        
-        setProviders(uniqueProviders);
-      } else {
-        // If no services found, try to get providers directly
-        console.log('No services found, fetching providers directly...');
-        await fetchVerifiedProviders();
-      }
+      // Directly use the working fetchVerifiedProviders method
+      await fetchVerifiedProviders();
     } catch (error) {
       console.error('Error fetching providers:', error);
-      // Try direct provider fetch as fallback
-      await fetchVerifiedProviders();
+      setError('Unable to load providers. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -145,8 +125,10 @@ export default function ProvidersPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Providers response:', data);
+        console.log('Raw providers count:', data.data?.providers?.length || 0);
         
         const verifiedProviders = data.data?.providers || [];
+        console.log('Verified providers array:', verifiedProviders);
         
         // Map to our Provider interface
         const mappedProviders: Provider[] = verifiedProviders.map((provider: any) => ({
@@ -172,6 +154,9 @@ export default function ProvidersPage() {
           isVerified: provider.providerStatus === 'approved',
           isActive: true
         }));
+        
+        console.log('Mapped providers:', mappedProviders);
+        console.log('About to set providers count:', mappedProviders.length);
         
         setProviders(mappedProviders);
         setServices([]); // No services available
