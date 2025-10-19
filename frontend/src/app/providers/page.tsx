@@ -48,6 +48,7 @@ interface Provider {
     serviceAreas: string[];
     specializations: string[];
   };
+  services?: Service[]; // Actual services with pricing
   isVerified: boolean;
   isActive: boolean;
 }
@@ -194,8 +195,28 @@ export default function ProvidersPage() {
     return rating > 0 ? rating.toFixed(1) : 'New';
   };
 
-  const formatPrice = (hourlyRate: number) => {
-    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}` : 'Contact for quote';
+  const getProviderPrice = (provider: Provider) => {
+    // Check if provider has actual service data with pricing
+    if (provider.services && provider.services.length > 0) {
+      const servicePrices = provider.services.map(s => s.price || 0).filter(p => p > 0);
+      
+      if (servicePrices.length > 0) {
+        const uniquePrices = [...new Set(servicePrices)];
+        
+        if (uniquePrices.length === 1) {
+          // All services have the same price
+          return `KES ${uniquePrices[0].toLocaleString()}`;
+        } else {
+          // Services have different prices - show range
+          const minPrice = Math.min(...servicePrices);
+          const maxPrice = Math.max(...servicePrices);
+          return `KES ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`;
+        }
+      }
+    }
+    
+    // Show a generic message that encourages clicking through to see actual pricing
+    return 'See Profile for Pricing';
   };
 
   if (loading) {
@@ -345,9 +366,9 @@ export default function ProvidersPage() {
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-orange-600">
-                        {formatPrice(provider.providerProfile?.hourlyRate || 0)}
+                        {getProviderPrice(provider)}
                       </div>
-                      <div className="text-xs text-gray-500">Starting Rate</div>
+                      <div className="text-xs text-gray-500">Service Price</div>
                     </div>
                   </div>
 
