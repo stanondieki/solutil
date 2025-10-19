@@ -224,14 +224,14 @@ export default function ProviderProfilePage() {
         setServices(providerServices);
       } else {
         console.error('Failed to fetch services from v2 API:', servicesResponse.status);
-        // Create a sample service based on provider profile for display
+        // Create a sample service with fixed pricing in KES
         const sampleService = {
           _id: `sample-${providerId}`,
           title: `Professional Services`,
           description: 'High-quality professional services available.',
           category: 'Professional Services',
-          price: 1800,
-          priceType: 'hourly',
+          price: 2500,
+          priceType: 'fixed',
           duration: 60,
           images: [],
           rating: 4.5,
@@ -249,8 +249,8 @@ export default function ProviderProfilePage() {
         title: 'Service Available',
         description: 'Contact provider for service details and pricing.',
         category: 'Professional Services',
-        price: 1500,
-        priceType: 'quote',
+        price: 2000,
+        priceType: 'fixed',
         duration: 60,
         images: [],
         rating: 4.5,
@@ -266,8 +266,30 @@ export default function ProviderProfilePage() {
     return rating > 0 ? rating.toFixed(1) : 'New';
   };
 
-  const formatPrice = (hourlyRate: number) => {
-    return hourlyRate > 0 ? `KES ${hourlyRate.toLocaleString()}` : 'Contact for quote';
+  const getDisplayPrice = () => {
+    if (!services.length) {
+      return 'Contact for pricing';
+    }
+
+    // Get all valid service prices (fixed prices in KES)
+    const servicePrices = services.map(s => s.price || 0).filter(p => p > 0);
+    
+    if (servicePrices.length === 0) {
+      return 'Contact for pricing';
+    }
+
+    // Check if all services have the same price
+    const uniquePrices = [...new Set(servicePrices)];
+    
+    if (uniquePrices.length === 1) {
+      // All services have the same fixed price
+      return `KES ${uniquePrices[0].toLocaleString()}`;
+    } else {
+      // Services have different fixed prices - show range
+      const minPrice = Math.min(...servicePrices);
+      const maxPrice = Math.max(...servicePrices);
+      return `KES ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`;
+    }
   };
 
   const formatWorkingHours = (workingHours: { start: string; end: string }) => {
@@ -382,7 +404,7 @@ export default function ProviderProfilePage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <FaDollarSign className="text-green-600 text-lg" />
-                  <span className="font-medium text-green-600">{formatPrice(provider.providerProfile.hourlyRate)}</span>
+                  <span className="font-medium text-green-600">{getDisplayPrice()}</span>
                 </div>
               </div>
 
