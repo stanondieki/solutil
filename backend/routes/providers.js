@@ -105,9 +105,20 @@ router.get('/featured', protect, catchAsync(async (req, res, next) => {
   })
   .limit(parseInt(limit));
 
-  // Map providers to include enhanced data
-  const featuredProviders = providers.map(provider => {
+  // Map providers to include enhanced data and their services
+  const featuredProviders = await Promise.all(providers.map(async (provider) => {
     const providerInfo = provider.providerProfile || {};
+    
+    // Fetch provider's services from ProviderService model
+    let providerServices = [];
+    try {
+      providerServices = await ProviderService.find({
+        providerId: provider._id,
+        isActive: true
+      }).select('title description category price priceType duration images rating reviewCount totalBookings').limit(10);
+    } catch (error) {
+      console.error(`Error fetching services for featured provider ${provider._id}:`, error);
+    }
     
     return {
       _id: provider._id,
@@ -127,11 +138,11 @@ router.get('/featured', protect, catchAsync(async (req, res, next) => {
         reviewCount: providerInfo.reviewCount || 0,
         services: providerInfo.services || []
       },
-      services: [],
+      services: providerServices, // Include actual ProviderServices with pricing
       providerStatus: provider.providerStatus,
       createdAt: provider.createdAt
     };
-  });
+  }));
 
   res.status(200).json({
     success: true,
