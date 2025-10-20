@@ -67,6 +67,8 @@ const providerMatchingRoutes = require('./routes/providerMatching');
 console.log('Loaded providerMatchingRoutes');
 const enhancedProviderMatchingRoutes = require('./routes/enhancedProviderMatching');
 console.log('Loaded enhancedProviderMatchingRoutes');
+const smartProviderMatchingRoutes = require('./routes/smartProviderMatching');
+console.log('Loaded smartProviderMatchingRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 console.log('Loaded errorHandler');
@@ -166,6 +168,8 @@ app.use('/api/provider-bookings', providerBookingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/booking', providerMatchingRoutes);
 app.use('/api/booking', enhancedProviderMatchingRoutes);
+app.use('/api/booking', smartProviderMatchingRoutes); // 🧠 Smart provider matching with availability checking
+app.use('/api/booking', require('./routes/optimalProviderMatching')); // 🎯 Optimal provider matching with comprehensive factors
 app.use('/api/booking', require('./routes/ultimateProviderDiscovery')); // 🚀 Ultimate provider discovery system
 
 // Serve static files for uploads

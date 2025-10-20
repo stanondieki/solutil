@@ -1265,9 +1265,86 @@ Status: ${result.data.booking.status}
 
       console.log('Fetching providers with criteria:', requestData)
 
-      // Try the NEW Ultimate Provider Discovery system first! 🚀
-      console.log('🚀 Using Ultimate Provider Discovery System...')
-      let response = await fetch(`${BACKEND_URL}/api/booking/ultimate-provider-discovery`, {
+      // Try the NEW Smart Provider Matching with Availability Checking first! 🧠
+      console.log('🧠 Using Smart Provider Matching with availability, area, and category validation...')
+      let response = await fetch(`${BACKEND_URL}/api/booking/smart-match-providers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...requestData,
+          budget: bookingData.priceBreakdown ? {
+            min: Math.round(bookingData.priceBreakdown.calculations.finalTotal * 0.8),
+            max: Math.round(bookingData.priceBreakdown.calculations.finalTotal * 1.2)
+          } : undefined,
+          customerPreferences: {
+            preferHighRating: true,
+            preferLocalProviders: true,
+            preferExperienced: true,
+            preferAvailable: true
+          },
+          selectedSubService: bookingData.selectedSubService
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Smart matching successful:', data.data.providers?.length, 'available providers found')
+        
+        setProviderMatching({
+          loading: false,
+          providers: data.data.providers || [],
+          error: null,
+          totalFound: data.data.totalFound || 0
+        })
+        return
+      }
+
+      // Fallback 1: Enhanced Optimal Provider Discovery system
+      console.log('⚠️ Smart matching failed, trying Enhanced Optimal Provider Discovery...')
+      response = await fetch(`${BACKEND_URL}/api/booking/find-optimal-providers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...requestData,
+          budget: bookingData.priceBreakdown ? {
+            min: Math.round(bookingData.priceBreakdown.calculations.finalTotal * 0.8),
+            max: Math.round(bookingData.priceBreakdown.calculations.finalTotal * 1.2)
+          } : undefined,
+          duration: 2, // Default duration
+          customerPreferences: {
+            preferHighRating: true,
+            preferLocalProviders: true,
+            preferExperienced: true
+          }
+        })
+      })
+
+      let data = await response.json()
+      console.log('🎯 Enhanced Optimal Provider Discovery response:', data)
+      
+      if (data.success && data.data.providers?.length > 0) {
+        console.log(`✅ Enhanced Optimal Discovery found ${data.data.providers.length} providers!`)
+        console.log('Matching factors:', data.data.matching?.factors)
+        console.log(`📊 Quality scores - Top: ${data.data.matching?.topScore}, Average: ${data.data.matching?.averageScore}`)
+        
+        setProviderMatching({
+          loading: false,
+          providers: data.data.providers || [],
+          error: null,
+          totalFound: data.data.totalFound || 0
+        })
+        return
+      }
+
+      // Fallback 1: Ultimate Provider Discovery system
+      console.log('⚠️ Enhanced Optimal Discovery found no providers, trying Ultimate Discovery...')
+      response = await fetch(`${BACKEND_URL}/api/booking/ultimate-provider-discovery`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1276,8 +1353,8 @@ Status: ${result.data.booking.status}
         body: JSON.stringify(requestData)
       })
 
-      let data = await response.json()
-      console.log('Ultimate Provider Discovery response:', data)
+      data = await response.json()
+      console.log('Ultimate Provider Discovery fallback response:', data)
       
       if (data.success && data.data.providers?.length > 0) {
         console.log(`✅ Ultimate Discovery found ${data.data.providers.length} providers!`)
@@ -1292,8 +1369,8 @@ Status: ${result.data.booking.status}
         return
       }
 
-      // Fallback: Enhanced matching (should rarely be needed now)
-      console.log('⚠️ Ultimate Discovery found no providers, trying enhanced matching...')
+      // Fallback 2: Enhanced matching v2 (should rarely be needed now)
+      console.log('⚠️ Ultimate Discovery found no providers, trying enhanced matching v2...')
       response = await fetch(`${BACKEND_URL}/api/booking/match-providers-v2`, {
         method: 'POST',
         headers: {
@@ -1304,7 +1381,7 @@ Status: ${result.data.booking.status}
       })
 
       data = await response.json()
-      console.log('Enhanced matching fallback response:', data)
+      console.log('Enhanced matching v2 fallback response:', data)
       
       if (data.success && data.data.providers?.length > 0) {
         setProviderMatching({
@@ -1313,7 +1390,7 @@ Status: ${result.data.booking.status}
           error: null,
           totalFound: data.data.matching?.totalFound || 0
         })
-        console.log('Found providers through enhanced matching:', data.data.providers?.length || 0)
+        console.log('Found providers through enhanced matching v2:', data.data.providers?.length || 0)
         return
       }
 
