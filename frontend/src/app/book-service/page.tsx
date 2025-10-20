@@ -65,15 +65,461 @@ declare global {
   }
 }
 
-// Fixed Service Pricing (no hourly rates)
+// Dynamic Service Pricing Structure
+interface ServicePricing {
+  id: string
+  name: string
+  priceRange: { min: number; max: number }
+  sizeBased?: boolean
+  sizeMultipliers?: Record<string, number>
+  description: string
+  estimatedDuration: string
+  category: string
+}
+
+interface PriceBreakdown {
+  serviceName: string
+  basePrice: number
+  sizeMultiplier?: number
+  urgencyMultiplier: number
+  locationMultiplier: number
+  providersNeeded: number
+  calculations: {
+    baseService: number
+    afterSize?: number
+    afterUrgency: number
+    afterLocation: number
+    finalTotal: number
+  }
+}
+
+const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
+  plumbing: [
+    {
+      id: 'minor-repair',
+      name: 'Minor leaks / tap replacement',
+      priceRange: { min: 1500, max: 2000 },
+      sizeBased: false,
+      description: 'Fix small leaks, replace taps/faucets',
+      estimatedDuration: '1-2 hours',
+      category: 'plumbing'
+    },
+    {
+      id: 'toilet-installation',
+      name: 'Toilet / sink installation',
+      priceRange: { min: 3000, max: 5000 },
+      sizeBased: false,
+      description: 'Install new toilet or sink',
+      estimatedDuration: '2-4 hours',
+      category: 'plumbing'
+    },
+    {
+      id: 'water-heater',
+      name: 'Water heater installation',
+      priceRange: { min: 5000, max: 10000 },
+      sizeBased: false,
+      description: 'Install electric or gas water heater',
+      estimatedDuration: '3-5 hours',
+      category: 'plumbing'
+    },
+    {
+      id: 'full-bathroom',
+      name: 'Full bathroom plumbing setup',
+      priceRange: { min: 15000, max: 35000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,
+        'medium': 1.3,
+        'large': 1.6
+      },
+      description: 'Complete bathroom plumbing installation',
+      estimatedDuration: '1-3 days',
+      category: 'plumbing'
+    },
+    {
+      id: 'emergency-plumbing',
+      name: 'Emergency call-out (same-day service)',
+      priceRange: { min: 2000, max: 4000 },
+      sizeBased: false,
+      description: 'Emergency plumbing service',
+      estimatedDuration: '1-4 hours',
+      category: 'plumbing'
+    }
+  ],
+  electrical: [
+    {
+      id: 'inspection',
+      name: 'Electrical inspection / diagnosis',
+      priceRange: { min: 1800, max: 3000 },
+      sizeBased: false,
+      description: 'Professional electrical system inspection',
+      estimatedDuration: '1-3 hours',
+      category: 'electrical'
+    },
+    {
+      id: 'socket-installation',
+      name: 'Socket / switch installation',
+      priceRange: { min: 1000, max: 2000 },
+      sizeBased: false,
+      description: 'Install electrical sockets or switches',
+      estimatedDuration: '30min-2 hours',
+      category: 'electrical'
+    },
+    {
+      id: 'lighting-installation',
+      name: 'Lighting fixture installation',
+      priceRange: { min: 1500, max: 5000 },
+      sizeBased: false,
+      description: 'Install ceiling lights, chandeliers, etc.',
+      estimatedDuration: '1-3 hours',
+      category: 'electrical'
+    },
+    {
+      id: 'room-rewiring',
+      name: 'Small rewiring (room or circuit)',
+      priceRange: { min: 3500, max: 8000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,
+        'medium': 1.4,
+        'large': 1.8
+      },
+      description: 'Rewire single room or electrical circuit',
+      estimatedDuration: '4-8 hours',
+      category: 'electrical'
+    },
+    {
+      id: 'full-rewiring',
+      name: 'Full house rewiring (2–3 bedroom)',
+      priceRange: { min: 30000, max: 50000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,   // 1-2 bedrooms
+        'medium': 1.3,  // 3 bedrooms
+        'large': 1.6    // 4+ bedrooms
+      },
+      description: 'Complete house electrical rewiring',
+      estimatedDuration: '3-7 days',
+      category: 'electrical'
+    }
+  ],
+  cleaning: [
+    {
+      id: 'basic-1-2bed',
+      name: 'Basic cleaning (1-2 bedrooms)',
+      priceRange: { min: 1800, max: 3000 },
+      sizeBased: false,
+      description: 'Standard house cleaning for small apartments',
+      estimatedDuration: '2-4 hours',
+      category: 'cleaning'
+    },
+    {
+      id: 'basic-3-4bed',
+      name: 'Standard cleaning (3-4 bedrooms)',
+      priceRange: { min: 3000, max: 4500 },
+      sizeBased: false,
+      description: 'Standard house cleaning for larger homes',
+      estimatedDuration: '3-6 hours',
+      category: 'cleaning'
+    },
+    {
+      id: 'deep-cleaning',
+      name: 'Deep cleaning (full house)',
+      priceRange: { min: 5000, max: 12000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // 1-2 bedrooms
+        'medium': 1.4,   // 3-4 bedrooms  
+        'large': 1.8     // 5+ bedrooms
+      },
+      description: 'Thorough deep cleaning service',
+      estimatedDuration: '4-8 hours',
+      category: 'cleaning'
+    },
+    {
+      id: 'post-construction',
+      name: 'Post-construction cleaning',
+      priceRange: { min: 8000, max: 20000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,
+        'medium': 1.5,
+        'large': 2.0
+      },
+      description: 'Clean up after construction or renovation',
+      estimatedDuration: '6-12 hours',
+      category: 'cleaning'
+    },
+    {
+      id: 'carpet-cleaning',
+      name: 'Carpet or upholstery cleaning',
+      priceRange: { min: 2500, max: 6000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Small carpet/single room
+        'medium': 1.5,   // Medium carpet/living room
+        'large': 2.2     // Large carpet/full house
+      },
+      description: 'Professional carpet and upholstery cleaning',
+      estimatedDuration: '2-5 hours',
+      category: 'cleaning'
+    }
+  ],
+  carpentry: [
+    {
+      id: 'furniture-repair',
+      name: 'Furniture repair',
+      priceRange: { min: 1500, max: 4000 },
+      sizeBased: false,
+      description: 'Repair chairs, tables, cabinets, etc.',
+      estimatedDuration: '2-5 hours',
+      category: 'carpentry'
+    },
+    {
+      id: 'custom-furniture',
+      name: 'Custom furniture making',
+      priceRange: { min: 5000, max: 25000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Simple items
+        'medium': 1.5,   // Medium complexity
+        'large': 2.5     // Complex custom work
+      },
+      description: 'Build custom furniture to specification',
+      estimatedDuration: '1-5 days',
+      category: 'carpentry'
+    },
+    {
+      id: 'door-installation',
+      name: 'Door installation',
+      priceRange: { min: 2000, max: 5000 },
+      sizeBased: false,
+      description: 'Install interior or exterior doors',
+      estimatedDuration: '2-4 hours',
+      category: 'carpentry'
+    }
+  ],
+  painting: [
+    {
+      id: 'interior-painting',
+      name: 'Interior painting',
+      priceRange: { min: 3000, max: 8000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // 1-2 rooms
+        'medium': 1.5,   // 3-4 rooms
+        'large': 2.2     // Full house
+      },
+      description: 'Interior wall and ceiling painting',
+      estimatedDuration: '1-3 days',
+      category: 'painting'
+    },
+    {
+      id: 'exterior-painting',
+      name: 'Exterior painting',
+      priceRange: { min: 5000, max: 15000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Small building
+        'medium': 1.6,   // Medium building
+        'large': 2.5     // Large building
+      },
+      description: 'Exterior wall painting and protection',
+      estimatedDuration: '2-5 days',
+      category: 'painting'
+    }
+  ],
+  gardening: [
+    {
+      id: 'lawn-maintenance',
+      name: 'Lawn mowing and maintenance',
+      priceRange: { min: 1000, max: 3000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Small garden
+        'medium': 1.4,   // Medium garden
+        'large': 1.8     // Large garden
+      },
+      description: 'Mow lawn, trim edges, basic maintenance',
+      estimatedDuration: '2-4 hours',
+      category: 'gardening'
+    },
+    {
+      id: 'garden-design',
+      name: 'Garden design and landscaping',
+      priceRange: { min: 5000, max: 20000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,
+        'medium': 1.6,
+        'large': 2.4
+      },
+      description: 'Complete garden design and landscaping',
+      estimatedDuration: '2-7 days',
+      category: 'gardening'
+    }
+  ],
+  movers: [
+    {
+      id: 'local-moving',
+      name: 'Local house moving',
+      priceRange: { min: 8000, max: 15000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // 1-2 bedroom
+        'medium': 1.5,   // 3-4 bedroom
+        'large': 2.0     // 5+ bedroom
+      },
+      description: 'Move household items within Nairobi',
+      estimatedDuration: '4-8 hours',
+      category: 'movers'
+    },
+    {
+      id: 'office-relocation',
+      name: 'Office relocation',
+      priceRange: { min: 10000, max: 25000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Small office
+        'medium': 1.6,   // Medium office
+        'large': 2.2     // Large office
+      },
+      description: 'Complete office relocation service',
+      estimatedDuration: '6-12 hours',
+      category: 'movers'
+    },
+    {
+      id: 'packing-service',
+      name: 'Packing services',
+      priceRange: { min: 3000, max: 8000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,
+        'medium': 1.4,
+        'large': 1.8
+      },
+      description: 'Professional packing of household items',
+      estimatedDuration: '3-6 hours',
+      category: 'movers'
+    }
+  ],
+  fumigation: [
+    {
+      id: 'apartment-1bed',
+      name: '1-bedroom apartment fumigation',
+      priceRange: { min: 3500, max: 4500 },
+      sizeBased: false,
+      description: 'Complete pest control for 1-bedroom apartment',
+      estimatedDuration: '2-3 hours',
+      category: 'fumigation'
+    },
+    {
+      id: 'apartment-2bed',
+      name: '2-bedroom apartment fumigation',
+      priceRange: { min: 4500, max: 5500 },
+      sizeBased: false,
+      description: 'Complete pest control for 2-bedroom apartment',
+      estimatedDuration: '3-4 hours',
+      category: 'fumigation'
+    },
+    {
+      id: 'apartment-3bed',
+      name: '3-bedroom apartment fumigation',
+      priceRange: { min: 6000, max: 7500 },
+      sizeBased: false,
+      description: 'Complete pest control for 3-bedroom apartment',
+      estimatedDuration: '4-5 hours',
+      category: 'fumigation'
+    },
+    {
+      id: 'house-large',
+      name: '4-5 bedroom house fumigation',
+      priceRange: { min: 8000, max: 16000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // 4 bedrooms
+        'medium': 1.3,   // 5 bedrooms
+        'large': 1.6     // 6+ bedrooms
+      },
+      description: 'Complete pest control for large house',
+      estimatedDuration: '5-8 hours',
+      category: 'fumigation'
+    },
+    {
+      id: 'termite-treatment',
+      name: 'Termite / rodent treatment',
+      priceRange: { min: 5000, max: 12000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,    // Small infestation
+        'medium': 1.4,   // Medium infestation
+        'large': 1.8     // Large infestation
+      },
+      description: 'Specialized termite and rodent control',
+      estimatedDuration: '3-6 hours',
+      category: 'fumigation'
+    }
+  ],
+  appliance: [
+    {
+      id: 'washing-machine',
+      name: 'Washing machine repair',
+      priceRange: { min: 3000, max: 4000 },
+      sizeBased: false,
+      description: 'Repair and maintenance of washing machines',
+      estimatedDuration: '2-4 hours',
+      category: 'appliance'
+    },
+    {
+      id: 'refrigerator',
+      name: 'Refrigerator repair',
+      priceRange: { min: 3000, max: 4500 },
+      sizeBased: false,
+      description: 'Repair and maintenance of refrigerators',
+      estimatedDuration: '2-4 hours',
+      category: 'appliance'
+    },
+    {
+      id: 'oven-cooker',
+      name: 'Oven / cooker repair',
+      priceRange: { min: 2500, max: 3000 },
+      sizeBased: false,
+      description: 'Repair gas and electric ovens/cookers',
+      estimatedDuration: '1-3 hours',
+      category: 'appliance'
+    },
+    {
+      id: 'microwave-small',
+      name: 'Microwave / small appliance repair',
+      priceRange: { min: 1500, max: 2500 },
+      sizeBased: false,
+      description: 'Repair microwaves and small appliances',
+      estimatedDuration: '1-2 hours',
+      category: 'appliance'
+    },
+    {
+      id: 'diagnostic',
+      name: 'Diagnostic / call-out service',
+      priceRange: { min: 1000, max: 2000 },
+      sizeBased: false,
+      description: 'Professional appliance diagnosis',
+      estimatedDuration: '30min-1 hour',
+      category: 'appliance'
+    }
+  ]
+}
+
+// Legacy support - calculate average pricing for backward compatibility
 const SERVICE_PRICING: Record<string, number> = {
-  'cleaning': 1800,
-  'electrical': 2000,
-  'plumbing': 2000,
-  'painting': 2500,
-  'movers': 3000,
-  'carpentry': 2000, // Adding carpentry with default rate
-  'gardening': 1500   // Adding gardening with default rate
+  'cleaning': 3500,    // Average across cleaning services
+  'electrical': 5000,  // Average across electrical services
+  'plumbing': 4000,    // Average across plumbing services
+  'painting': 6000,    // Average across painting services
+  'movers': 12000,     // Average across moving services
+  'carpentry': 4000,   // Average across carpentry services
+  'gardening': 3500,   // Average across gardening services
+  'fumigation': 6500,  // Average across fumigation services
+  'appliance': 2800    // Average across appliance repair services
 }
 
 // Service Categories (same as dashboard)
@@ -109,7 +555,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 342,
     estimatedDuration: '1-4 hours',
     popularServices: ['Pipe repair', 'Faucet installation', 'Toilet repair', 'Water heater service'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'electrical',
@@ -125,7 +571,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 256,
     estimatedDuration: '2-6 hours',
     popularServices: ['Wiring installation', 'Socket repair', 'Lighting setup', 'Electrical maintenance'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'cleaning',
@@ -141,7 +587,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 189,
     estimatedDuration: '2-8 hours',
     popularServices: ['House cleaning', 'Deep cleaning', 'Office cleaning', 'Move-in/out cleaning'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'carpentry',
@@ -157,7 +603,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 145,
     estimatedDuration: '3-8 hours',
     popularServices: ['Furniture repair', 'Custom cabinets', 'Door installation', 'Shelving'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'painting',
@@ -173,7 +619,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 98,
     estimatedDuration: '4-12 hours',
     popularServices: ['Interior painting', 'Exterior painting', 'Wall decoration', 'Color consultation'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'gardening',
@@ -189,7 +635,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 67,
     estimatedDuration: '2-6 hours',
     popularServices: ['Lawn mowing', 'Plant care', 'Garden design', 'Tree trimming'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'movers',
@@ -205,7 +651,39 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 89,
     estimatedDuration: '4-12 hours',
     popularServices: ['House moving', 'Office relocation', 'Packing services', 'Furniture transport'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
+  },
+  {
+    id: 'fumigation',
+    name: 'Fumigation & Pest Control',
+    description: 'Professional pest control and fumigation services',
+    detailedDescription: 'Complete pest control solutions including fumigation, termite treatment, and rodent control. Safe and effective pest management.',
+    icon: FaWrench,
+    imageUrl: '/images/services/fumigation.jpg',
+    color: 'bg-red-100',
+    averagePrice: 'KES 6,500',
+    priceRange: 'Size-based pricing',
+    rating: 4.7,
+    reviews: 156,
+    estimatedDuration: '2-8 hours',
+    popularServices: ['Apartment fumigation', 'House fumigation', 'Termite treatment', 'Rodent control'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
+  },
+  {
+    id: 'appliance',
+    name: 'Appliance Repair',
+    description: 'Expert appliance maintenance and repair',
+    detailedDescription: 'Professional repair services for all home appliances including washing machines, refrigerators, ovens, and small appliances.',
+    icon: FaWrench,
+    imageUrl: '/images/services/appliance.jpg',
+    color: 'bg-yellow-100',
+    averagePrice: 'KES 2,800',
+    priceRange: 'Service-based pricing',
+    rating: 4.6,
+    reviews: 203,
+    estimatedDuration: '1-4 hours',
+    popularServices: ['Washing machine repair', 'Refrigerator repair', 'Oven repair', 'Diagnostic service'],
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   }
 ];
 
@@ -228,16 +706,144 @@ interface BookingData {
   budget: { min: number; max: number }
   paymentTiming: 'pay-now' | 'pay-after' | null
   paymentMethod: 'card' | 'mobile-money' | 'mpesa' | null
+  // Phase 2 & 3 additions
+  selectedSubService?: ServicePricing | null
+  propertySize: 'small' | 'medium' | 'large'
+  priceBreakdown?: PriceBreakdown | null
 }
 
-const serviceAreas = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+const serviceAreas = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
 
-// Helper function to get fixed service price
+// Location-based pricing multipliers
+const LOCATION_MULTIPLIERS: Record<string, number> = {
+  'Lavington': 1.2,    // Premium area
+  'Kileleshwa': 1.1,   // Premium area
+  'Westlands': 1.0,    // Standard
+  'Kilimani': 1.0,     // Standard
+  'Parklands': 0.95,   // Slightly lower
+  'Nyayo': 0.9         // Lower cost area
+}
+
+// Urgency multipliers
+const URGENCY_MULTIPLIERS = {
+  'normal': 1.0,
+  'urgent': 1.5,
+  'emergency': 2.0
+}
+
+// Helper function to get available sub-services for a category
+const getSubServices = (categoryId: string): ServicePricing[] => {
+  return DYNAMIC_SERVICE_PRICING[categoryId] || []
+}
+
+// Helper function to calculate dynamic price
+const calculateDynamicPrice = (
+  category: string,
+  subServiceId?: string,
+  propertySize: 'small' | 'medium' | 'large' = 'medium',
+  urgency: 'normal' | 'urgent' | 'emergency' = 'normal',
+  location: string = 'Westlands',
+  providersNeeded: number = 1
+): { basePrice: number; finalPrice: number; breakdown: PriceBreakdown } => {
+  
+  // Get sub-service or use first available
+  const subServices = getSubServices(category)
+  let selectedService: ServicePricing
+  
+  if (subServiceId) {
+    selectedService = subServices.find(s => s.id === subServiceId) || subServices[0]
+  } else {
+    selectedService = subServices[0]
+  }
+  
+  if (!selectedService) {
+    // Fallback to legacy pricing
+    const legacyPrice = SERVICE_PRICING[category] || 2000
+    return {
+      basePrice: legacyPrice,
+      finalPrice: legacyPrice * URGENCY_MULTIPLIERS[urgency] * providersNeeded,
+      breakdown: {
+        serviceName: `${category} Service`,
+        basePrice: legacyPrice,
+        urgencyMultiplier: URGENCY_MULTIPLIERS[urgency],
+        locationMultiplier: 1.0,
+        providersNeeded,
+        calculations: {
+          baseService: legacyPrice,
+          afterUrgency: legacyPrice * URGENCY_MULTIPLIERS[urgency],
+          afterLocation: legacyPrice * URGENCY_MULTIPLIERS[urgency],
+          finalTotal: legacyPrice * URGENCY_MULTIPLIERS[urgency] * providersNeeded
+        }
+      }
+    }
+  }
+  
+  // Calculate base price (average of range)
+  let basePrice = (selectedService.priceRange.min + selectedService.priceRange.max) / 2
+  
+  // Apply size multiplier if applicable
+  let sizeMultiplier = 1.0
+  if (selectedService.sizeBased && selectedService.sizeMultipliers) {
+    sizeMultiplier = selectedService.sizeMultipliers[propertySize] || 1.0
+    basePrice *= sizeMultiplier
+  }
+  
+  // Apply urgency multiplier
+  const urgencyMultiplier = URGENCY_MULTIPLIERS[urgency]
+  
+  // Apply location multiplier
+  const locationMultiplier = LOCATION_MULTIPLIERS[location] || 1.0
+  
+  // Calculate final price
+  const finalPrice = Math.round(
+    basePrice * urgencyMultiplier * locationMultiplier * providersNeeded
+  )
+  
+  // Calculate the base price for calculations
+  const calculationBasePrice = Math.round((selectedService.priceRange.min + selectedService.priceRange.max) / 2)
+  
+  // Create detailed breakdown
+  const breakdown: PriceBreakdown = {
+    serviceName: selectedService.name,
+    basePrice: calculationBasePrice,
+    sizeMultiplier: selectedService.sizeBased ? sizeMultiplier : undefined,
+    urgencyMultiplier,
+    locationMultiplier,
+    providersNeeded,
+    calculations: {
+      baseService: calculationBasePrice,
+      afterSize: selectedService.sizeBased ? Math.round(calculationBasePrice * sizeMultiplier) : undefined,
+      afterUrgency: Math.round(basePrice * urgencyMultiplier),
+      afterLocation: Math.round(basePrice * urgencyMultiplier * locationMultiplier),
+      finalTotal: finalPrice
+    }
+  }
+  
+  return {
+    basePrice: Math.round(basePrice),
+    finalPrice,
+    breakdown
+  }
+}
+
+// Helper function to get price range for display
+const getServicePriceRange = (categoryId: string): string => {
+  const subServices = getSubServices(categoryId)
+  if (subServices.length === 0) {
+    return formatServicePrice(categoryId)
+  }
+  
+  const minPrice = Math.min(...subServices.map(s => s.priceRange.min))
+  const maxPrice = Math.max(...subServices.map(s => s.priceRange.max))
+  
+  return `KES ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`
+}
+
+// Legacy helper functions for backward compatibility
 const getServicePrice = (categoryId: string): number => {
-  return SERVICE_PRICING[categoryId] || 2000 // Default to 2000 if not found
+  return SERVICE_PRICING[categoryId] || 2000
 }
 
-// Helper function to format service price display
 const formatServicePrice = (categoryId: string): string => {
   const price = getServicePrice(categoryId)
   return `KES ${price.toLocaleString()}`
@@ -260,7 +866,10 @@ function BookServicePageContent() {
     urgency: 'normal',
     budget: { min: 1000, max: 5000 },
     paymentTiming: null,
-    paymentMethod: null
+    paymentMethod: null,
+    selectedSubService: null,
+    propertySize: 'medium',
+    priceBreakdown: null
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -315,6 +924,34 @@ function BookServicePageContent() {
     }
   }, [searchParams])
 
+  // Phase 3: Real-time price calculation effect
+  useEffect(() => {
+    if (bookingData.category && bookingData.selectedSubService) {
+      const pricing = calculateDynamicPrice(
+        bookingData.category.id,
+        bookingData.selectedSubService.id,
+        bookingData.propertySize,
+        bookingData.urgency,
+        bookingData.location.area || 'Westlands',
+        bookingData.providersNeeded
+      )
+      
+      setBookingData(prev => ({
+        ...prev,
+        priceBreakdown: pricing.breakdown
+      }))
+    } else if (bookingData.category) {
+      // Auto-select first sub-service if none selected
+      const subServices = getSubServices(bookingData.category.id)
+      if (subServices.length > 0 && !bookingData.selectedSubService) {
+        setBookingData(prev => ({
+          ...prev,
+          selectedSubService: subServices[0]
+        }))
+      }
+    }
+  }, [bookingData.category, bookingData.selectedSubService, bookingData.propertySize, bookingData.urgency, bookingData.location.area, bookingData.providersNeeded])
+
   // Initialize Google Maps when location step is active (commented out)
   // useEffect(() => {
   //   if (currentStep === 'location') {
@@ -351,10 +988,24 @@ function BookServicePageContent() {
 
   const calculateTotalAmount = () => {
     if (!bookingData.category) return 0
-    const basePrice = getServicePrice(bookingData.category.id)
-    const urgencyMultiplier = bookingData.urgency === 'urgent' ? 1.5 : bookingData.urgency === 'emergency' ? 2 : 1
-    const providerMultiplier = bookingData.providersNeeded
-    return Math.round(basePrice * urgencyMultiplier * providerMultiplier)
+    
+    // Use dynamic pricing calculation
+    const pricing = calculateDynamicPrice(
+      bookingData.category.id,
+      bookingData.selectedSubService?.id,
+      bookingData.propertySize,
+      bookingData.urgency,
+      bookingData.location.area || 'Westlands',
+      bookingData.providersNeeded
+    )
+    
+    // Update booking data with price breakdown
+    setBookingData(prev => ({
+      ...prev,
+      priceBreakdown: pricing.breakdown
+    }))
+    
+    return pricing.finalPrice
   }
 
   const handlePaystackPayment = async (bookingId: string) => {
@@ -481,6 +1132,15 @@ Your booking has been confirmed and you'll receive an email confirmation shortly
         providersNeeded: bookingData.providersNeeded,
         paymentTiming: bookingData.paymentTiming,
         paymentMethod: bookingData.paymentMethod,
+        // Dynamic pricing details
+        selectedSubService: bookingData.selectedSubService ? {
+          id: bookingData.selectedSubService.id,
+          name: bookingData.selectedSubService.name,
+          priceRange: bookingData.selectedSubService.priceRange,
+          sizeBased: bookingData.selectedSubService.sizeBased
+        } : null,
+        propertySize: bookingData.propertySize,
+        priceBreakdown: bookingData.priceBreakdown,
         selectedProvider: selectedProviders[0] ? {
           id: selectedProviders[0]._id || selectedProviders[0].id,
           name: selectedProviders[0].name || selectedProviders[0].Name,
@@ -1078,6 +1738,7 @@ Status: ${result.data.booking.status}
       case 'details':
         if (!bookingData.date) newErrors.date = 'Please select a date'
         if (!bookingData.time) newErrors.time = 'Please select a time'
+        if (!bookingData.selectedSubService) newErrors.subService = 'Please select a specific service'
         // Description is now optional - no validation required
         // Duration has default value, no validation needed
         break
@@ -1201,8 +1862,8 @@ Status: ${result.data.booking.status}
                           <span>({category.reviews} reviews)</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold text-orange-600">{category.averagePrice}</div>
-                          <div className="text-xs">Fixed rate</div>
+                          <div className="font-semibold text-orange-600">{getServicePriceRange(category.id)}</div>
+                          <div className="text-xs">Price range</div>
                         </div>
                       </div>
                     </motion.button>
@@ -1235,7 +1896,7 @@ Status: ${result.data.booking.status}
                       <div className="flex items-center space-x-4 mt-2 text-sm">
                         <span className="flex items-center text-orange-600">
                           <FaDollarSign className="h-3 w-3 mr-1" />
-                          <strong>{bookingData.category.averagePrice} per service</strong>
+                          <strong>{getServicePriceRange(bookingData.category.id)}</strong>
                         </span>
                         <span className="flex items-center text-gray-500">
                           <FaClock className="h-3 w-3 mr-1" />
@@ -1246,6 +1907,154 @@ Status: ${result.data.booking.status}
                   </div>
 
                   <div className="space-y-6">
+                    {/* Phase 3: Sub-Service Selection */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        <FaWrench className="inline h-4 w-4 mr-2 text-orange-500" />
+                        What specific service do you need?
+                      </label>
+                      <div className="grid grid-cols-1 gap-3">
+                        {getSubServices(bookingData.category.id).map((subService) => (
+                          <div key={subService.id} className="relative">
+                            <input
+                              type="radio"
+                              id={`subservice-${subService.id}`}
+                              name="subService"
+                              value={subService.id}
+                              checked={bookingData.selectedSubService?.id === subService.id}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setBookingData(prev => ({ ...prev, selectedSubService: subService }))
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <label
+                              htmlFor={`subservice-${subService.id}`}
+                              className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                bookingData.selectedSubService?.id === subService.id
+                                  ? 'border-orange-500 bg-orange-50'
+                                  : 'border-gray-200 bg-white hover:border-orange-300'
+                              }`}
+                            >
+                              <div className="flex-1">
+                                <div className="font-semibold text-gray-900">{subService.name}</div>
+                                <div className="text-sm text-gray-600 mt-1">{subService.description}</div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  Duration: {subService.estimatedDuration}
+                                </div>
+                              </div>
+                              <div className="text-right ml-4">
+                                <div className="font-bold text-orange-600">
+                                  KES {subService.priceRange.min.toLocaleString()} - {subService.priceRange.max.toLocaleString()}
+                                </div>
+                                {subService.sizeBased && (
+                                  <div className="text-xs text-gray-500">Price varies by size</div>
+                                )}
+                              </div>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">Select the specific service that matches your needs</p>
+                      {errors.subService && <div className="text-red-500 text-sm mt-2">{errors.subService}</div>}
+                    </div>
+
+                    {/* Phase 2: Property Size Selection - Show only if sub-service is size-based */}
+                    {bookingData.selectedSubService?.sizeBased && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          <FaHammer className="inline h-4 w-4 mr-2 text-orange-500" />
+                          What size is your property/project?
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {[
+                            { id: 'small', name: 'Small', description: '1-2 bedrooms / Simple project' },
+                            { id: 'medium', name: 'Medium', description: '3-4 bedrooms / Standard project' },
+                            { id: 'large', name: 'Large', description: '5+ bedrooms / Complex project' }
+                          ].map((size) => (
+                            <div key={size.id} className="relative">
+                              <input
+                                type="radio"
+                                id={`size-${size.id}`}
+                                name="propertySize"
+                                value={size.id}
+                                checked={bookingData.propertySize === size.id}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setBookingData(prev => ({ ...prev, propertySize: size.id as 'small' | 'medium' | 'large' }))
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                              <label
+                                htmlFor={`size-${size.id}`}
+                                className={`block p-4 border-2 rounded-lg cursor-pointer text-center transition-all ${
+                                  bookingData.propertySize === size.id
+                                    ? 'border-orange-500 bg-orange-50'
+                                    : 'border-gray-200 bg-white hover:border-orange-300'
+                                }`}
+                              >
+                                <div className="font-semibold text-gray-900">{size.name}</div>
+                                <div className="text-sm text-gray-600 mt-1">{size.description}</div>
+                                {bookingData.selectedSubService?.sizeMultipliers && (
+                                  <div className="text-xs text-orange-600 mt-2">
+                                    {bookingData.selectedSubService.sizeMultipliers[size.id] !== 1.0 && 
+                                      `${((bookingData.selectedSubService.sizeMultipliers[size.id] - 1) * 100).toFixed(0)}% ${bookingData.selectedSubService.sizeMultipliers[size.id] > 1 ? 'premium' : 'discount'}`
+                                    }
+                                  </div>
+                                )}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Property size affects the final price</p>
+                      </div>
+                    )}
+
+                    {/* Phase 3: Live Price Calculator */}
+                    {bookingData.selectedSubService && bookingData.priceBreakdown && (
+                      <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                        <h4 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <FaDollarSign className="h-4 w-4 text-orange-500 mr-2" />
+                          💰 Estimated Price
+                        </h4>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-sm text-gray-600">Selected Service:</div>
+                            <div className="font-medium text-gray-900">{bookingData.selectedSubService.name}</div>
+                            {bookingData.urgency !== 'normal' && (
+                              <div className="text-xs text-orange-600 mt-1">
+                                {bookingData.urgency === 'urgent' ? '⚡ +50% for urgent service' : '🚨 +100% for emergency service'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-orange-600">
+                              KES {bookingData.priceBreakdown.calculations.finalTotal.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {bookingData.providersNeeded > 1 && `×${bookingData.providersNeeded} professionals`}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-orange-200">
+                          <div className="text-xs text-gray-600 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Base price:</span>
+                              <span>KES {bookingData.priceBreakdown.basePrice.toLocaleString()}</span>
+                            </div>
+                            {bookingData.location.area && LOCATION_MULTIPLIERS[bookingData.location.area] !== 1.0 && (
+                              <div className="flex justify-between">
+                                <span>Area adjustment ({bookingData.location.area}):</span>
+                                <span>{LOCATION_MULTIPLIERS[bookingData.location.area] > 1.0 ? '+' : ''}{((LOCATION_MULTIPLIERS[bookingData.location.area] - 1) * 100).toFixed(0)}%</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Date and Time */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -1778,10 +2587,13 @@ Examples:
                                 {/* Price & Book Button */}
                                 <div className="text-right">
                                   <div className="text-lg font-bold text-orange-600 mb-1">
-                                    {formatServicePrice(bookingData.category?.id || 'electrical')}
+                                    {bookingData.priceBreakdown ? 
+                                      `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
+                                      'Price TBD'
+                                    }
                                   </div>
                                   <div className="text-sm text-gray-500 mb-3">
-                                    Fixed rate per service
+                                    Per professional
                                   </div>
                                   <button
                                     onClick={() => handleProviderSelection(provider)}
@@ -1856,9 +2668,12 @@ Examples:
                                 </div>
                                 <div className="text-right">
                                   <div className="font-bold text-orange-600">
-                                    {formatServicePrice(bookingData.category?.id || 'electrical')}
+                                    {bookingData.priceBreakdown ? 
+                                      `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
+                                      'Price TBD'
+                                    }
                                   </div>
-                                  <div className="text-xs text-gray-500">per service</div>
+                                  <div className="text-xs text-gray-500">per professional</div>
                                 </div>
                               </div>
                             ))}
@@ -1866,10 +2681,13 @@ Examples:
                               <div className="flex items-center justify-between">
                                 <span className="font-bold text-gray-900">💰 Total Service Cost:</span>
                                 <span className="text-xl font-bold text-green-600">
-                                  KES {(selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()}
+                                  KES {bookingData.priceBreakdown ? 
+                                    bookingData.priceBreakdown.calculations.finalTotal.toLocaleString() :
+                                    (selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()
+                                  }
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500 mt-1">Fixed pricing • No hidden fees • Payment protected</p>
+                              <p className="text-xs text-gray-500 mt-1">Dynamic pricing • No hidden fees • Payment protected</p>
                             </div>
                           </div>
                         </div>
@@ -1938,6 +2756,18 @@ Examples:
                           <span className="text-gray-600 text-sm">🔧 Service Type:</span>
                           <span className="font-semibold text-gray-900">{bookingData.category?.name} Service</span>
                         </div>
+                        {bookingData.selectedSubService && (
+                          <div className="flex justify-between md:block">
+                            <span className="text-gray-600 text-sm">🛠️ Specific Service:</span>
+                            <span className="font-semibold text-gray-900">{bookingData.selectedSubService.name}</span>
+                          </div>
+                        )}
+                        {bookingData.selectedSubService?.sizeBased && (
+                          <div className="flex justify-between md:block">
+                            <span className="text-gray-600 text-sm">🏠 Property Size:</span>
+                            <span className="font-semibold text-gray-900 capitalize">{bookingData.propertySize}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between md:block">
                           <span className="text-gray-600 text-sm">📅 Date & Time:</span>
                           <span className="font-semibold text-gray-900">{bookingData.date} at {bookingData.time}</span>
@@ -1965,6 +2795,64 @@ Examples:
                           <span className="font-semibold text-gray-900">{bookingData.providersNeeded} professional{bookingData.providersNeeded > 1 ? 's' : ''}</span>
                         </div>
                       </div>
+
+                      {/* Phase 2: Detailed Price Breakdown */}
+                      {bookingData.priceBreakdown && (
+                        <div className="pt-4 border-t border-gray-200">
+                          <h4 className="font-bold text-gray-900 mb-3 flex items-center">
+                            <FaDollarSign className="h-4 w-4 text-orange-500 mr-2" />
+                            💰 Price Breakdown:
+                          </h4>
+                          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Service:</span>
+                              <span className="font-medium">{bookingData.priceBreakdown.serviceName}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Base Price:</span>
+                              <span className="font-medium">KES {bookingData.priceBreakdown.basePrice.toLocaleString()}</span>
+                            </div>
+                            {bookingData.priceBreakdown.sizeMultiplier && bookingData.priceBreakdown.sizeMultiplier !== 1.0 && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Size Adjustment ({bookingData.propertySize}):</span>
+                                <span className="font-medium">
+                                  {bookingData.priceBreakdown.sizeMultiplier > 1.0 ? '+' : ''}
+                                  {((bookingData.priceBreakdown.sizeMultiplier - 1) * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            )}
+                            {bookingData.priceBreakdown && bookingData.priceBreakdown.urgencyMultiplier !== 1.0 && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Urgency ({bookingData.urgency}):</span>
+                                <span className="font-medium">
+                                  +{((bookingData.priceBreakdown.urgencyMultiplier - 1) * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            )}
+                            {bookingData.priceBreakdown && bookingData.priceBreakdown.locationMultiplier !== 1.0 && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Area ({bookingData.location.area}):</span>
+                                <span className="font-medium">
+                                  {bookingData.priceBreakdown.locationMultiplier > 1.0 ? '+' : ''}
+                                  {((bookingData.priceBreakdown.locationMultiplier - 1) * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            )}
+                            {bookingData.priceBreakdown && bookingData.priceBreakdown.providersNeeded > 1 && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Multiple Professionals (×{bookingData.priceBreakdown.providersNeeded}):</span>
+                                <span className="font-medium">×{bookingData.priceBreakdown.providersNeeded}</span>
+                              </div>
+                            )}
+                            <div className="border-t border-gray-300 pt-2 mt-3">
+                              <div className="flex justify-between text-lg font-bold">
+                                <span className="text-gray-900">Total Amount:</span>
+                                <span className="text-orange-600">KES {bookingData.priceBreakdown.calculations.finalTotal.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Selected Providers */}
                       <div className="pt-4 border-t border-gray-200">
@@ -2007,9 +2895,12 @@ Examples:
                               </div>
                               <div className="text-right">
                                 <div className="font-bold text-orange-600">
-                                  {formatServicePrice(bookingData.category?.id || 'electrical')}
+                                  {bookingData.priceBreakdown ? 
+                                    `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
+                                    'Price TBD'
+                                  }
                                 </div>
-                                <div className="text-xs text-gray-500">fixed rate</div>
+                                <div className="text-xs text-gray-500">per professional</div>
                               </div>
                             </div>
                           ))}
@@ -2022,13 +2913,53 @@ Examples:
                           <div className="flex justify-between items-center">
                             <span className="text-lg font-bold text-gray-900">💰 Total Service Cost:</span>
                             <span className="text-2xl font-bold text-orange-600">
-                              KES {(selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()}
+                              KES {bookingData.priceBreakdown ? 
+                                bookingData.priceBreakdown.calculations.finalTotal.toLocaleString() :
+                                (selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()
+                              }
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-sm text-gray-600 mt-2">
-                            <span>✅ Fixed pricing - No surprises</span>
+                            <span>✅ Transparent pricing - No surprises</span>
                             <span>🔒 Payment held securely until completion</span>
                           </div>
+                          
+                          {/* Detailed Price Breakdown */}
+                          {bookingData.priceBreakdown && (
+                            <div className="mt-4 pt-3 border-t border-orange-200">
+                              <div className="text-sm space-y-2">
+                                <div className="font-medium text-gray-700 mb-2">💹 Price Breakdown:</div>
+                                <div className="flex justify-between text-gray-600">
+                                  <span>Base service ({bookingData.priceBreakdown.serviceName}):</span>
+                                  <span>KES {bookingData.priceBreakdown.calculations.baseService.toLocaleString()}</span>
+                                </div>
+                                {bookingData.priceBreakdown.sizeMultiplier && bookingData.priceBreakdown.sizeMultiplier !== 1.0 && (
+                                  <div className="flex justify-between text-gray-600">
+                                    <span>Size adjustment ({bookingData.propertySize}):</span>
+                                    <span>×{bookingData.priceBreakdown.sizeMultiplier}</span>
+                                  </div>
+                                )}
+                                {bookingData.priceBreakdown && bookingData.priceBreakdown.urgencyMultiplier !== 1.0 && (
+                                  <div className="flex justify-between text-gray-600">
+                                    <span>Urgency ({bookingData.urgency}):</span>
+                                    <span>×{bookingData.priceBreakdown.urgencyMultiplier}</span>
+                                  </div>
+                                )}
+                                {bookingData.location.area && bookingData.priceBreakdown && LOCATION_MULTIPLIERS[bookingData.location.area] !== 1.0 && (
+                                  <div className="flex justify-between text-gray-600">
+                                    <span>Location ({bookingData.location.area}):</span>
+                                    <span>×{bookingData.priceBreakdown.locationMultiplier}</span>
+                                  </div>
+                                )}
+                                {bookingData.providersNeeded > 1 && (
+                                  <div className="flex justify-between text-gray-600">
+                                    <span>Professionals needed:</span>
+                                    <span>×{bookingData.providersNeeded}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
