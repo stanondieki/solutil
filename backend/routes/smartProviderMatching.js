@@ -363,30 +363,83 @@ function calculateSmartMatchScore({
 }
 
 /**
- * Get smart profile picture with fallbacks
+ * Get actual profile picture with comprehensive fallbacks
  */
 function getSmartProfilePicture(provider, category) {
+  const BACKEND_URL = process.env.BACKEND_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+  
+  // Priority 1: User's uploaded profile picture
   if (provider.profilePicture) {
+    // Handle both relative and absolute URLs
+    const profilePictureUrl = provider.profilePicture.startsWith('http') 
+      ? provider.profilePicture 
+      : `${BACKEND_URL}${provider.profilePicture.startsWith('/') ? '' : '/'}${provider.profilePicture}`;
+    
+    console.log(`✅ Using actual profile picture for ${provider.name}: ${profilePictureUrl}`);
     return {
-      url: provider.profilePicture,
-      type: 'user'
+      url: profilePictureUrl,
+      type: 'user-uploaded'
     };
   }
 
-  // Category-specific default avatars
+  // Priority 2: Provider profile picture from providerProfile
+  if (provider.providerProfile?.profilePicture) {
+    const profilePictureUrl = provider.providerProfile.profilePicture.startsWith('http') 
+      ? provider.providerProfile.profilePicture 
+      : `${BACKEND_URL}${provider.providerProfile.profilePicture.startsWith('/') ? '' : '/'}${provider.providerProfile.profilePicture}`;
+    
+    console.log(`✅ Using provider profile picture for ${provider.name}: ${profilePictureUrl}`);
+    return {
+      url: profilePictureUrl,
+      type: 'provider-profile'
+    };
+  }
+
+  // Priority 3: Avatar from providerProfile
+  if (provider.providerProfile?.avatar) {
+    const avatarUrl = provider.providerProfile.avatar.startsWith('http') 
+      ? provider.providerProfile.avatar 
+      : `${BACKEND_URL}${provider.providerProfile.avatar.startsWith('/') ? '' : '/'}${provider.providerProfile.avatar}`;
+    
+    console.log(`✅ Using provider avatar for ${provider.name}: ${avatarUrl}`);
+    return {
+      url: avatarUrl,
+      type: 'provider-avatar'
+    };
+  }
+
+  // Priority 4: Business logo if available
+  if (provider.providerProfile?.businessLogo) {
+    const logoUrl = provider.providerProfile.businessLogo.startsWith('http') 
+      ? provider.providerProfile.businessLogo 
+      : `${BACKEND_URL}${provider.providerProfile.businessLogo.startsWith('/') ? '' : '/'}${provider.providerProfile.businessLogo}`;
+    
+    console.log(`✅ Using business logo for ${provider.name}: ${logoUrl}`);
+    return {
+      url: logoUrl,
+      type: 'business-logo'
+    };
+  }
+
+  // Fallback: Professional category-specific avatars
   const categoryAvatars = {
-    'cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=150&h=150&fit=crop&crop=face',
-    'electrical': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=150&h=150&fit=crop&crop=face',
-    'plumbing': 'https://images.unsplash.com/photo-1558618666-fbd7c1c84c96?w=150&h=150&fit=crop&crop=face',
-    'carpentry': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=150&h=150&fit=crop&crop=face',
-    'painting': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=150&h=150&fit=crop&crop=face',
-    'gardening': 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=150&h=150&fit=crop&crop=face',
-    'moving': 'https://images.unsplash.com/photo-1558618666-fbd7c1c84c96?w=150&h=150&fit=crop&crop=face'
+    'cleaning': 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=200&h=200&fit=crop&crop=face',
+    'electrical': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
+    'plumbing': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face',
+    'carpentry': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face',
+    'painting': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
+    'gardening': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&h=200&fit=crop&crop=face',
+    'moving': 'https://images.unsplash.com/photo-1521341957697-b93449760f30?w=200&h=200&fit=crop&crop=face',
+    'fumigation': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
+    'appliance repair': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face'
   };
 
+  const fallbackUrl = categoryAvatars[category] || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face';
+  console.log(`⚠️ Using fallback avatar for ${provider.name}: ${fallbackUrl}`);
+  
   return {
-    url: categoryAvatars[category] || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    type: 'category-default'
+    url: fallbackUrl,
+    type: 'category-fallback'
   };
 }
 

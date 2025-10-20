@@ -384,32 +384,71 @@ function enhanceProviderData(providers, category) {
 }
 
 /**
- * Get enhanced profile picture with intelligent fallbacks
+ * Get enhanced profile picture with comprehensive fallbacks
  */
 function getEnhancedProfilePicture(provider, category) {
-  // If provider has a profile picture, use it
+  const BACKEND_URL = process.env.BACKEND_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+  
+  // Priority 1: User's uploaded profile picture
   if (provider.profilePicture && provider.profilePicture.trim()) {
-    // Ensure proper URL format
-    let imageUrl = provider.profilePicture;
+    const profilePictureUrl = provider.profilePicture.startsWith('http') 
+      ? provider.profilePicture 
+      : `${BACKEND_URL}${provider.profilePicture.startsWith('/') ? '' : '/'}${provider.profilePicture}`;
     
-    // If it's a relative path, make it absolute
-    if (imageUrl.startsWith('/uploads')) {
-      imageUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}${imageUrl}`;
-    }
-    
+    console.log(`✅ Using actual profile picture for ${provider.name}: ${profilePictureUrl}`);
     return {
-      url: imageUrl,
-      type: 'uploaded'
+      url: profilePictureUrl,
+      type: 'user-uploaded'
+    };
+  }
+
+  // Priority 2: Provider profile picture from providerProfile
+  if (provider.providerProfile?.profilePicture) {
+    const profilePictureUrl = provider.providerProfile.profilePicture.startsWith('http') 
+      ? provider.providerProfile.profilePicture 
+      : `${BACKEND_URL}${provider.providerProfile.profilePicture.startsWith('/') ? '' : '/'}${provider.providerProfile.profilePicture}`;
+    
+    console.log(`✅ Using provider profile picture for ${provider.name}: ${profilePictureUrl}`);
+    return {
+      url: profilePictureUrl,
+      type: 'provider-profile'
+    };
+  }
+
+  // Priority 3: Avatar from providerProfile
+  if (provider.providerProfile?.avatar) {
+    const avatarUrl = provider.providerProfile.avatar.startsWith('http') 
+      ? provider.providerProfile.avatar 
+      : `${BACKEND_URL}${provider.providerProfile.avatar.startsWith('/') ? '' : '/'}${provider.providerProfile.avatar}`;
+    
+    console.log(`✅ Using provider avatar for ${provider.name}: ${avatarUrl}`);
+    return {
+      url: avatarUrl,
+      type: 'provider-avatar'
+    };
+  }
+
+  // Priority 4: Business logo if available
+  if (provider.providerProfile?.businessLogo) {
+    const logoUrl = provider.providerProfile.businessLogo.startsWith('http') 
+      ? provider.providerProfile.businessLogo 
+      : `${BACKEND_URL}${provider.providerProfile.businessLogo.startsWith('/') ? '' : '/'}${provider.providerProfile.businessLogo}`;
+    
+    console.log(`✅ Using business logo for ${provider.name}: ${logoUrl}`);
+    return {
+      url: logoUrl,
+      type: 'business-logo'
     };
   }
   
-  // Generate category-specific avatar using UI Avatars or similar service
+  // Fallback: Generate category-specific avatar using UI Avatars service
   const name = encodeURIComponent(provider.name || 'Provider');
   const categoryColor = getCategoryColor(category);
   
   // Use UI Avatars service for professional-looking avatars
   const avatarUrl = `https://ui-avatars.com/api/?name=${name}&size=200&background=${categoryColor}&color=ffffff&bold=true&format=png`;
   
+  console.log(`⚠️ Using generated avatar for ${provider.name}: ${avatarUrl}`);
   return {
     url: avatarUrl,
     type: 'generated'

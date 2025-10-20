@@ -2589,10 +2589,15 @@ Examples:
                                   src={provider.profilePicture} 
                                   alt={provider.name}
                                   className="w-full h-full object-cover"
+                                  onLoad={() => {
+                                    console.log(`✅ Successfully loaded profile picture for ${provider.name}: ${provider.profilePicture}`);
+                                  }}
                                   onError={(e) => {
+                                    console.warn(`❌ Failed to load profile picture for ${provider.name}: ${provider.profilePicture}`);
                                     // Fallback to generated avatar if image fails to load
                                     const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=200&background=6b7280&color=ffffff&bold=true&format=png`;
                                     (e.target as HTMLImageElement).src = fallback;
+                                    console.log(`🔄 Using fallback avatar for ${provider.name}: ${fallback}`);
                                   }}
                                 />
                               ) : (
@@ -2720,7 +2725,11 @@ Examples:
                                         src={provider.profilePicture} 
                                         alt={provider.name} 
                                         className="w-full h-full object-cover"
+                                        onLoad={() => {
+                                          console.log(`✅ Successfully loaded selected provider picture for ${provider.name}`);
+                                        }}
                                         onError={(e) => {
+                                          console.warn(`❌ Failed to load selected provider picture for ${provider.name}: ${provider.profilePicture}`);
                                           const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=64&background=6b7280&color=ffffff&bold=true&format=png`;
                                           (e.target as HTMLImageElement).src = fallback;
                                         }}
@@ -2947,7 +2956,11 @@ Examples:
                                       src={provider.profilePicture} 
                                       alt={provider.name} 
                                       className="w-full h-full object-cover"
+                                      onLoad={() => {
+                                        console.log(`✅ Successfully loaded final provider picture for ${provider.name}`);
+                                      }}
                                       onError={(e) => {
+                                        console.warn(`❌ Failed to load final provider picture for ${provider.name}: ${provider.profilePicture}`);
                                         const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=80&background=6b7280&color=ffffff&bold=true&format=png`;
                                         (e.target as HTMLImageElement).src = fallback;
                                       }}
