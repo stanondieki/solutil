@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "name": "solutil",
+  "framework": "nextjs",
+  "buildCommand": "cd frontend && npm run build",
+  "installCommand": "cd frontend && npm install",
+  "outputDirectory": "frontend/.next",
+  "functions": {
+    "**/api/**": {
+      "maxDuration": 30
+    }
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net",
+      "NEXT_PUBLIC_ENVIRONMENT": "production",
+      "NEXT_PUBLIC_SOCKET_URL": "https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net",
+      "NEXT_PUBLIC_SITE_URL": "https://www.solutilconnect.com",
+      "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME": "dhniojmt6",
+      "NEXT_PUBLIC_CLOUDINARY_API_KEY": "362978357312836"
+    }
+  }
+}
