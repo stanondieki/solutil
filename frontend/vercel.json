@@ -2,11 +2,8 @@
   "version": 2,
   "name": "solutil",
   "framework": "nextjs",
-  "buildCommand": "cd frontend && npm run build",
-  "installCommand": "cd frontend && npm install",
-  "outputDirectory": "frontend/.next",
   "functions": {
-    "**/api/**": {
+    "src/app/api/**": {
       "maxDuration": 30
     }
   },
