@@ -99,7 +99,7 @@ router.post('/smart-match-providers', protect, roleGuard(['client']), async (req
         userType: 'provider',
         providerStatus: 'approved'
       },
-      select: 'name email phone profilePicture providerProfile providerStatus'
+      select: 'name email phone avatar providerProfile providerStatus'
     })
     .lean();
 
@@ -368,17 +368,20 @@ function calculateSmartMatchScore({
 function getSmartProfilePicture(provider, category) {
   const BACKEND_URL = process.env.BACKEND_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
   
-  // Priority 1: User's uploaded profile picture
-  if (provider.profilePicture) {
-    // Handle both relative and absolute URLs
-    const profilePictureUrl = provider.profilePicture.startsWith('http') 
-      ? provider.profilePicture 
-      : `${BACKEND_URL}${provider.profilePicture.startsWith('/') ? '' : '/'}${provider.profilePicture}`;
-    
-    console.log(`✅ Using actual profile picture for ${provider.name}: ${profilePictureUrl}`);
+  console.log(`🔍 Profile picture debug for ${provider.name}:`, {
+    avatarUrl: provider.avatar?.url,
+    avatarPublicId: provider.avatar?.public_id,
+    providerProfilePicture: provider.providerProfile?.profilePicture,
+    providerAvatar: provider.providerProfile?.avatar,
+    businessLogo: provider.providerProfile?.businessLogo
+  });
+  
+  // Priority 1: User's uploaded avatar (main profile picture)
+  if (provider.avatar?.url) {
+    console.log(`✅ Using actual avatar for ${provider.name}: ${provider.avatar.url}`);
     return {
-      url: profilePictureUrl,
-      type: 'user-uploaded'
+      url: provider.avatar.url,
+      type: 'user-avatar'
     };
   }
 

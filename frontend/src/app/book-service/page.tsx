@@ -1292,6 +1292,12 @@ Status: ${result.data.booking.status}
       if (response.ok) {
         const data = await response.json()
         console.log('✅ Smart matching successful:', data.data.providers?.length, 'available providers found')
+        console.log('🖼️ Provider profile pictures debug:', data.data.providers?.map((p: any) => ({
+          name: p.name,
+          profilePicture: p.profilePicture,
+          profilePictureType: p.profilePictureType,
+          hasAvatar: !!p.profile?.avatar
+        })))
         
         setProviderMatching({
           loading: false,
