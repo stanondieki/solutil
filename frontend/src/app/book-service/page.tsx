@@ -1831,12 +1831,12 @@ Status: ${result.data.booking.status}
 
   const getStepTitle = () => {
     switch (currentStep) {
-      case 'category': return 'Choose Service Category'
-      case 'details': return 'Service Details'
-      case 'location': return 'Location & Area'
-      case 'providers': return 'Select Providers'
-      case 'payment': return 'Payment & Confirmation'
-      default: return 'Book Service'
+      case 'category': return '🎯 Choose Service Category'
+      case 'details': return '📋 Service Details'
+      case 'location': return '📍 Location & Area'
+      case 'providers': return '👥 Select Smart-Matched Providers'
+      case 'payment': return '💳 Payment & Confirmation'
+      default: return '✨ Enhanced Book Service'
     }
   }
 
@@ -1861,7 +1861,12 @@ Status: ${result.data.booking.status}
                 </button>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{getStepTitle()}</h1>
-                  <p className="text-gray-600">Book professional services in Nairobi</p>
+                  <p className="text-gray-600">
+                    Book professional services in Nairobi
+                    <span className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      🚀 v2.1 - Oct 21, 2025
+                    </span>
+                  </p>
                 </div>
               </div>
               {bookingData.urgency === 'emergency' && (
@@ -1886,6 +1891,15 @@ Status: ${result.data.booking.status}
                 <span>Location</span>
                 <span>Providers</span>
                 <span>Payment</span>
+              </div>
+              
+              {/* Deployment Status Indicator */}
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-100 text-green-800 border border-green-200">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  Live v2.1 - Smart Matching & Profile Pictures Active
+                  <span className="ml-2">🚀</span>
+                </div>
               </div>
             </div>
           </div>
@@ -2541,10 +2555,15 @@ Examples:
                   {providerMatching.loading ? (
                     <div className="text-center py-12">
                       <FaSpinner className="h-12 w-12 text-orange-500 mx-auto mb-4 animate-spin" />
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">🔍 Finding Perfect Matches...</h4>
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">🧠 Smart Matching in Progress...</h4>
                       <p className="text-gray-600 mb-2">
-                        Searching for <strong>{bookingData.providersNeeded}</strong> qualified <strong>{bookingData.category?.name.toLowerCase()}</strong> professional{bookingData.providersNeeded > 1 ? 's' : ''}
+                        Using AI-powered matching to find <strong>{bookingData.providersNeeded}</strong> available <strong>{bookingData.category?.name.toLowerCase()}</strong> professional{bookingData.providersNeeded > 1 ? 's' : ''} with real profile pictures
                       </p>
+                      <div className="flex justify-center mb-3">
+                        <div className="bg-blue-50 px-3 py-1 rounded-full">
+                          <span className="text-xs font-medium text-blue-700">✨ Enhanced v2.1 - Smart Availability Check</span>
+                        </div>
+                      </div>
                       <div className="text-sm text-gray-500 space-y-1">
                         <p>📍 Location: <strong>{bookingData.location.area}</strong></p>
                         <p>📅 Date: <strong>{bookingData.date}</strong> at <strong>{bookingData.time}</strong></p>
