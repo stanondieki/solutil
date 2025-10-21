@@ -5,13 +5,10 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Optimize build time and reduce timeout issues
-  swcMinify: true,
-  
-  // Build performance optimizations
+  // Build performance optimizations - removed problematic options
   experimental: {
-    // Enable build optimizations
-    optimizeCss: true
+    // Remove optimizeCss as it requires critters package
+    // optimizeCss: true
   },
 
   // ESLint configuration for build - ignore to prevent timeout
@@ -56,9 +53,6 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 828, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
-  
-  // Build output optimization
-  output: 'standalone',
   
   // Environment-based configuration
   env: {
