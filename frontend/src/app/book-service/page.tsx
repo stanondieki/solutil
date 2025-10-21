@@ -839,6 +839,71 @@ const getServicePriceRange = (categoryId: string): string => {
   return `KES ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`
 }
 
+// Helper function to get category-specific size descriptions
+const getCategorySizeOptions = (categoryId: string | null) => {
+  if (!categoryId) {
+    return [
+      { id: 'small', name: 'Small', description: 'Simple project' },
+      { id: 'medium', name: 'Medium', description: 'Standard project' },
+      { id: 'large', name: 'Large', description: 'Complex project' }
+    ]
+  }
+
+  const sizeOptions: Record<string, Array<{id: string, name: string, description: string}>> = {
+    'cleaning': [
+      { id: 'small', name: 'Small', description: '1-2 bedrooms / Studio apartment' },
+      { id: 'medium', name: 'Medium', description: '3-4 bedrooms / Standard home' },
+      { id: 'large', name: 'Large', description: '5+ bedrooms / Large house' }
+    ],
+    'fumigation': [
+      { id: 'small', name: 'Small', description: '1-2 rooms / Apartment' },
+      { id: 'medium', name: 'Medium', description: '3-4 rooms / Medium house' },
+      { id: 'large', name: 'Large', description: '5+ rooms / Large property' }
+    ],
+    'moving': [
+      { id: 'small', name: 'Small', description: '1-2 bedrooms / Few items' },
+      { id: 'medium', name: 'Medium', description: '3-4 bedrooms / Standard move' },
+      { id: 'large', name: 'Large', description: '5+ bedrooms / Full house' }
+    ],
+    'electrical': [
+      { id: 'small', name: 'Small', description: '1-2 outlets / Simple fix' },
+      { id: 'medium', name: 'Medium', description: '3-5 outlets / Standard work' },
+      { id: 'large', name: 'Large', description: '6+ outlets / Complex project' }
+    ],
+    'plumbing': [
+      { id: 'small', name: 'Small', description: '1 fixture / Quick repair' },
+      { id: 'medium', name: 'Medium', description: '2-3 fixtures / Standard job' },
+      { id: 'large', name: 'Large', description: '4+ fixtures / Major work' }
+    ],
+    'carpentry': [
+      { id: 'small', name: 'Small', description: '1-2 pieces / Minor repair' },
+      { id: 'medium', name: 'Medium', description: '3-5 pieces / Custom work' },
+      { id: 'large', name: 'Large', description: '6+ pieces / Major project' }
+    ],
+    'painting': [
+      { id: 'small', name: 'Small', description: '1-2 rooms / Touch-up work' },
+      { id: 'medium', name: 'Medium', description: '3-4 rooms / Standard paint' },
+      { id: 'large', name: 'Large', description: '5+ rooms / Full house paint' }
+    ],
+    'gardening': [
+      { id: 'small', name: 'Small', description: 'Small garden / Basic care' },
+      { id: 'medium', name: 'Medium', description: 'Medium garden / Regular care' },
+      { id: 'large', name: 'Large', description: 'Large garden / Full landscape' }
+    ],
+    'appliance repair': [
+      { id: 'small', name: 'Small', description: '1 appliance / Quick fix' },
+      { id: 'medium', name: 'Medium', description: '2-3 appliances / Standard repair' },
+      { id: 'large', name: 'Large', description: '4+ appliances / Major service' }
+    ]
+  }
+
+  return sizeOptions[categoryId] || [
+    { id: 'small', name: 'Small', description: 'Simple project' },
+    { id: 'medium', name: 'Medium', description: 'Standard project' },
+    { id: 'large', name: 'Large', description: 'Complex project' }
+  ]
+}
+
 // Legacy helper functions for backward compatibility
 const getServicePrice = (categoryId: string): number => {
   return SERVICE_PRICING[categoryId] || 2000
@@ -2062,14 +2127,24 @@ Status: ${result.data.booking.status}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-3">
                           <FaHammer className="inline h-4 w-4 mr-2 text-orange-500" />
-                          What size is your property/project?
+                          {bookingData.category?.id === 'cleaning' || bookingData.category?.id === 'fumigation' || bookingData.category?.id === 'moving' 
+                            ? 'What size is your property?' 
+                            : bookingData.category?.id === 'electrical' 
+                            ? 'What\'s the scope of electrical work?' 
+                            : bookingData.category?.id === 'plumbing' 
+                            ? 'What\'s the scope of plumbing work?' 
+                            : bookingData.category?.id === 'carpentry' 
+                            ? 'How much carpentry work is needed?' 
+                            : bookingData.category?.id === 'painting' 
+                            ? 'What\'s the painting scope?' 
+                            : bookingData.category?.id === 'gardening' 
+                            ? 'What\'s the garden size?' 
+                            : bookingData.category?.id === 'appliance-repair' 
+                            ? 'How many appliances need service?' 
+                            : 'What\'s the project scope?'}
                         </label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          {[
-                            { id: 'small', name: 'Small', description: '1-2 bedrooms / Simple project' },
-                            { id: 'medium', name: 'Medium', description: '3-4 bedrooms / Standard project' },
-                            { id: 'large', name: 'Large', description: '5+ bedrooms / Complex project' }
-                          ].map((size) => (
+                          {getCategorySizeOptions(bookingData.category?.id || '').map((size) => (
                             <div key={size.id} className="relative">
                               <input
                                 type="radio"
@@ -2605,10 +2680,10 @@ Examples:
                       </div>
 
                       {providerMatching.providers.map((provider, index) => (
-                        <div key={provider._id} className="border border-gray-200 rounded-lg p-6 hover:border-orange-300 transition-colors">
-                          <div className="flex items-start space-x-4">
+                        <div key={provider._id} className="border border-gray-200 rounded-lg p-4 md:p-6 hover:border-orange-300 transition-colors">
+                          <div className="flex items-start space-x-3 md:space-x-4">
                             {/* Provider Avatar */}
-                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                               {provider.profilePicture ? (
                                 <img 
                                   src={provider.profilePicture} 
@@ -2634,15 +2709,15 @@ Examples:
 
                             {/* Provider Info */}
                             <div className="flex-1">
-                              <div className="flex items-start justify-between">
-                                <div>
+                              <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-3 md:space-y-0">
+                                <div className="flex-1 md:pr-4">
                                   <h4 className="text-lg font-semibold text-gray-900">{provider.name}</h4>
                                   <p className="text-gray-600 mb-2">
                                     {provider.providerProfile?.experience || "Experienced Professional"}
                                   </p>
                                   
                                   {/* Skills */}
-                                  <div className="flex items-center space-x-4 mb-3">
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 mb-3">
                                     <div className="flex items-center">
                                       <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
                                       <span className="text-sm font-medium text-gray-700">
@@ -2678,7 +2753,7 @@ Examples:
 
                                   {/* Availability & Response Time */}
                                   <div className="text-sm text-gray-600">
-                                    <div className="flex items-center space-x-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
                                       <span className="flex items-center">
                                         <FaClock className="h-3 w-3 mr-1" />
                                         Response: {provider.providerProfile?.responseTime || "Within 1 hour"}
@@ -2692,19 +2767,21 @@ Examples:
                                 </div>
 
                                 {/* Price & Book Button */}
-                                <div className="text-right">
-                                  <div className="text-lg font-bold text-orange-600 mb-1">
-                                    {bookingData.priceBreakdown ? 
-                                      `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
-                                      'Price TBD'
-                                    }
-                                  </div>
-                                  <div className="text-sm text-gray-500 mb-3">
-                                    Per professional
+                                <div className="flex flex-col md:items-end space-y-2">
+                                  <div className="flex flex-col md:text-right">
+                                    <div className="text-lg font-bold text-orange-600">
+                                      {bookingData.priceBreakdown ? 
+                                        `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
+                                        'Price TBD'
+                                      }
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      Per professional
+                                    </div>
                                   </div>
                                   <button
                                     onClick={() => handleProviderSelection(provider)}
-                                    className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                                    className={`w-full md:w-auto px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
                                       selectedProviders.find(p => p._id === provider._id)
                                         ? 'bg-green-600 text-white hover:bg-green-700'
                                         : selectedProviders.length >= bookingData.providersNeeded
