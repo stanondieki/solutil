@@ -156,7 +156,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 342,
     estimatedDuration: '1-4 hours',
     popularServices: ['Pipe repair', 'Faucet installation', 'Toilet repair', 'Water heater service'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'electrical',
@@ -172,7 +172,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 256,
     estimatedDuration: '2-6 hours',
     popularServices: ['Wiring installation', 'Socket repair', 'Lighting setup', 'Electrical maintenance'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'cleaning',
@@ -188,7 +188,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 189,
     estimatedDuration: '2-8 hours',
     popularServices: ['House cleaning', 'Deep cleaning', 'Office cleaning', 'Move-in/out cleaning'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'carpentry',
@@ -204,7 +204,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 145,
     estimatedDuration: '3-8 hours',
     popularServices: ['Furniture repair', 'Custom cabinets', 'Door installation', 'Shelving'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'painting',
@@ -220,7 +220,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 98,
     estimatedDuration: '4-12 hours',
     popularServices: ['Interior painting', 'Exterior painting', 'Wall decoration', 'Color consultation'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'gardening',
@@ -236,7 +236,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 67,
     estimatedDuration: '2-6 hours',
     popularServices: ['Lawn mowing', 'Plant care', 'Garden design', 'Tree trimming'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
     id: 'movers',
@@ -252,7 +252,7 @@ const serviceCategories: ServiceCategory[] = [
     reviews: 124,
     estimatedDuration: '4-10 hours',
     popularServices: ['House moving', 'Office relocation', 'Packing services', 'Furniture moving'],
-    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo']
+    serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   }
 ];
 
@@ -1081,84 +1081,91 @@ export default function DashboardPage() {
 
             {/* Service Categories - Shows second on mobile, first on desktop */}
             <div className="lg:col-span-2 order-2 lg:order-1">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[700px] flex flex-col">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 h-auto lg:h-[700px] flex flex-col">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
                   <h3 className="text-xl font-bold text-gray-900">Service Categories</h3>
                   <Link 
                     href="/services" 
-                    className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center"
+                    className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center self-start sm:self-auto"
                   >
                     View All <FaArrowRight className="ml-1 h-3 w-3" />
                   </Link>
                 </div>
                 
-                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                <div className="space-y-4 flex-1 overflow-y-auto pr-1 md:pr-2">
                   {filteredServices.slice(0, 3).map((category) => (
                     <motion.div
                       key={category.id}
-                      whileHover={{ scale: 1.02 }}
-                      className="border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200"
+                      whileHover={{ scale: window.innerWidth > 768 ? 1.02 : 1.0 }}
+                      className="border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all duration-200 overflow-hidden"
                     >
-                      {/* Category Header */}
-                      <div className="flex items-center p-4 border-b border-gray-100">
-                        <div className={`w-16 h-16 rounded-full ${category.color} flex items-center justify-center mr-4`}>
-                          <category.icon className="h-8 w-8 text-gray-700" />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                            <span className="text-sm font-medium text-orange-600">
-                              {category.averagePrice}
-                            </span>
+                      {/* Category Header - Mobile Responsive */}
+                      <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${category.color} flex items-center justify-center flex-shrink-0`}>
+                            <category.icon className="h-6 w-6 md:h-8 md:w-8 text-gray-700" />
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {category.description}
-                          </p>
                           
-                          <div className="flex items-center space-x-4">
-                            <div className="flex items-center">
-                              <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
-                              <span className="text-sm font-medium text-gray-700">
-                                {category.rating}
-                              </span>
-                              <span className="text-sm text-gray-500 ml-1">
-                                ({category.reviews} reviews)
+                          <div className="flex-1 min-w-0">
+                            {/* Title and Price Row */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
+                              <h4 className="font-semibold text-gray-900 text-base md:text-lg truncate">
+                                {category.name}
+                              </h4>
+                              <span className="text-sm font-medium text-orange-600 flex-shrink-0">
+                                {category.averagePrice}
                               </span>
                             </div>
-                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
-                              Available in {category.serviceAreas.length} areas
-                            </span>
+                            
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              {category.description}
+                            </p>
                           </div>
                         </div>
                         
-                        <div className="ml-4">
-                          <Link 
-                            href={`/book-service?category=${category.id}`}
-                            className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
-                          >
-                            Book Now
-                          </Link>
+                        {/* Rating and Availability - Mobile Optimized */}
+                        <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <div className="flex items-center">
+                            <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
+                            <span className="text-sm font-medium text-gray-700">
+                              {category.rating}
+                            </span>
+                            <span className="text-sm text-gray-500 ml-1">
+                              ({category.reviews} reviews)
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between sm:justify-end gap-2">
+                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 whitespace-nowrap">
+                              Available in {category.serviceAreas.length} areas
+                            </span>
+                            <Link 
+                              href={`/book-service?category=${category.id}`}
+                              className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors whitespace-nowrap"
+                            >
+                              Book Now
+                            </Link>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Popular Services */}
+                      {/* Popular Services - Mobile Responsive */}
                       <div className="p-4">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
                           <h5 className="text-sm font-semibold text-gray-800">Popular Services</h5>
                           <span className="text-xs text-gray-500">
                             {category.estimatedDuration}
                           </span>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {category.popularServices.slice(0, 4).map((service, index) => (
                             <div 
                               key={index}
-                              className="p-2 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer border border-transparent hover:border-orange-200"
+                              className="p-3 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer border border-transparent hover:border-orange-200"
                               onClick={() => router.push(`/book-service?category=${category.id}`)}
                             >
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 line-clamp-1">
                                 {service}
                               </div>
                             </div>

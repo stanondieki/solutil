@@ -2779,22 +2779,37 @@ Examples:
                                       Per professional
                                     </div>
                                   </div>
-                                  <button
-                                    onClick={() => handleProviderSelection(provider)}
-                                    className={`w-full md:w-auto px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                                      selectedProviders.find(p => p._id === provider._id)
-                                        ? 'bg-green-600 text-white hover:bg-green-700'
-                                        : selectedProviders.length >= bookingData.providersNeeded
-                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        : 'bg-orange-600 text-white hover:bg-orange-700'
-                                    }`}
-                                    disabled={
-                                      selectedProviders.length >= bookingData.providersNeeded && 
-                                      !selectedProviders.find(p => p._id === provider._id)
-                                    }
-                                  >
-                                    {selectedProviders.find(p => p._id === provider._id) ? 'Selected' : 'Select Provider'}
-                                  </button>
+                                  {selectedProviders.find(p => p._id === provider._id) ? (
+                                    // Selected state - show deselect option
+                                    <div className="flex flex-col space-y-2">
+                                      <button
+                                        onClick={() => handleProviderSelection(provider)}
+                                        className="w-full md:w-auto px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium flex items-center justify-center"
+                                      >
+                                        <FaCheck className="h-3 w-3 mr-2" />
+                                        Selected
+                                      </button>
+                                      <button
+                                        onClick={() => handleProviderSelection(provider)}
+                                        className="w-full md:w-auto px-3 py-1 rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition-colors text-xs font-medium"
+                                      >
+                                        ✕ Change Provider
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    // Unselected state
+                                    <button
+                                      onClick={() => handleProviderSelection(provider)}
+                                      className={`w-full md:w-auto px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                                        selectedProviders.length >= bookingData.providersNeeded
+                                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                          : 'bg-orange-600 text-white hover:bg-orange-700'
+                                      }`}
+                                      disabled={selectedProviders.length >= bookingData.providersNeeded}
+                                    >
+                                      Select Provider
+                                    </button>
+                                  )}
                                 </div>
                               </div>
 
