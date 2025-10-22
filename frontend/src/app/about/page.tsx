@@ -116,19 +116,223 @@ export default function AboutPage() {
             >
               About{' '}
               <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-orange-700 bg-clip-text text-transparent">
-                Solutil
+                Solutil Connect
               </span>
             </motion.h1>
             
-            <motion.p 
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-2xl text-gray-700 mb-10 max-w-4xl mx-auto leading-relaxed font-medium"
+              className="max-w-6xl mx-auto"
             >
-              Your trusted partner for professional home services in Nairobi. 
-              We believe in making quality services simple, reliable, and accessible to everyone.
-            </motion.p>
+              {/* Compact Unified Interface Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-orange-100 overflow-hidden relative"
+              >
+                {/* Background decorations */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-white to-amber-50/20"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-200/15 to-transparent rounded-full -mr-16 -mt-16"></div>
+
+                <div className="relative z-10 p-6 md:p-8">
+                  {/* Two Column Layout - Text Left, Cards Right */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch min-h-full">
+                    
+                    {/* Left Column - Main Content Text */}
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.6, delay: 0.6 }}
+                      className="space-y-6 flex flex-col justify-between h-full"
+                    >
+                      <div>
+                        <motion.p 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: 0.7 }}
+                          className="text-lg text-gray-700 leading-relaxed mb-4"
+                        >
+                          Solutil Connect is a smart utility platform that digitally connects homes, businesses, and property managers to{' '}
+                          <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
+                            verified service providers
+                          </span>{' '}
+                          for essential maintenance and support services.
+                        </motion.p>
+
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.5, delay: 0.8 }}
+                          className="w-16 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mb-4"
+                        />
+
+                        <motion.p 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: 0.9 }}
+                          className="text-base text-gray-600 leading-relaxed mb-4"
+                        >
+                          We make it easy to access reliable professionals in areas such as{' '}
+                          <span className="text-gray-800">plumbing, electrical works, cleaning, fumigation, and general repairs</span>{' '}
+                          — all through a single, convenient digital platform.
+                        </motion.p>
+
+                        <motion.p 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: 1.0 }}
+                          className="text-base text-gray-600 leading-relaxed mb-6"
+                        >
+                          Our goal is to bring{' '}
+                          <span className="text-orange-600">efficiency, transparency, and convenience</span>{' '}
+                          to the management of home and building utilities by eliminating the traditional hassle of searching for trusted service providers.
+                        </motion.p>
+                      </div>
+
+                      {/* Vision Statement */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 1.1 }}
+                        className="bg-gradient-to-br from-gray-800 to-orange-800 rounded-xl p-6 text-white relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/15 to-transparent"></div>
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-full -mr-8 -mt-8"></div>
+                        <div className="absolute bottom-0 left-0 w-12 h-12 bg-orange-500/5 rounded-full -ml-6 -mb-6"></div>
+                        
+                        <div className="relative z-10">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 1.2 }}
+                            className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mb-4 shadow-lg"
+                          >
+                            <FaLightbulb className="text-white text-lg" />
+                          </motion.div>
+                          
+                          <motion.p 
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 1.3 }}
+                            className="text-base leading-relaxed"
+                          >
+                            <span className="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                              Solutil Connect
+                            </span>{' '}
+                            represents the future of{' '}
+                            <span className="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                              Smart Utility Solutions
+                            </span>
+                            , where technology and everyday living meet to create smarter, safer, and more efficient environments for all.
+                          </motion.p>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+
+                    {/* Right Column - Enhanced Feature Cards */}
+                    <motion.div 
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.6, delay: 0.8 }}
+                      className="space-y-3 h-full flex flex-col"
+                    >
+                      <div className="text-center mb-6">
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                          className="w-14 h-14 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-700 rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-4 relative"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-2xl blur-lg opacity-30 animate-pulse"></div>
+                          <FaRocket className="text-white text-xl relative z-10" />
+                        </motion.div>
+                        <h3 className="text-lg text-gray-700 mb-2">
+                          Through digital automation, Solutil Connect ensures:
+                        </h3>
+                        <div className="w-12 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mx-auto"></div>
+                      </div>
+
+                      <div className="flex-1 space-y-3">
+                        {[
+                          { 
+                            text: "Quick service access from verified providers",
+                            description: "Connect instantly with pre-screened professionals",
+                            icon: FaClock,
+                            color: "from-blue-500 to-blue-600",
+                            bgColor: "from-blue-50 to-blue-100"
+                          },
+                          { 
+                            text: "Transparent pricing and secure payments",
+                            description: "No hidden costs, secure payment processing",
+                            icon: FaShieldAlt,
+                            color: "from-green-500 to-green-600",
+                            bgColor: "from-green-50 to-green-100"
+                          },
+                          { 
+                            text: "Reliable customer feedback and ratings",
+                            description: "Real reviews from verified customers",
+                            icon: FaStar,
+                            color: "from-yellow-500 to-yellow-600",
+                            bgColor: "from-yellow-50 to-yellow-100"
+                          },
+                          { 
+                            text: "Sustainable service delivery",
+                            description: "Eco-friendly practices that save resources",
+                            icon: FaHeart,
+                            color: "from-pink-500 to-pink-600",
+                            bgColor: "from-pink-50 to-pink-100"
+                          }
+                        ].map((item, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: 0.9 + index * 0.1 }}
+                          whileHover={{ scale: 1.03, y: -3 }}
+                          className="group relative"
+                        >
+                          {/* Background glow effect */}
+                          <div className={`absolute inset-0 bg-gradient-to-r ${item.bgColor} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm`}></div>
+                          
+                          <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-orange-50 group-hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                            {/* Top accent line */}
+                            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}></div>
+                            
+                            {/* Floating background element */}
+                            <div className={`absolute top-2 right-2 w-20 h-20 bg-gradient-to-br ${item.color} rounded-full opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                            
+                            <div className="flex items-start space-x-4 relative z-10">
+                              <motion.div 
+                                whileHover={{ scale: 1.15, rotate: 10 }}
+                                className={`w-12 h-12 bg-gradient-to-r ${item.color} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300 relative`}
+                              >
+                                <div className={`absolute inset-0 bg-gradient-to-r ${item.color} rounded-xl blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300`}></div>
+                                <item.icon className="text-white text-lg relative z-10" />
+                              </motion.div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm text-gray-800 leading-relaxed mb-1 group-hover:text-gray-900 transition-colors duration-300">
+                                  {item.text}
+                                </h4>
+                                <p className="text-xs text-gray-500 leading-relaxed group-hover:text-gray-600 transition-colors duration-300">
+                                  {item.description}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Bottom shine effect */}
+                            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        </motion.div>
+                      ))}
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
 
             {/* Stats Section */}
             <motion.div 
