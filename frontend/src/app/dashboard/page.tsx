@@ -1174,7 +1174,7 @@ export default function DashboardPage() {
                         
                         <div className="mt-3 text-center">
                           <button
-                            onClick={() => router.push(`/book-service?category=${category.id}`)}
+                            onClick={() => router.push(`/services/${category.id}`)}
                             className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                           >
                             View all {category.name.toLowerCase()} services →

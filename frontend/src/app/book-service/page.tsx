@@ -201,6 +201,20 @@ const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
       description: 'Complete house electrical rewiring',
       estimatedDuration: '3-7 days',
       category: 'electrical'
+    },
+    {
+      id: 'tv-mounting',
+      name: 'TV mounting',
+      priceRange: { min: 2000, max: 6000 },
+      sizeBased: true,
+      sizeMultipliers: {
+        'small': 1.0,   // 32" and below
+        'medium': 1.5,  // 33"-55"
+        'large': 2.0    // 56" and above
+      },
+      description: 'Professional TV mounting service depending on TV size',
+      estimatedDuration: '1-3 hours',
+      category: 'electrical'
     }
   ],
   cleaning: [
@@ -570,7 +584,7 @@ const serviceCategories: ServiceCategory[] = [
     rating: 4.9,
     reviews: 256,
     estimatedDuration: '2-6 hours',
-    popularServices: ['Wiring installation', 'Socket repair', 'Lighting setup', 'Electrical maintenance'],
+    popularServices: ['Wiring installation', 'Socket repair', 'TV mounting', 'Lighting setup'],
     serviceAreas: ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
   },
   {
