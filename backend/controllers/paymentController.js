@@ -12,9 +12,35 @@ class PaymentController {
   initializePayment = catchAsync(async (req, res, next) => {
     const { bookingId, amount, email } = req.body;
 
-    // Validate inputs
-    if (!bookingId || !amount || !email) {
-      return next(new AppError('Booking ID, amount, and email are required', 400));
+    console.log('🔔 Payment initialization request:', {
+      bookingId,
+      bookingIdType: typeof bookingId,
+      bookingIdValid: !!bookingId,
+      amount,
+      email,
+      userId: req.user?.id
+    });
+
+    // Validate inputs with detailed error messages
+    if (!bookingId) {
+      console.log('❌ Validation failed: Missing booking ID');
+      return next(new AppError('Valid booking ID is required', 400));
+    }
+    
+    // Check if bookingId is a valid MongoDB ObjectId
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      console.log('❌ Validation failed: Invalid booking ID format:', bookingId);
+      return next(new AppError('Invalid booking ID format', 400));
+    }
+    
+    if (!amount || amount <= 0) {
+      console.log('❌ Validation failed: Invalid amount');
+      return next(new AppError('Valid amount is required', 400));
+    }
+    if (!email) {
+      console.log('❌ Validation failed: Missing email');
+      return next(new AppError('Valid email is required', 400));
     }
 
     // Get booking details
@@ -33,8 +59,8 @@ class PaymentController {
 
     const params = JSON.stringify({
       email: email,
-      amount: amount * 100, // Convert to kobo
-      currency: 'NGN',
+      amount: amount * 100, // Convert to cents (KES)
+      currency: 'KES',
       reference: `${booking.bookingNumber}_${Date.now()}`,
       callback_url: `${process.env.FRONTEND_URL}/payment/callback`,
       metadata: {

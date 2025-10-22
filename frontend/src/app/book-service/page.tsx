@@ -950,6 +950,7 @@ function BookServicePageContent() {
     totalFound: 0
   })
   const [selectedProviders, setSelectedProviders] = useState<any[]>([])
+  const [termsAgreed, setTermsAgreed] = useState(false)
   const [locationSharing, setLocationSharing] = useState<{
     active: boolean
     location: any | null
@@ -1080,7 +1081,32 @@ function BookServicePageContent() {
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
       const token = localStorage.getItem('authToken')
 
+      console.log('🔄 Starting Paystack payment process...')
+      console.log('📊 Payment details:', {
+        bookingId,
+        bookingIdType: typeof bookingId,
+        bookingIdValid: !!bookingId,
+        bookingIdLength: bookingId?.length,
+        amount,
+        BACKEND_URL,
+        hasToken: !!token,
+        userEmail: user?.email,
+        paystackKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'NOT_SET'
+      })
+
+      // Validate required fields before sending
+      if (!bookingId) {
+        throw new Error('Booking ID is missing')
+      }
+      if (!amount || amount <= 0) {
+        throw new Error('Invalid amount')
+      }
+      if (!user?.email) {
+        throw new Error('User email is missing')
+      }
+
       // Initialize payment with backend
+      console.log('📡 Initializing payment with backend...')
       const initResponse = await fetch(`${BACKEND_URL}/api/payments/initialize`, {
         method: 'POST',
         headers: {
@@ -1094,42 +1120,92 @@ function BookServicePageContent() {
         })
       })
 
+      console.log('📥 Backend response status:', initResponse.status)
       const initResult = await initResponse.json()
+      console.log('📋 Backend response data:', initResult)
+      console.log('🔍 Payment amount analysis:', {
+        backendAmount: initResult.data?.amount,
+        localAmount: amount,
+        responseDataKeys: Object.keys(initResult.data || {})
+      })
 
       if (!initResponse.ok) {
+        console.error('❌ Payment initialization failed:', initResult)
         throw new Error(initResult.message || 'Payment initialization failed')
       }
 
       // Use Paystack popup with backend-generated data
+      console.log('🔧 Initializing Paystack popup...')
       const PaystackPop = await initializePaystack()
+      console.log('✅ Paystack popup initialized')
       
+      const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+      const isTestMode = paystackPublicKey?.startsWith('pk_test_') || true
+      console.log('🧪 Paystack Test Mode:', isTestMode)
+      console.log('🔑 Using Paystack key:', paystackPublicKey?.substring(0, 15) + '...')
+      
+      if (isTestMode) {
+        console.log('💡 Test Mode: Use test card 4084084084084081 with any CVV and future expiry date')
+      }
+      
+      if (!paystackPublicKey) {
+        throw new Error('Paystack public key not configured. Please check environment variables.')
+      }
+
       const paymentData: PaystackConfig = {
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_your_public_key',
+        key: paystackPublicKey,
         email: user?.email || '',
-        amount: initResult.data.amount,
-        currency: 'NGN',
+        amount: initResult.data.amount || (amount * 100), // Use backend amount or fallback to local amount in cents
+        currency: 'KES', // Kenyan Shillings for our Kenyan market
         reference: initResult.data.reference,
-        callback: async (response: PaystackResponse) => {
-          console.log('Payment successful:', response)
-          await verifyPayment(response.reference, bookingId)
+        callback: (response: PaystackResponse) => {
+          console.log('✅ Payment successful:', response)
+          // Don't await here - let it run in background
+          verifyPayment(response.reference, bookingId).catch(error => {
+            console.error('❌ Payment verification failed:', error)
+          })
         },
         onClose: () => {
-          console.log('Payment cancelled')
+          console.log('❌ Payment cancelled by user')
           setLoading(false)
         }
       }
 
+      console.log('💳 Payment configuration:', {
+        ...paymentData,
+        key: paymentData.key?.substring(0, 12) + '...' // Hide key in logs
+      })
+
       // Configure STK Push for mobile money
       if (bookingData.paymentMethod === 'mobile-money' || bookingData.paymentMethod === 'mpesa') {
         paymentData.channels = ['mobile_money']
+        console.log('📱 Configured for mobile money payment')
       }
 
+      console.log('🔧 Setting up payment handler...')
       const handler = PaystackPop.setup(paymentData)
+      console.log('🚀 Opening payment popup...')
       handler.openIframe()
     } catch (error) {
-      console.error('Payment initialization failed:', error)
+      console.error('❌ Payment initialization failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Payment setup failed'
-      alert(`Payment failed: ${errorMessage}. Please try again.`)
+      
+      // Handle different types of errors
+      if (error instanceof Error && error.message.includes('Failed to fetch')) {
+        alert(`🔄 Connection Issue
+
+Unable to connect to payment server. Please check:
+• Your internet connection
+• Backend server is running (Test Mode)
+
+Please try again in a moment.`)
+      } else {
+        // Show user-friendly error message
+        const isTestMode = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_')
+        const testModeHelp = isTestMode ? '\n\n🧪 Test Mode: Make sure your backend is running with test keys configured.' : ''
+        
+        alert(`💳 Payment Failed: ${errorMessage}${testModeHelp}\n\nPlease try again or contact support if the issue persists.`)
+      }
       setLoading(false)
     }
   }
@@ -1166,8 +1242,28 @@ Your booking has been confirmed and you'll receive an email confirmation shortly
         throw new Error(verifyResult.message || 'Payment verification failed')
       }
     } catch (error) {
-      console.error('Payment verification failed:', error)
-      alert(`Payment verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('❌ Payment verification failed:', error)
+      
+      // Handle network errors gracefully
+      if (error instanceof Error && error.message.includes('Failed to fetch')) {
+        alert(`🔄 Payment Processed Successfully!
+
+Your payment was completed but we couldn't verify it due to a connection issue.
+
+✅ Payment Reference: ${reference}
+📋 Booking ID: ${bookingId}
+
+Your booking is being processed. Please check your bookings page in a few minutes or contact support if needed.`)
+        
+        // Redirect to bookings page since payment was successful
+        setTimeout(() => {
+          window.location.href = '/bookings'
+        }, 3000)
+      } else {
+        alert(`❌ Payment verification failed: ${error instanceof Error ? error.message : 'Unknown error'}
+
+Please contact support with reference: ${reference}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -1242,12 +1338,27 @@ Your booking has been confirmed and you'll receive an email confirmation shortly
       }
       
       console.log('✅ Booking created successfully:', result.data.booking)
+      console.log('🔍 Booking ID analysis:', {
+        id: result.data.booking.id,
+        _id: result.data.booking._id,
+        idType: typeof result.data.booking.id,
+        _idType: typeof result.data.booking._id,
+        bookingNumber: result.data.booking.bookingNumber
+      })
       
       // Handle payment flow
       if (bookingData.paymentTiming === 'pay-now') {
         console.log('🔄 Initiating payment flow...')
+        // Use _id if id is not available and convert to string
+        const bookingId = (result.data.booking.id || result.data.booking._id)?.toString()
+        console.log('📋 Using booking ID for payment:', bookingId)
+        
+        if (!bookingId) {
+          throw new Error('Booking ID not found in response')
+        }
+        
         // Start payment process
-        await handlePaystackPayment(result.data.booking.id)
+        await handlePaystackPayment(bookingId)
         return
       }
       
@@ -1282,6 +1393,10 @@ Status: ${result.data.booking.status}
     
     if (!bookingData.paymentMethod) {
       newErrors.paymentMethod = 'Please select a payment method'
+    }
+    
+    if (!termsAgreed) {
+      newErrors.terms = 'Please agree to the terms and conditions before proceeding'
     }
     
     setErrors(newErrors)
@@ -1932,7 +2047,7 @@ Status: ${result.data.booking.status}
                 </button>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{getStepTitle()}</h1>
-                  <p className="text-gray-600">
+                  <p className="text-gray-700">
                     Book professional services in Nairobi
                     <span className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       🚀 v2.1 - Oct 21, 2025
@@ -1990,7 +2105,7 @@ Status: ${result.data.booking.status}
               >
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-3">What Service Do You Need?</h2>
-                  <p className="text-lg text-gray-600">Choose the service category that matches your needs</p>
+                  <p className="text-lg text-gray-700">Choose the service category that matches your needs</p>
                   <div className="mt-2 inline-flex items-center space-x-2 text-sm text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
                     <FaCheck className="h-3 w-3" />
                     <span>All services include professional providers & fixed pricing</span>
@@ -2014,8 +2129,8 @@ Status: ${result.data.booking.status}
                         <category.icon className="h-6 w-6 text-gray-700" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name} Service</h3>
-                      <p className="text-sm text-gray-600 mb-3">{category.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <p className="text-sm text-gray-700 mb-3">{category.description}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-600">
                         <div className="flex items-center space-x-3">
                           <div className="flex items-center">
                             <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
@@ -2054,13 +2169,13 @@ Status: ${result.data.booking.status}
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">{bookingData.category.name} Service Details</h3>
-                      <p className="text-gray-600">{bookingData.category.detailedDescription}</p>
+                      <p className="text-gray-700">{bookingData.category.detailedDescription}</p>
                       <div className="flex items-center space-x-4 mt-2 text-sm">
                         <span className="flex items-center text-orange-600">
                           <FaDollarSign className="h-3 w-3 mr-1" />
                           <strong>{getServicePriceRange(bookingData.category.id)}</strong>
                         </span>
-                        <span className="flex items-center text-gray-500">
+                        <span className="flex items-center text-gray-600">
                           <FaClock className="h-3 w-3 mr-1" />
                           {bookingData.category.estimatedDuration}
                         </span>
@@ -2101,8 +2216,8 @@ Status: ${result.data.booking.status}
                             >
                               <div className="flex-1">
                                 <div className="font-semibold text-gray-900">{subService.name}</div>
-                                <div className="text-sm text-gray-600 mt-1">{subService.description}</div>
-                                <div className="text-xs text-gray-500 mt-1">
+                                <div className="text-sm text-gray-700 mt-1">{subService.description}</div>
+                                <div className="text-xs text-gray-600 mt-1">
                                   Duration: {subService.estimatedDuration}
                                 </div>
                               </div>
@@ -2111,14 +2226,14 @@ Status: ${result.data.booking.status}
                                   KES {subService.priceRange.min.toLocaleString()} - {subService.priceRange.max.toLocaleString()}
                                 </div>
                                 {subService.sizeBased && (
-                                  <div className="text-xs text-gray-500">Price varies by size</div>
+                                  <div className="text-xs text-gray-600">Price varies by size</div>
                                 )}
                               </div>
                             </label>
                           </div>
                         ))}
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">Select the specific service that matches your needs</p>
+                      <p className="text-xs text-gray-600 mt-2">Select the specific service that matches your needs</p>
                       {errors.subService && <div className="text-red-500 text-sm mt-2">{errors.subService}</div>}
                     </div>
 
@@ -2180,7 +2295,7 @@ Status: ${result.data.booking.status}
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Property size affects the final price</p>
+                        <p className="text-xs text-gray-600 mt-2">Property size affects the final price</p>
                       </div>
                     )}
 
@@ -2205,7 +2320,7 @@ Status: ${result.data.booking.status}
                             <div className="text-2xl font-bold text-orange-600">
                               KES {bookingData.priceBreakdown.calculations.finalTotal.toLocaleString()}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-600">
                               {bookingData.providersNeeded > 1 && `×${bookingData.providersNeeded} professionals`}
                             </div>
                           </div>
@@ -2241,7 +2356,7 @@ Status: ${result.data.booking.status}
                           min={new Date().toISOString().split('T')[0]}
                           className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-orange-50 bg-white text-gray-900 font-medium text-base"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Select your preferred service date</p>
+                        <p className="text-xs text-gray-600 mt-1">Select your preferred service date</p>
                         {errors.date && <div className="text-red-500 text-sm mt-1">{errors.date}</div>}
                       </div>
 
@@ -2255,7 +2370,7 @@ Status: ${result.data.booking.status}
                           onChange={(e) => setBookingData(prev => ({ ...prev, time: e.target.value }))}
                           className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-orange-50 bg-white text-gray-900 font-medium text-base"
                         >
-                          <option value="" className="text-gray-500">Choose your preferred time</option>
+                          <option value="" className="text-gray-600">Choose your preferred time</option>
                           <option value="08:00" className="text-gray-900 font-medium">8:00 AM - Morning</option>
                           <option value="09:00" className="text-gray-900 font-medium">9:00 AM - Morning</option>
                           <option value="10:00" className="text-gray-900 font-medium">10:00 AM - Morning</option>
@@ -2267,7 +2382,7 @@ Status: ${result.data.booking.status}
                           <option value="16:00" className="text-gray-900 font-medium">4:00 PM - Late Afternoon</option>
                           <option value="17:00" className="text-gray-900 font-medium">5:00 PM - Evening</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">Select the time that works best for your schedule</p>
+                        <p className="text-xs text-gray-600 mt-1">Select the time that works best for your schedule</p>
                         {errors.time && <div className="text-red-500 text-sm mt-1">{errors.time}</div>}
                       </div>
                     </div>
@@ -2289,7 +2404,7 @@ Status: ${result.data.booking.status}
                           <option value={3} className="text-gray-900 font-medium">3 Professionals - Large job</option>
                           <option value={4} className="text-gray-900 font-medium">4+ Professionals - Extra large job</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">More professionals can complete the job faster</p>
+                        <p className="text-xs text-gray-600 mt-1">More professionals can complete the job faster</p>
                       </div>
 
                       <div>
@@ -2303,10 +2418,10 @@ Status: ${result.data.booking.status}
                           onChange={(e) => setBookingData(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
                           min="1"
                           max="12"
-                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-600 placeholder:font-normal"
                           placeholder="Enter hours needed (e.g., 2)"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Estimate: {bookingData.category?.estimatedDuration || '2-4 hours typical'}</p>
+                        <p className="text-xs text-gray-600 mt-1">Estimate: {bookingData.category?.estimatedDuration || '2-4 hours typical'}</p>
                         {errors.duration && <div className="text-red-500 text-sm mt-1">{errors.duration}</div>}
                       </div>
                     </div>
@@ -2315,7 +2430,7 @@ Status: ${result.data.booking.status}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
-                        Tell us more about your specific needs <span className="text-gray-500 font-normal">(Optional)</span>
+                        Tell us more about your specific needs <span className="text-gray-600 font-normal">(Optional)</span>
                       </label>
                       <textarea
                         value={bookingData.description}
@@ -2329,9 +2444,9 @@ Examples:
 - Any special requirements
 - Access details (stairs, parking, etc.)`}
                         rows={4}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-600 placeholder:font-normal"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Adding details helps us match you with the right professional, but you can book without them</p>
+                      <p className="text-xs text-gray-600 mt-1">Adding details helps us match you with the right professional, but you can book without them</p>
                     </div>
 
                     {/* Urgency Level */}
@@ -2379,7 +2494,7 @@ Examples:
                           </button>
                         ))}
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">Emergency services may have additional charges</p>
+                      <p className="text-xs text-gray-600 mt-2">Emergency services may have additional charges</p>
                     </div>
                   </div>
                 </div>
@@ -2441,7 +2556,7 @@ Examples:
                             ✏️ Type Address Manually
                           </button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Choose the easiest way to share your location</p>
+                        <p className="text-xs text-gray-600 mt-2">Choose the easiest way to share your location</p>
                       </div>
 
                       {/* Search Location (simplified) */}
@@ -2460,7 +2575,7 @@ Examples:
                               ...prev, 
                               location: { ...prev.location, address: e.target.value } 
                             }))}
-                            className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
+                            className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-600 placeholder:font-normal"
                           />
                           <FaSearch className="absolute right-3 top-4 h-4 w-4 text-gray-400" />
                         </div>
@@ -2483,12 +2598,12 @@ Examples:
                           }))}
                           className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base"
                         >
-                          <option value="" className="text-gray-500">🏙️ Choose your area/neighborhood</option>
+                          <option value="" className="text-gray-600">🏙️ Choose your area/neighborhood</option>
                           {serviceAreas.map(area => (
                             <option key={area} value={area} className="text-gray-900 font-medium">📍 {area}</option>
                           ))}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">This helps us find professionals closest to you</p>
+                        <p className="text-xs text-gray-600 mt-1">This helps us find professionals closest to you</p>
                         {errors.area && <div className="text-red-500 text-sm mt-1">{errors.area}</div>}
                       </div>
 
@@ -2496,7 +2611,7 @@ Examples:
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           <FaFileAlt className="inline h-4 w-4 mr-2 text-orange-500" />
-                          Additional Location Details <span className="text-gray-500 font-normal">(Optional)</span>
+                          Additional Location Details <span className="text-gray-600 font-normal">(Optional)</span>
                         </label>
                         <textarea
                           value={bookingData.location.address}
@@ -2513,9 +2628,9 @@ Examples:
 🚶 Gate access or security info
 📋 Any special directions"
                           rows={3}
-                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-500 placeholder:font-normal"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-600 placeholder:font-normal"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Adding details helps professionals find you, but your area selection is sufficient to book</p>
+                        <p className="text-xs text-gray-600 mt-1">Adding details helps professionals find you, but your area selection is sufficient to book</p>
                       </div>
 
                       {/* Location Status */}
@@ -2551,12 +2666,12 @@ Examples:
                               <p className="text-sm text-gray-600 mb-2">
                                 Longitude: {locationSharing.location.longitude?.toFixed(6)}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-600">
                                 Accuracy: ±{locationSharing.location.accuracy || 'Unknown'}m
                               </p>
                             </div>
                           ) : (
-                            <div className="text-center text-gray-500">
+                            <div className="text-center text-gray-600">
                               <FaMapMarkerAlt className="h-8 w-8 mx-auto mb-2" />
                               <p className="font-medium">No location set</p>
                               <p className="text-sm">Use GPS or enter address manually</p>
@@ -2645,7 +2760,7 @@ Examples:
                           <span className="text-xs font-medium text-blue-700">✨ Enhanced v2.1 - Smart Availability Check</span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500 space-y-1">
+                      <div className="text-sm text-gray-700 space-y-1">
                         <p>📍 Location: <strong>{bookingData.location.area}</strong></p>
                         <p>📅 Date: <strong>{bookingData.date}</strong> at <strong>{bookingData.time}</strong></p>
                         <p>⏱️ Duration: <strong>{bookingData.duration} hour{bookingData.duration > 1 ? 's' : ''}</strong></p>
@@ -2729,7 +2844,7 @@ Examples:
                                       <span className="text-sm font-medium text-gray-700">
                                         {provider.providerProfile?.rating || "4.5"}
                                       </span>
-                                      <span className="text-sm text-gray-500 ml-1">
+                                      <span className="text-sm text-gray-600 ml-1">
                                         ({provider.providerProfile?.reviewCount || "5"} reviews)
                                       </span>
                                     </div>
@@ -2775,7 +2890,7 @@ Examples:
                                         'Price TBD'
                                       }
                                     </div>
-                                    <div className="text-sm text-gray-500">
+                                    <div className="text-sm text-gray-600">
                                       Per professional
                                     </div>
                                   </div>
@@ -2802,7 +2917,7 @@ Examples:
                                       onClick={() => handleProviderSelection(provider)}
                                       className={`w-full md:w-auto px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
                                         selectedProviders.length >= bookingData.providersNeeded
-                                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                          ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                                           : 'bg-orange-600 text-white hover:bg-orange-700'
                                       }`}
                                       disabled={selectedProviders.length >= bookingData.providersNeeded}
@@ -2815,7 +2930,7 @@ Examples:
 
                               {/* Availability Notes */}
                               {provider.providerProfile?.notes && (
-                                <div className="mt-3 text-xs text-gray-500">
+                                <div className="mt-3 text-xs text-gray-600">
                                   <span className="font-medium">Notes: </span>
                                   {provider.providerProfile.notes}
                                 </div>
@@ -2859,7 +2974,7 @@ Examples:
                                   </div>
                                   <div>
                                     <span className="font-semibold text-gray-900">{provider.name}</span>
-                                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                    <div className="flex items-center space-x-2 text-xs text-gray-600">
                                       <span className="flex items-center">
                                         <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
                                         {provider.rating || 4.5}
@@ -2876,7 +2991,7 @@ Examples:
                                       'Price TBD'
                                     }
                                   </div>
-                                  <div className="text-xs text-gray-500">per professional</div>
+                                  <div className="text-xs text-gray-600">per professional</div>
                                 </div>
                               </div>
                             ))}
@@ -2890,7 +3005,7 @@ Examples:
                                   }
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500 mt-1">Dynamic pricing • No hidden fees • Payment protected</p>
+                              <p className="text-xs text-gray-600 mt-1">Dynamic pricing • No hidden fees • Payment protected</p>
                             </div>
                           </div>
                         </div>
@@ -3090,7 +3205,7 @@ Examples:
                                 </div>
                                 <div>
                                   <div className="font-semibold text-gray-900">{provider.name}</div>
-                                  <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                  <div className="flex items-center space-x-2 text-xs text-gray-600">
                                     <span className="flex items-center">
                                       <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
                                       {provider.rating || 4.5} rating
@@ -3107,7 +3222,7 @@ Examples:
                                     'Price TBD'
                                   }
                                 </div>
-                                <div className="text-xs text-gray-500">per professional</div>
+                                <div className="text-xs text-gray-600">per professional</div>
                               </div>
                             </div>
                           ))}
@@ -3228,6 +3343,19 @@ Examples:
                       )}
                     </div>
 
+                    {/* Test Mode Indicator */}
+                    {process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_') && (
+                      <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <span className="text-yellow-600 mr-2">🧪</span>
+                          <div>
+                            <p className="text-sm font-medium text-yellow-800">Test Mode Active (KES Currency)</p>
+                            <p className="text-xs text-yellow-600">Use test card: 4084084084084081 • Any CVV • Future expiry</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Payment Method Selection - Only show if payment timing is selected */}
                     {bookingData.paymentTiming && (
                       <div className="mb-6">
@@ -3322,6 +3450,8 @@ Examples:
                     <div className="flex items-start space-x-3">
                       <input 
                         type="checkbox" 
+                        checked={termsAgreed}
+                        onChange={(e) => setTermsAgreed(e.target.checked)}
                         className="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" 
                         id="terms-agreement"
                       />
@@ -3341,6 +3471,12 @@ Examples:
                         </div>
                       </div>
                     </div>
+                    {errors.terms && (
+                      <div className="mt-2 text-red-500 text-sm flex items-center">
+                        <FaExclamationTriangle className="h-4 w-4 mr-2" />
+                        {errors.terms}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-between">
@@ -3365,7 +3501,7 @@ Examples:
                           handleBookingConfirmation()
                         }
                       }}
-                      disabled={loading}
+                      disabled={loading || !termsAgreed}
                       className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
