@@ -261,8 +261,11 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
     name,
     email,
     phone,
+    avatar,
     address,
     providerProfile,
+    isActive,
+    isVerified,
     adminNote
   } = req.body;
 
@@ -280,6 +283,16 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
   if (name !== undefined) provider.name = name;
   if (email !== undefined) provider.email = email;
   if (phone !== undefined) provider.phone = phone;
+  if (isActive !== undefined) provider.isActive = isActive;
+  if (isVerified !== undefined) provider.isVerified = isVerified;
+  
+  // Update avatar
+  if (avatar) {
+    provider.avatar = {
+      ...provider.avatar,
+      ...avatar
+    };
+  }
   
   // Update address
   if (address) {
@@ -328,9 +341,16 @@ router.put('/:id/profile', protect, catchAsync(async (req, res, next) => {
         name: provider.name,
         email: provider.email,
         phone: provider.phone,
+        avatar: provider.avatar,
         address: provider.address,
         providerProfile: provider.providerProfile,
-        providerStatus: provider.providerStatus
+        providerStatus: provider.providerStatus,
+        isActive: provider.isActive,
+        isVerified: provider.isVerified,
+        lastLogin: provider.lastLogin,
+        approvedAt: provider.approvedAt,
+        rejectedAt: provider.rejectedAt,
+        adminNotes: provider.adminNotes
       }
     }
   });
