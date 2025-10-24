@@ -116,6 +116,8 @@ interface ProviderData {
   }>
 }
 
+const AVAILABLE_SERVICE_AREAS = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
+
 export default function EditProviderPage() {
   const { user } = useAuth()
   const router = useRouter()
@@ -355,6 +357,21 @@ export default function EditProviderPage() {
     }
     
     handleInputChange('providerProfile.availability.days', newDays)
+  }
+
+  const handleServiceAreaChange = (area: string, checked: boolean) => {
+    const currentAreas = formData.providerProfile?.serviceAreas || []
+    let newAreas = [...currentAreas]
+    
+    if (checked) {
+      if (!newAreas.includes(area)) {
+        newAreas.push(area)
+      }
+    } else {
+      newAreas = newAreas.filter(a => a !== area)
+    }
+    
+    handleInputChange('providerProfile.serviceAreas', newAreas)
   }
 
   const handleSaveChanges = async () => {
@@ -750,16 +767,25 @@ export default function EditProviderPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-900 mb-1">
-                    Service Areas (comma-separated)
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Service Areas (Select up to 6 areas)
                   </label>
-                  <input
-                    type="text"
-                    value={formData.providerProfile?.serviceAreas?.join(', ') || ''}
-                    onChange={(e) => handleArrayChange('providerProfile.serviceAreas', e.target.value)}
-                    placeholder="e.g., Nairobi CBD, Westlands, Karen"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg border">
+                    {AVAILABLE_SERVICE_AREAS.map(area => (
+                      <label key={area} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.providerProfile?.serviceAreas?.includes(area) || false}
+                          onChange={(e) => handleServiceAreaChange(area, e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700 font-medium">{area}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Selected: {formData.providerProfile?.serviceAreas?.length || 0} of 6 areas
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
