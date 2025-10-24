@@ -92,6 +92,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string }>
+  loginWithGoogle: (googleData: any) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   refreshToken: () => Promise<boolean>
   updateUser: (user: User) => void
@@ -273,6 +274,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
+  const loginWithGoogle = async (googleData: any): Promise<{ success: boolean; error?: string }> => {
+    dispatch({ type: 'LOGIN_START' })
+
+    try {
+      const user = googleData.data.user
+      const token = googleData.data.token
+
+      if (token && user) {
+        // Store in localStorage
+        localStorage.setItem('user', JSON.stringify(user))
+        localStorage.setItem('authToken', token)
+        localStorage.setItem('sessionExpiry', (Date.now() + (24 * 60 * 60 * 1000)).toString())
+
+        dispatch({ 
+          type: 'LOGIN_SUCCESS', 
+          payload: { user, token } 
+        })
+        return { success: true }
+      }
+
+      dispatch({ type: 'LOGIN_FAILURE' })
+      return { 
+        success: false, 
+        error: 'Invalid Google authentication data' 
+      }
+    } catch (error) {
+      console.error('Google login error:', error)
+      dispatch({ type: 'LOGIN_FAILURE' })
+      return { 
+        success: false, 
+        error: 'Google authentication failed. Please try again.' 
+      }
+    }
+  }
+
   const logout = async (): Promise<void> => {
     console.log('🚪 Initiating forceful logout...')
     
@@ -443,6 +479,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const contextValue: AuthContextType = {
     ...state,
     login,
+    loginWithGoogle,
     logout,
     refreshToken,
     updateUser,

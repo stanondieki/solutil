@@ -12,11 +12,12 @@ import {
   FaLock
 } from 'react-icons/fa'
 import { useAuth } from '@/contexts/AuthContext'
+import GoogleSignIn from '@/components/GoogleSignIn'
 
 function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isAuthenticated, user } = useAuth()
+  const { login, loginWithGoogle, isAuthenticated, user } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -149,6 +150,34 @@ function LoginPageContent() {
     } finally {
       setResendLoading(false)
     }
+  }
+
+  const handleGoogleSuccess = async (googleData: any) => {
+    setIsLoading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const result = await loginWithGoogle(googleData)
+      if (result.success) {
+        setSuccess('Login successful! Redirecting...')
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1000)
+      } else {
+        setError(result.error || 'Google authentication failed')
+      }
+    } catch (error) {
+      console.error('Google login error:', error)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = (error: string) => {
+    setError(error)
+    setIsLoading(false)
   }
 
   return (
@@ -285,6 +314,25 @@ function LoginPageContent() {
                   'Sign In'
                 )}
               </button>
+
+              {/* Divider */}
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              {/* Google Sign In */}
+              <GoogleSignIn
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                disabled={isLoading}
+                text="Sign in with Google"
+              />
+
               {/* Sign Up Link */}
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">
