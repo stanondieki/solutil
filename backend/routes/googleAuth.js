@@ -12,7 +12,7 @@ const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Authenticate/Register user with Google
-// @route   POST /api/auth/google
+// @route   POST /api/oauth/google
 // @access  Public
 router.post('/google', catchAsync(async (req, res, next) => {
   const { credential } = req.body;

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Send the Google credential directly to our backend for verification
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
     
-    const response = await fetch(`${backendUrl}/api/auth/google`, {
+    const response = await fetch(`${backendUrl}/api/oauth/google`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
