@@ -136,6 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [])
 
   const initializeAuth = async () => {
+    console.log('🔄 Auth initialization starting...')
     try {
       const storedUser = localStorage.getItem('user')
       const storedToken = localStorage.getItem('authToken')
@@ -147,7 +148,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         hasAuthToken: !!storedToken,
         hasAdminToken: !!adminToken,
         hasExpiry: !!storedExpiry,
-        expiry: storedExpiry ? new Date(parseInt(storedExpiry)) : null
+        expiry: storedExpiry ? new Date(parseInt(storedExpiry)) : null,
+        userEmail: storedUser ? JSON.parse(storedUser).email : null
       })
 
       // Check for either regular user or admin token
@@ -157,7 +159,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const user = JSON.parse(storedUser)
         const expiry = storedExpiry ? parseInt(storedExpiry) : Date.now() + (24 * 60 * 60 * 1000)
 
+        console.log('⏰ Session expiry check:', { 
+          currentTime: new Date(Date.now()), 
+          expiryTime: new Date(expiry), 
+          isValid: Date.now() < expiry,
+          timeRemaining: expiry - Date.now()
+        })
+
         if (Date.now() < expiry) {
+          console.log('✅ Session valid, logging in user:', user.email)
           dispatch({ 
             type: 'LOGIN_SUCCESS', 
             payload: { user, token } 
@@ -172,6 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             await refreshToken()
           }
         } else {
+          console.log('❌ Session expired, logging out user')
           // Session expired
           await logout()
         }
@@ -282,10 +293,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = googleData.data.token
 
       if (token && user) {
+        const sessionExpiry = Date.now() + (24 * 60 * 60 * 1000)
+        
+        console.log('🗄️ Storing Google login data:', {
+          userEmail: user.email,
+          tokenLength: token.length,
+          expiryTime: new Date(sessionExpiry)
+        })
+        
         // Store in localStorage first
         localStorage.setItem('user', JSON.stringify(user))
         localStorage.setItem('authToken', token)
-        localStorage.setItem('sessionExpiry', (Date.now() + (24 * 60 * 60 * 1000)).toString())
+        localStorage.setItem('sessionExpiry', sessionExpiry.toString())
 
         // Then update state
         dispatch({ 

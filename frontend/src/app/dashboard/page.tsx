@@ -283,15 +283,19 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
+    console.log('🏠 Dashboard auth check:', { isLoading, isAuthenticated, user: user?.email })
+    
     // Add a small delay to allow auth context to fully initialize after Google login
     const timeoutId = setTimeout(() => {
+      console.log('🏠 Dashboard timeout check:', { isLoading, isAuthenticated, user: user?.email })
       if (!isLoading && !isAuthenticated) {
+        console.log('❌ Dashboard redirecting to login - user not authenticated')
         router.push('/auth/login')
       }
     }, 200)
 
     return () => clearTimeout(timeoutId)
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router, user])
 
   useEffect(() => {
     const filtered = serviceCategories.filter(service =>
