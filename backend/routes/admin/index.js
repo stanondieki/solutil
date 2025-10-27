@@ -67,7 +67,7 @@ router.post('/auth/login', async (req, res) => {
     if (email === 'admin@solutil.com' && password === 'admin123') {
       const token = jwt.sign(
         { 
-          id: 'admin',
+          userId: 'admin',
           email: 'admin@solutil.com',
           isAdmin: true,
           name: 'Admin User'

@@ -24,12 +24,11 @@ interface AuthState {
 
 type AuthAction =
   | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string } }
+  | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string; sessionExpiry?: number } }
   | { type: 'LOGIN_FAILURE' }
   | { type: 'LOGOUT' }
   | { type: 'TOKEN_REFRESH'; payload: { token: string } }
   | { type: 'UPDATE_USER'; payload: { user: User } }
-  | { type: 'SET_SESSION_EXPIRY'; payload: { expiry: number } }
 
 const initialState: AuthState = {
   user: null,
@@ -53,7 +52,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         token: action.payload.token,
         isAuthenticated: true,
         isLoading: false,
-        sessionExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        sessionExpiry: action.payload.sessionExpiry || Date.now() + (24 * 60 * 60 * 1000) // Use provided expiry or default
       }
     case 'LOGIN_FAILURE':
       return {
@@ -79,11 +78,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: action.payload.user
-      }
-    case 'SET_SESSION_EXPIRY':
-      return {
-        ...state,
-        sessionExpiry: action.payload.expiry
       }
     default:
       return state
@@ -170,11 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('✅ Session valid, logging in user:', user.email)
           dispatch({ 
             type: 'LOGIN_SUCCESS', 
-            payload: { user, token } 
-          })
-          dispatch({ 
-            type: 'SET_SESSION_EXPIRY', 
-            payload: { expiry } 
+            payload: { user, token, sessionExpiry: expiry } 
           })
 
           // Check if token needs refresh (only for regular auth, not admin)
@@ -200,13 +190,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const data = await response.json();
             const user = data.user;
             localStorage.setItem('user', JSON.stringify(user));
+            const sessionExpiry = Date.now() + (24 * 60 * 60 * 1000)
             dispatch({ 
               type: 'LOGIN_SUCCESS', 
-              payload: { user, token: adminToken } 
-            });
-            dispatch({ 
-              type: 'SET_SESSION_EXPIRY', 
-              payload: { expiry: Date.now() + (24 * 60 * 60 * 1000) } 
+              payload: { user, token: adminToken, sessionExpiry } 
             });
           } else {
             // Invalid admin token
@@ -247,13 +234,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (token) {
           // Store in localStorage
+          const sessionExpiry = Date.now() + (24 * 60 * 60 * 1000)
           localStorage.setItem('user', JSON.stringify(user))
           localStorage.setItem('authToken', token)
-          localStorage.setItem('sessionExpiry', (Date.now() + (24 * 60 * 60 * 1000)).toString())
+          localStorage.setItem('sessionExpiry', sessionExpiry.toString())
 
           dispatch({ 
             type: 'LOGIN_SUCCESS', 
-            payload: { user, token } 
+            payload: { user, token, sessionExpiry } 
           })
           return { success: true }
         }
@@ -309,7 +297,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Then update state
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
-          payload: { user, token } 
+          payload: { user, token, sessionExpiry } 
         })
         
         console.log('✅ Google login successful:', user.email)

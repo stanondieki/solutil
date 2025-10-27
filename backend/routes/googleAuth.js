@@ -84,10 +84,10 @@ router.post('/google', catchAsync(async (req, res, next) => {
       logger.info(`✅ New Google user created: ${email}`);
     }
 
-    // Generate JWT token
+    // Generate JWT token (using same structure as regular auth)
     const token = jwt.sign(
       { 
-        id: user._id,
+        userId: user._id,
         email: user.email,
         userType: user.userType
       },

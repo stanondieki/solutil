@@ -25,18 +25,30 @@ exports.protect = catchAsync(async (req, res, next) => {
 
     let user;
     
-    // Check if database is connected
-    if (global.isDbConnected && global.isDbConnected()) {
-      // Database is connected - use normal Mongoose queries
-      user = await User.findById(decoded.userId);
+    // Handle admin authentication separately
+    if (decoded.userId === 'admin' && decoded.isAdmin) {
+      user = {
+        _id: 'admin',
+        email: decoded.email,
+        name: decoded.name,
+        isAdmin: true,
+        isActive: true,
+        userType: 'admin'
+      };
     } else {
-      // Database not connected - use mock data
-      const mockDataService = require('../utils/mockDataService');
-      user = await mockDataService.findUserById(decoded.userId);
-    }
+      // Check if database is connected
+      if (global.isDbConnected && global.isDbConnected()) {
+        // Database is connected - use normal Mongoose queries
+        user = await User.findById(decoded.userId);
+      } else {
+        // Database not connected - use mock data
+        const mockDataService = require('../utils/mockDataService');
+        user = await mockDataService.findUserById(decoded.userId);
+      }
 
-    if (!user) {
-      return next(new AppError('User belonging to this token no longer exists.', 401));
+      if (!user) {
+        return next(new AppError('User belonging to this token no longer exists.', 401));
+      }
     }
 
     // Check if user is active
