@@ -282,15 +282,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = googleData.data.token
 
       if (token && user) {
-        // Store in localStorage
+        // Store in localStorage first
         localStorage.setItem('user', JSON.stringify(user))
         localStorage.setItem('authToken', token)
         localStorage.setItem('sessionExpiry', (Date.now() + (24 * 60 * 60 * 1000)).toString())
 
+        // Then update state
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: { user, token } 
         })
+        
+        console.log('✅ Google login successful:', user.email)
         return { success: true }
       }
 

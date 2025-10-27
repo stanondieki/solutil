@@ -283,9 +283,14 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login')
-    }
+    // Add a small delay to allow auth context to fully initialize after Google login
+    const timeoutId = setTimeout(() => {
+      if (!isLoading && !isAuthenticated) {
+        router.push('/auth/login')
+      }
+    }, 200)
+
+    return () => clearTimeout(timeoutId)
   }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {

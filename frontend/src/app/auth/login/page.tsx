@@ -161,9 +161,10 @@ function LoginPageContent() {
       const result = await loginWithGoogle(googleData)
       if (result.success) {
         setSuccess('Login successful! Redirecting...')
+        // Small delay to ensure auth context state is updated
         setTimeout(() => {
           router.push('/dashboard')
-        }, 1000)
+        }, 100)
       } else {
         setError(result.error || 'Google authentication failed')
       }
