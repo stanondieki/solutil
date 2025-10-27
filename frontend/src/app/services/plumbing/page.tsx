@@ -18,7 +18,19 @@ import {
   FaUsers
 } from 'react-icons/fa';
 
-const plumbingServices = [
+interface PlumbingService {
+  id: string;
+  name: string;
+  priceRange: { min: number; max: number };
+  description: string;
+  features: string[];
+  duration: string;
+  popular?: boolean;
+  premium?: boolean;
+  image: string;
+}
+
+const plumbingServices: PlumbingService[] = [
   {
     id: 'pipe-repair',
     name: 'Pipe repair and replacement',
@@ -37,7 +49,7 @@ const plumbingServices = [
     features: ['Toilet installation', 'Repair services', 'Modern fixtures', 'Water efficiency'],
     duration: '2-4 hours',
     popular: true,
-    image: '/images/services/toilet-repair.jpg'
+    image: '/images/services/toilet-installation.jpg'
   },
   {
     id: 'faucet-installation',
@@ -46,7 +58,7 @@ const plumbingServices = [
     description: 'Installation of faucets, sinks, and other plumbing fixtures',
     features: ['Faucet installation', 'Sink mounting', 'Fixture replacement', 'Water testing'],
     duration: '1-3 hours',
-    image: '/images/services/faucet-installation.jpg'
+    image: '/images/services/faucet_installation.jpg'
   },
   {
     id: 'drain-cleaning',
@@ -65,7 +77,7 @@ const plumbingServices = [
     features: ['Installation', 'Repair services', 'Maintenance', 'Energy efficiency'],
     duration: '2-5 hours',
     premium: true,
-    image: '/images/services/water-heater.jpg'
+    image: '/images/services/water_heater.jpg'
   },
   {
     id: 'bathroom-plumbing',
@@ -75,7 +87,7 @@ const plumbingServices = [
     features: ['Full bathroom setup', 'Modern fixtures', 'Professional installation', 'Warranty included'],
     duration: '1-3 days',
     premium: true,
-    image: '/images/services/bathroom-plumbing.jpg'
+    image: '/images/services/complete_bathroom.jpg'
   }
 ];
 
@@ -155,7 +167,7 @@ export default function PlumbingServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-3xl transform rotate-6"></div>
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                   <Image
-                    src="/images/services/plumbing-hero.jpg"
+                    src="/images/services/plumbing_hero.jpg"
                     alt="Professional Plumbing Services"
                     width={500}
                     height={400}
@@ -190,7 +202,7 @@ export default function PlumbingServicesPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {plumbingServices.map((service, index) => (
+            {plumbingServices.map((service: PlumbingService, index: number) => (
               <motion.div
                 key={service.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -242,7 +254,7 @@ export default function PlumbingServicesPage() {
 
                   <div className="mb-6">
                     <div className="flex flex-wrap gap-2">
-                      {service.features.slice(0, 3).map((feature, idx) => (
+                      {service.features.slice(0, 3).map((feature: string, idx: number) => (
                         <span
                           key={idx}
                           className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs"
