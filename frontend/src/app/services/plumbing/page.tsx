@@ -39,7 +39,7 @@ const plumbingServices: PlumbingService[] = [
     features: ['Leak detection', 'Pipe replacement', 'Water damage prevention', 'Quality materials'],
     duration: '1-4 hours',
     popular: true,
-    image: '/images/services/pipe-repair.jpg'
+    image: '/images/services/pipe_repair.jpg'
   },
   {
     id: 'toilet-repair',
@@ -49,7 +49,7 @@ const plumbingServices: PlumbingService[] = [
     features: ['Toilet installation', 'Repair services', 'Modern fixtures', 'Water efficiency'],
     duration: '2-4 hours',
     popular: true,
-    image: '/images/services/toilet-installation.jpg'
+    image: '/images/services/toilet_installation.jpg'
   },
   {
     id: 'faucet-installation',
@@ -67,7 +67,7 @@ const plumbingServices: PlumbingService[] = [
     description: 'Professional drain cleaning and unclogging services',
     features: ['Drain unclogging', 'Pipe cleaning', 'Root removal', 'Preventive maintenance'],
     duration: '1-2 hours',
-    image: '/images/services/drain-cleaning.jpg'
+    image: '/images/services/drain_cleaning.jpg'
   },
   {
     id: 'water-heater',
@@ -167,7 +167,7 @@ export default function PlumbingServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-3xl transform rotate-6"></div>
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                   <Image
-                    src="/images/services/plumbing_hero.jpg"
+                    src="/images/services/plumbing_hero.png"
                     alt="Professional Plumbing Services"
                     width={500}
                     height={400}
