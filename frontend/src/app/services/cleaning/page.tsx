@@ -252,6 +252,286 @@ export default function CleaningServicesPage() {
         </div>
       </section>
 
+      {/* Cleaning Packages Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+              Choose Your{' '}
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Package
+              </span>
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
+              Save more with our recurring cleaning packages. Perfect for busy families and professionals who want a consistently clean home.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {/* Weekly Package */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-blue-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-blue-200 h-full">
+                {/* Popular Badge */}
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    Most Popular
+                  </div>
+                </div>
+                
+                <div className="text-center pt-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <FaClock className="text-white text-2xl" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Weekly Cleaning</h3>
+                  <p className="text-slate-600 mb-6">Perfect for busy households</p>
+                  
+                  <div className="mb-6">
+                    <div className="text-4xl font-black text-slate-900 mb-1">
+                      KES 10,000
+                      <span className="text-lg font-medium text-slate-500">/week</span>
+                    </div>
+                    <div className="text-sm text-green-600 font-semibold">
+                      Save 25% vs one-time bookings
+                    </div>
+                  </div>
+                  
+                  <ul className="text-left space-y-3 mb-8">
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Weekly professional cleaning</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Same cleaner every week</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">All cleaning supplies included</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Flexible scheduling</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Satisfaction guarantee</span>
+                    </li>
+                  </ul>
+                  
+                  <Link href="/book-service?service=weekly-cleaning&category=cleaning&package=weekly">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      Choose Weekly Plan
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Bi-Weekly Package */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-blue-200 h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <FaUsers className="text-white text-2xl" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Bi-Weekly Cleaning</h3>
+                  <p className="text-slate-600 mb-6">Great for medium-sized families</p>
+                  
+                  <div className="mb-6">
+                    <div className="text-4xl font-black text-slate-900 mb-1">
+                      KES 18,000
+                      <span className="text-lg font-medium text-slate-500">/2 weeks</span>
+                    </div>
+                    <div className="text-sm text-blue-600 font-semibold">
+                      Save 20% vs one-time bookings
+                    </div>
+                  </div>
+                  
+                  <ul className="text-left space-y-3 mb-8">
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-blue-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Bi-weekly deep cleaning</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-blue-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Consistent service team</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-blue-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Premium cleaning products</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-blue-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Detailed cleaning checklist</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-blue-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Quality assurance</span>
+                    </li>
+                  </ul>
+                  
+                  <Link href="/book-service?service=biweekly-cleaning&category=cleaning&package=biweekly">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-2xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      Choose Bi-Weekly Plan
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Monthly Package */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-purple-200 h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <FaAward className="text-white text-2xl" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Monthly Cleaning</h3>
+                  <p className="text-slate-600 mb-6">Perfect for maintenance cleaning</p>
+                  
+                  <div className="mb-6">
+                    <div className="text-4xl font-black text-slate-900 mb-1">
+                      KES 38,000
+                      <span className="text-lg font-medium text-slate-500">/month</span>
+                    </div>
+                    <div className="text-sm text-purple-600 font-semibold">
+                      Complete monthly transformation
+                    </div>
+                  </div>
+                  
+                  <ul className="text-left space-y-3 mb-8">
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-purple-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Comprehensive monthly cleaning</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-purple-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Experienced cleaning specialists</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-purple-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Eco-friendly products available</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-purple-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Deep cleaning focus areas</span>
+                    </li>
+                    <li className="flex items-center">
+                      <FaCheckCircle className="text-purple-500 mr-3 flex-shrink-0" />
+                      <span className="text-slate-700">Priority booking system</span>
+                    </li>
+                  </ul>
+                  
+                  <Link href="/book-service?service=monthly-cleaning&category=cleaning&package=monthly">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-4 rounded-2xl font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      Choose Monthly Plan
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Package Benefits */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100"
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Why Choose Our Packages?</h3>
+              <p className="text-slate-600 max-w-2xl mx-auto">
+                Our recurring cleaning packages offer convenience, consistency, and significant savings compared to one-time bookings.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4">
+                  <FaShieldAlt className="text-white text-lg" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-2">Same Cleaner</h4>
+                <p className="text-sm text-slate-600">Consistency with the same trusted professional</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                  <FaHeart className="text-white text-lg" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-2">Priority Support</h4>
+                <p className="text-sm text-slate-600">Dedicated customer support for package members</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4">
+                  <FaLeaf className="text-white text-lg" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-2">Eco Options</h4>
+                <p className="text-sm text-slate-600">Green cleaning products available on request</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4">
+                  <FaStar className="text-white text-lg" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-2">Quality Guaranteed</h4>
+                <p className="text-sm text-slate-600">100% satisfaction guarantee or we'll make it right</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Services Grid Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

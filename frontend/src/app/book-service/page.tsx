@@ -75,6 +75,13 @@ interface ServicePricing {
   description: string
   estimatedDuration: string
   category: string
+  isPackage?: boolean
+  packageType?: 'weekly' | 'biweekly' | 'monthly'
+  packageDetails?: {
+    frequency: string
+    savings: string
+    features: string[]
+  }
 }
 
 interface PriceBreakdown {
@@ -277,6 +284,55 @@ const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
       description: 'Professional carpet and upholstery cleaning',
       estimatedDuration: '2-5 hours',
       category: 'cleaning'
+    },
+    // Package Services
+    {
+      id: 'weekly-cleaning',
+      name: 'Weekly Cleaning Package',
+      priceRange: { min: 10000, max: 10000 },
+      sizeBased: false,
+      description: 'Weekly professional cleaning service - same cleaner every week',
+      estimatedDuration: '2-4 hours',
+      category: 'cleaning',
+      isPackage: true,
+      packageType: 'weekly',
+      packageDetails: {
+        frequency: 'Weekly',
+        savings: '25% vs one-time bookings',
+        features: ['Same cleaner every week', 'All supplies included', 'Flexible scheduling', 'Satisfaction guarantee']
+      }
+    },
+    {
+      id: 'biweekly-cleaning',
+      name: 'Bi-Weekly Cleaning Package', 
+      priceRange: { min: 18000, max: 18000 },
+      sizeBased: false,
+      description: 'Bi-weekly professional cleaning service - consistent team',
+      estimatedDuration: '3-5 hours',
+      category: 'cleaning',
+      isPackage: true,
+      packageType: 'biweekly',
+      packageDetails: {
+        frequency: 'Every 2 weeks',
+        savings: '20% vs one-time bookings',
+        features: ['Consistent service team', 'Premium products', 'Detailed checklist', 'Quality assurance']
+      }
+    },
+    {
+      id: 'monthly-cleaning',
+      name: 'Monthly Cleaning Package',
+      priceRange: { min: 38000, max: 38000 },
+      sizeBased: false,
+      description: 'Monthly comprehensive cleaning service - complete transformation',
+      estimatedDuration: '4-8 hours',
+      category: 'cleaning',
+      isPackage: true,
+      packageType: 'monthly',
+      packageDetails: {
+        frequency: 'Monthly',
+        savings: 'Complete monthly transformation',
+        features: ['Experienced specialists', 'Eco-friendly options', 'Deep cleaning focus', 'Priority booking']
+      }
     }
   ],
   carpentry: [
@@ -724,6 +780,9 @@ interface BookingData {
   selectedSubService?: ServicePricing | null
   propertySize: 'small' | 'medium' | 'large'
   priceBreakdown?: PriceBreakdown | null
+  // Package booking additions
+  packageType?: 'weekly' | 'biweekly' | 'monthly' | null
+  isPackageBooking?: boolean
 }
 
 const serviceAreas = ['Kileleshwa', 'Westlands', 'Kilimani', 'Parklands', 'Nyayo', 'Lavington']
@@ -948,7 +1007,9 @@ function BookServicePageContent() {
     paymentMethod: null,
     selectedSubService: null,
     propertySize: 'medium',
-    priceBreakdown: null
+    priceBreakdown: null,
+    packageType: null,
+    isPackageBooking: false
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -985,7 +1046,14 @@ function BookServicePageContent() {
   useEffect(() => {
     const categoryId = searchParams?.get('category')
     const serviceId = searchParams?.get('service')
+    const packageTypeParam = searchParams?.get('package')
     const emergency = searchParams?.get('emergency')
+    
+    // Validate package type
+    const validPackageTypes = ['weekly', 'biweekly', 'monthly'] as const
+    const packageType = packageTypeParam && validPackageTypes.includes(packageTypeParam as any) 
+      ? packageTypeParam as 'weekly' | 'biweekly' | 'monthly'
+      : null
     
     // Check for both 'category' and 'service' parameters
     const targetId = categoryId || serviceId
@@ -994,7 +1062,42 @@ function BookServicePageContent() {
       const category = serviceCategories.find(cat => cat.id === targetId)
       if (category) {
         console.log('Pre-selecting service from URL:', category.name)
-        setBookingData(prev => ({ ...prev, category }))
+        setBookingData(prev => ({ 
+          ...prev, 
+          category,
+          // Add package information if present
+          packageType: packageType,
+          isPackageBooking: !!packageType
+        }))
+        
+        // If it's a cleaning package, auto-select appropriate sub-service
+        if (category.id === 'cleaning' && packageType) {
+          const subServices = getSubServices('cleaning')
+          let packageService = null
+          
+          switch (packageType) {
+            case 'weekly':
+              packageService = subServices.find(s => s.id === 'weekly-cleaning') || 
+                             subServices.find(s => s.id === 'basic-1-2bed')
+              break
+            case 'biweekly': 
+              packageService = subServices.find(s => s.id === 'biweekly-cleaning') ||
+                             subServices.find(s => s.id === 'basic-3-4bed')
+              break
+            case 'monthly':
+              packageService = subServices.find(s => s.id === 'monthly-cleaning') ||
+                             subServices.find(s => s.id === 'deep-cleaning')
+              break
+          }
+          
+          if (packageService) {
+            setBookingData(prev => ({
+              ...prev,
+              selectedSubService: packageService
+            }))
+          }
+        }
+        
         setCurrentStep('details')
       }
     }
@@ -2229,19 +2332,43 @@ Status: ${result.data.booking.status}
                               }`}
                             >
                               <div className="flex-1">
-                                <div className="font-semibold text-gray-900">{subService.name}</div>
-                                <div className="text-sm text-gray-700 mt-1">{subService.description}</div>
-                                <div className="text-xs text-gray-600 mt-1">
-                                  Duration: {subService.estimatedDuration}
+                                <div className="flex items-center gap-2">
+                                  <div className="font-semibold text-gray-900">{subService.name}</div>
+                                  {subService.isPackage && (
+                                    <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
+                                      Package Deal
+                                    </span>
+                                  )}
                                 </div>
+                                <div className="text-sm text-gray-700 mt-1">{subService.description}</div>
+                                {subService.isPackage && subService.packageDetails ? (
+                                  <div className="mt-2 space-y-1">
+                                    <div className="text-xs text-green-600 font-semibold">
+                                      📅 {subService.packageDetails.frequency} • 💰 {subService.packageDetails.savings}
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      ✓ {subService.packageDetails.features.slice(0, 2).join(' • ')}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-xs text-gray-600 mt-1">
+                                    Duration: {subService.estimatedDuration}
+                                  </div>
+                                )}
                               </div>
                               <div className="text-right ml-4">
                                 <div className="font-bold text-orange-600">
-                                  KES {subService.priceRange.min.toLocaleString()} - {subService.priceRange.max.toLocaleString()}
+                                  {subService.isPackage ? (
+                                    <>KES {subService.priceRange.min.toLocaleString()}</>
+                                  ) : (
+                                    <>KES {subService.priceRange.min.toLocaleString()} - {subService.priceRange.max.toLocaleString()}</>
+                                  )}
                                 </div>
-                                {subService.sizeBased && (
+                                {subService.isPackage ? (
+                                  <div className="text-xs text-green-600 font-semibold">Fixed Package Price</div>
+                                ) : subService.sizeBased ? (
                                   <div className="text-xs text-gray-600">Price varies by size</div>
-                                )}
+                                ) : null}
                               </div>
                             </label>
                           </div>
@@ -2250,6 +2377,43 @@ Status: ${result.data.booking.status}
                       <p className="text-xs text-gray-600 mt-2">Select the specific service that matches your needs</p>
                       {errors.subService && <div className="text-red-500 text-sm mt-2">{errors.subService}</div>}
                     </div>
+
+                    {/* Package Benefits Section - Show only if package is selected */}
+                    {bookingData.selectedSubService?.isPackage && bookingData.selectedSubService?.packageDetails && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <FaStar className="text-white text-sm" />
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900">Package Benefits</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-2">
+                            <div className="text-sm font-semibold text-green-700">
+                              📅 Frequency: {bookingData.selectedSubService.packageDetails.frequency}
+                            </div>
+                            <div className="text-sm font-semibold text-green-700">
+                              💰 {bookingData.selectedSubService.packageDetails.savings}
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {bookingData.selectedSubService.packageDetails.features.map((feature, index) => (
+                              <div key={index} className="flex items-center text-sm text-gray-700">
+                                <FaCheck className="text-green-500 mr-2 flex-shrink-0" />
+                                {feature}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-4 border border-green-200">
+                          <div className="text-sm text-gray-600">
+                            <strong>📋 What happens next:</strong> After booking, we'll assign you a dedicated cleaning team who will contact you within 24 hours to schedule your first {bookingData.selectedSubService.packageDetails.frequency.toLowerCase()} cleaning session. Your package will auto-renew based on your selected frequency.
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Phase 2: Property Size Selection - Show only if sub-service is size-based */}
                     {bookingData.selectedSubService?.sizeBased && (
