@@ -167,7 +167,7 @@ export default function PlumbingServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-3xl transform rotate-6"></div>
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                   <Image
-                    src="/images/services/plumbing_hero.png"
+                    src="/images/services/plumbing_hero.jpg"
                     alt="Professional Plumbing Services"
                     width={500}
                     height={400}

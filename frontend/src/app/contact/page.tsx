@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import { 
@@ -14,7 +14,12 @@ import {
   FaMapMarkerAlt,
   FaClock,
   FaPaperPlane,
-  FaCheckCircle
+  FaCheckCircle,
+  FaCopy,
+  FaSpinner,
+  FaMapPin,
+  FaCalendarAlt,
+  FaUserCircle
 } from 'react-icons/fa';
 
 export default function ContactPage() {
@@ -26,6 +31,10 @@ export default function ContactPage() {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [formProgress, setFormProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [userLocation, setUserLocation] = useState<string>('');
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -51,6 +60,110 @@ export default function ContactPage() {
         message: ''
       });
     }, 3000);
+  };
+
+  // Smart Contact Methods
+  const handlePhoneCall = () => {
+    window.location.href = 'tel:+254717855249';
+  };
+
+  const handleWhatsAppMessage = () => {
+    const message = encodeURIComponent('Hello! I would like to inquire about your services.');
+    window.open(`https://wa.me/254717855249?text=${message}`, '_blank');
+  };
+
+  const handleEmailCopy = async () => {
+    try {
+      await navigator.clipboard.writeText('info@solutilconnect.com');
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy email:', err);
+    }
+  };
+
+  const handleLocationClick = () => {
+    window.open('https://maps.google.com/?q=Nairobi,Kenya', '_blank');
+  };
+
+
+
+  // Calculate form progress
+  useEffect(() => {
+    const fields = Object.values(formData);
+    const filledFields = fields.filter(field => field.trim() !== '').length;
+    const progress = (filledFields / fields.length) * 100;
+    setFormProgress(progress);
+  }, [formData]);
+
+  // Update current time
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Get user location and load preferences
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // This would typically use a reverse geocoding service
+          setUserLocation('Nairobi, Kenya');
+          // Save location preference
+          localStorage.setItem('userLocation', 'Nairobi, Kenya');
+        },
+        (error) => {
+          // Load saved location
+          const savedLocation = localStorage.getItem('userLocation');
+          if (savedLocation) {
+            setUserLocation(savedLocation);
+          }
+        }
+      );
+    }
+
+    // Load saved form data
+    const savedFormData = localStorage.getItem('contactFormData');
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        setFormData(prev => ({ ...prev, ...parsedData }));
+      } catch (error) {
+        console.log('Error loading saved form data');
+      }
+    }
+  }, []);
+
+  // Save form data as user types
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.name || formData.email || formData.phone) {
+        localStorage.setItem('contactFormData', JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone
+        }));
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [formData]);
+
+  // Business hours checker
+  const isBusinessOpen = () => {
+    const now = currentTime;
+    const day = now.getDay();
+    const hour = now.getHours();
+    
+    if (day >= 1 && day <= 5) { // Monday-Friday
+      return hour >= 8 && hour < 18;
+    } else if (day === 6) { // Saturday
+      return hour >= 9 && hour < 17;
+    } else { // Sunday
+      return hour >= 10 && hour < 16;
+    }
   };
 
   const contactInfo = [
@@ -118,6 +231,35 @@ export default function ContactPage() {
             >
               <FaEnvelope className="text-white text-3xl" />
             </motion.div>
+
+            {/* Personalized Greeting */}
+            {formData.name && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mb-6"
+              >
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-100 to-red-100 rounded-full text-orange-700 font-semibold">
+                  <FaUserCircle className="mr-2" />
+                  Welcome back, {formData.name}!
+                </div>
+              </motion.div>
+            )}
+
+            {userLocation && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="mb-8"
+              >
+                <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-full text-blue-700 text-sm">
+                  <FaMapMarkerAlt className="mr-2" />
+                  Serving {userLocation}
+                </div>
+              </motion.div>
+            )}
             
             <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-slate-900 mb-12 leading-tight tracking-tight">
               Get in{' '}
@@ -176,7 +318,7 @@ export default function ContactPage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
             {contactInfo.map((info, index) => (
               <motion.div
                 key={index}
@@ -185,49 +327,123 @@ export default function ContactPage() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ 
-                  y: -10,
+                  y: -8,
+                  scale: 1.02,
                   transition: { duration: 0.3 }
                 }}
                 className="group relative"
               >
-                {/* Glowing background effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                {/* Animated gradient background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${
+                  info.title === 'Phone' ? 'from-orange-500/10 to-red-500/10' :
+                  info.title === 'WhatsApp' ? 'from-green-500/10 to-emerald-500/10' :
+                  info.title === 'Email' ? 'from-purple-500/10 to-indigo-500/10' :
+                  'from-red-500/10 to-pink-500/10'
+                } rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-500`}></div>
                 
-                <div className="relative bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 text-center overflow-hidden group-hover:border-orange-200">
-                  {/* Background pattern */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100/50 to-transparent rounded-bl-3xl"></div>
+                <div className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100/50 text-center h-full flex flex-col justify-between">
+                  {/* Subtle top accent */}
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                    info.title === 'Phone' ? 'from-orange-500 to-red-500' :
+                    info.title === 'WhatsApp' ? 'from-green-500 to-emerald-500' :
+                    info.title === 'Email' ? 'from-purple-500 to-indigo-500' :
+                    'from-red-500 to-pink-500'
+                  } rounded-t-2xl`}></div>
                   
-                  <motion.div 
-                    className={`w-16 h-16 ${info.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}
-                    whileHover={{ 
-                      scale: 1.1,
-                      rotate: 5,
-                      transition: { duration: 0.3 }
-                    }}
-                  >
-                    <info.icon className="text-white text-2xl" />
-                  </motion.div>
-                  
-                  <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-orange-600 transition-colors duration-300">
-                    {info.title}
-                  </h3>
-                  
-                  <p className="text-xl font-black text-orange-600 mb-4">
-                    {info.details}
-                  </p>
-                  
-                  <p className="text-lg text-slate-700 leading-relaxed font-medium">
-                    {info.description}
-                  </p>
+                  {/* Icon */}
+                  <div className="flex-1">
+                    <motion.div 
+                      className={`w-14 h-14 ${info.color} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md`}
+                      whileHover={{ 
+                        scale: 1.1,
+                        rotate: 5,
+                        transition: { duration: 0.2 }
+                      }}
+                    >
+                      <info.icon className="text-white text-xl" />
+                    </motion.div>
+                    
+                    {/* Title */}
+                    <h3 className="text-lg font-bold text-slate-800 mb-3">
+                      {info.title}
+                    </h3>
+                    
+                    {/* Contact Details */}
+                    <div className="mb-3">
+                      {info.title === 'Email' ? (
+                        <p className="text-sm font-semibold text-orange-600 break-words leading-tight">
+                          {info.details}
+                        </p>
+                      ) : (
+                        <p className="text-base font-bold text-orange-600">
+                          {info.details}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {/* Description */}
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                      {info.description}
+                    </p>
+                  </div>
 
-                  {/* Interactive button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="mt-4 px-4 py-2 bg-gradient-to-r from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 border border-orange-200/50 dark:border-orange-700/50 rounded-xl text-sm font-medium text-orange-600 dark:text-orange-400 transition-all duration-300"
-                  >
-                    Contact Now
-                  </motion.button>
+                  {/* Smart Interactive Buttons */}
+                  {info.title === 'Phone' && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handlePhoneCall}
+                      className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 flex items-center justify-center gap-2"
+                    >
+                      <FaPhone className="text-xs" />
+                      Call Now
+                    </motion.button>
+                  )}
+                  
+                  {info.title === 'WhatsApp' && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleWhatsAppMessage}
+                      className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 bg-green-50 hover:bg-green-100 text-green-600 border border-green-200 flex items-center justify-center gap-2"
+                    >
+                      <FaWhatsapp className="text-xs" />
+                      Message
+                    </motion.button>
+                  )}
+                  
+                  {info.title === 'Email' && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleEmailCopy}
+                      className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 flex items-center justify-center gap-2"
+                    >
+                      {copiedEmail ? (
+                        <>
+                          <FaCheckCircle className="text-xs" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <FaCopy className="text-xs" />
+                          Copy Email
+                        </>
+                      )}
+                    </motion.button>
+                  )}
+                  
+                  {info.title === 'Location' && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleLocationClick}
+                      className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 flex items-center justify-center gap-2"
+                    >
+                      <FaMapPin className="text-xs" />
+                      View Map
+                    </motion.button>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -292,7 +508,24 @@ export default function ContactPage() {
                         </div>
                       </motion.div>
                     ) : (
-                      <form onSubmit={handleSubmit} className="space-y-8">
+                      <div className="space-y-6">
+                        {/* Form Progress Indicator */}
+                        <div className="mb-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-slate-600">Form Progress</span>
+                            <span className="text-sm font-medium text-orange-600">{Math.round(formProgress)}%</span>
+                          </div>
+                          <div className="w-full bg-slate-200 rounded-full h-2">
+                            <motion.div 
+                              className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${formProgress}%` }}
+                              transition={{ duration: 0.3 }}
+                            />
+                          </div>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <motion.div
                             whileFocus={{ scale: 1.02 }}
@@ -395,7 +628,8 @@ export default function ContactPage() {
                           <FaPaperPlane className="text-xl" />
                           <span>Send Message</span>
                         </motion.button>
-                      </form>
+                        </form>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -426,11 +660,29 @@ export default function ContactPage() {
                       >
                         <FaClock className="text-white text-xl" />
                       </motion.div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                          Business Hours
-                        </h3>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm">We&apos;re here when you need us</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                            Business Hours
+                          </h3>
+                          <motion.div 
+                            className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
+                              isBusinessOpen() 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
+                            }`}
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <div className={`w-2 h-2 rounded-full ${
+                              isBusinessOpen() ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                            {isBusinessOpen() ? 'OPEN NOW' : 'CLOSED'}
+                          </motion.div>
+                        </div>
+                        <p className="text-slate-600 dark:text-slate-400 text-sm">
+                          Current time: {currentTime.toLocaleTimeString()} | {userLocation || 'Nairobi, Kenya'}
+                        </p>
                       </div>
                     </div>
                     
@@ -492,7 +744,7 @@ export default function ContactPage() {
                       </motion.a>
                       
                       <motion.a
-                        href="https://wa.me/254123456789"
+                        href="https://wa.me/254717855249"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.02, x: 5 }}
@@ -536,6 +788,116 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* Floating Chat Widget */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 2, duration: 0.5 }}
+        className="fixed bottom-6 right-6 z-50"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleWhatsAppMessage}
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl flex items-center gap-3 group"
+        >
+          <FaWhatsapp className="text-2xl" />
+          <AnimatePresence>
+            <motion.span
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              className="hidden group-hover:block text-sm font-medium whitespace-nowrap overflow-hidden"
+            >
+              Chat with us!
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
+        
+        {/* Pulsing indicator */}
+        <motion.div
+          className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      </motion.div>
+
+      {/* Floating Quick Actions */}
+      <motion.div
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.5 }}
+        className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40 space-y-3"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1, x: 10 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handlePhoneCall}
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg"
+          title="Call Us Now"
+        >
+          <FaPhone className="text-lg" />
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.1, x: 10 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleEmailCopy}
+          className="bg-purple-500 hover:bg-purple-600 text-white rounded-full p-3 shadow-lg"
+          title="Copy Email"
+        >
+          {copiedEmail ? <FaCheckCircle className="text-lg" /> : <FaEnvelope className="text-lg" />}
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.1, x: 10 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleLocationClick}
+          className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg"
+          title="View Location"
+        >
+          <FaMapPin className="text-lg" />
+        </motion.button>
+      </motion.div>
+
+      {/* Floating Success Notification */}
+      <AnimatePresence>
+        {copiedEmail && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.8 }}
+            className="fixed top-20 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2"
+          >
+            <FaCheckCircle />
+            <span>Email copied to clipboard!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Background Particles Animation */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-orange-200/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
 
       <Footer />
     </div>

@@ -153,10 +153,10 @@ export default function AboutPage() {
                           initial={{ opacity: 0, y: 15 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.6, delay: 0.7 }}
-                          className="text-lg text-gray-700 leading-relaxed mb-4"
+                          className="text-base text-gray-700 leading-relaxed mb-4"
                         >
                           Solutil Connect is a smart utility platform that digitally connects homes, businesses, and property managers to{' '}
-                          <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
+                          <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent font-semibold">
                             verified service providers
                           </span>{' '}
                           for essential maintenance and support services.
@@ -176,7 +176,7 @@ export default function AboutPage() {
                           className="text-base text-gray-600 leading-relaxed mb-4"
                         >
                           We make it easy to access reliable professionals in areas such as{' '}
-                          <span className="text-gray-800">plumbing, electrical works, cleaning, fumigation, and general repairs</span>{' '}
+                          <span className="text-gray-800 font-medium">plumbing, electrical works, cleaning, fumigation, and general repairs</span>{' '}
                           — all through a single, convenient digital platform.
                         </motion.p>
 
@@ -187,7 +187,7 @@ export default function AboutPage() {
                           className="text-base text-gray-600 leading-relaxed mb-6"
                         >
                           Our goal is to bring{' '}
-                          <span className="text-orange-600">efficiency, transparency, and convenience</span>{' '}
+                          <span className="text-orange-600 font-semibold">efficiency, transparency, and convenience</span>{' '}
                           to the management of home and building utilities by eliminating the traditional hassle of searching for trusted service providers.
                         </motion.p>
                       </div>
@@ -313,10 +313,10 @@ export default function AboutPage() {
                               </motion.div>
                               
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm text-gray-800 leading-relaxed mb-1 group-hover:text-gray-900 transition-colors duration-300">
+                                <h4 className="text-sm font-semibold text-gray-800 leading-relaxed mb-2 group-hover:text-gray-900 transition-colors duration-300">
                                   {item.text}
                                 </h4>
-                                <p className="text-xs text-gray-500 leading-relaxed group-hover:text-gray-600 transition-colors duration-300">
+                                <p className="text-sm text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
                                   {item.description}
                                 </p>
                               </div>

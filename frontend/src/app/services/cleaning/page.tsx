@@ -29,7 +29,7 @@ const cleaningServices = [
     features: ['General cleaning', 'Sweeping & mopping', 'Dusting surfaces', 'Bathroom cleaning'],
     duration: '2-4 hours',
     popular: true,
-    image: '/images/services/basic-cleaning.jpg'
+    image: '/images/services/basic_clean.webp'
   },
   {
     id: 'basic-3-4bed',
@@ -39,7 +39,7 @@ const cleaningServices = [
     features: ['Deep room cleaning', 'Kitchen deep clean', 'Bathroom sanitization', 'Living area organization'],
     duration: '3-5 hours',
     popular: true,
-    image: '/images/services/standard-cleaning.jpg'
+    image: '/images/services/standard.webp'
   },
   {
     id: 'deep-cleaning',
@@ -49,7 +49,7 @@ const cleaningServices = [
     features: ['Deep scrubbing', 'Inside appliances', 'Window cleaning', 'Carpet cleaning', 'Detailed sanitization'],
     duration: '4-8 hours',
     premium: true,
-    image: '/images/services/deep-cleaning.jpg'
+    image: '/images/services/deep_cleaner.webp'
   },
   {
     id: 'move-in-out',
@@ -59,7 +59,7 @@ const cleaningServices = [
     features: ['Complete property clean', 'Inside all cabinets', 'Deep sanitization', 'Move-ready condition'],
     duration: '5-10 hours',
     premium: true,
-    image: '/images/services/move-cleaning.jpg'
+    image: '/images/services/move_cleaning.jpg'
   },
   {
     id: 'office-cleaning',
@@ -68,7 +68,7 @@ const cleaningServices = [
     description: 'Professional office cleaning services for businesses and commercial spaces',
     features: ['Workspace cleaning', 'Reception area', 'Meeting rooms', 'Restroom sanitization'],
     duration: '2-6 hours',
-    image: '/images/services/office-cleaning.jpg'
+    image: '/images/services/office.jpg'
   },
   {
     id: 'post-construction',
@@ -78,7 +78,7 @@ const cleaningServices = [
     features: ['Debris removal', 'Dust elimination', 'Surface restoration', 'Safety cleanup'],
     duration: '6-12 hours',
     premium: true,
-    image: '/images/services/construction-cleaning.jpg'
+    image: '/images/services/postconstruction.jpg'
   }
 ];
 
@@ -239,7 +239,7 @@ export default function CleaningServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-3xl transform rotate-6"></div>
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                   <Image
-                    src="/images/services/cleaning-hero.jpg"
+                    src="/images/services/cleaning_hero.jpg"
                     alt="Professional Cleaning Services"
                     width={500}
                     height={400}

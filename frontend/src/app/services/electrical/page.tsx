@@ -249,7 +249,7 @@ export default function ElectricalServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-3xl transform rotate-6"></div>
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                   <Image
-                    src="/images/services/electrical-hero.jpg"
+                    src="/images/services/plumb.jpg"
                     alt="Professional Electrical Services"
                     width={500}
                     height={400}
