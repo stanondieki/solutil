@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { RoleManager } from '@/lib/roles'
 import RoleGuard from '@/components/RoleGuard'
+import NotificationBell from '@/components/NotificationBell'
 import { 
   FaSearch,
   FaWrench,
@@ -758,10 +759,7 @@ export default function DashboardPage() {
             {/* Right: User Menu */}
             <div className="flex items-center space-x-3">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                <FaBell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationBell />
 
               {/* User Profile Dropdown */}
               <div className="relative">
