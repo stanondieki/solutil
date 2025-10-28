@@ -22,15 +22,20 @@ export const metadata: Metadata = {
   keywords: "home services, plumbing, electrical, cleaning, carpentry, painting, Kenya, Nairobi",
   icons: {
     icon: [
-      { url: '/images/log.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/log.png', sizes: '16x16', type: 'image/png' },
+      { url: '/logo.jpg', sizes: '64x64', type: 'image/jpeg' },
+      { url: '/logo.jpg', sizes: '32x32', type: 'image/jpeg' },
+      { url: '/logo.jpg', sizes: '16x16', type: 'image/jpeg' },
     ],
-    shortcut: '/images/log.png',
+    shortcut: '/logo.jpg',
     apple: [
-      { url: '/images/log.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.jpg', sizes: '180x180', type: 'image/jpeg' },
+      { url: '/logo.jpg', sizes: '152x152', type: 'image/jpeg' },
+      { url: '/logo.jpg', sizes: '120x120', type: 'image/jpeg' },
     ],
     other: [
-      { rel: 'icon', url: '/images/log.png' },
+      { rel: 'icon', url: '/logo.jpg', sizes: '192x192' },
+      { rel: 'icon', url: '/logo.jpg', sizes: '512x512' },
+      { rel: 'apple-touch-icon', url: '/logo.jpg', sizes: '180x180' },
     ],
   },
 };
@@ -42,6 +47,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/logo.jpg" sizes="any" />
+        <link rel="icon" href="/logo.jpg" type="image/jpeg" sizes="16x16" />
+        <link rel="icon" href="/logo.jpg" type="image/jpeg" sizes="32x32" />
+        <link rel="icon" href="/logo.jpg" type="image/jpeg" sizes="48x48" />
+        <link rel="icon" href="/logo.jpg" type="image/jpeg" sizes="64x64" />
+        <link rel="apple-touch-icon" href="/logo.jpg" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/logo.jpg" sizes="152x152" />
+        <link rel="apple-touch-icon" href="/logo.jpg" sizes="120x120" />
+        <link rel="shortcut icon" href="/logo.jpg" />
+        <meta name="msapplication-TileImage" content="/logo.jpg" />
+        <meta name="msapplication-TileColor" content="#ff6b35" />
+        <meta name="theme-color" content="#ff6b35" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
       >

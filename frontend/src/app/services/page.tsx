@@ -29,7 +29,7 @@ const serviceCategories = [
     icon: FaStar,
     color: 'from-blue-500 to-blue-600',
     bgColor: 'from-blue-50 to-blue-100',
-    image: '/images/services/cleaning-category.jpg',
+    image: '/images/services/offer.png',
     priceRange: 'KES 1,800 - 15,000',
     serviceCount: '6+ Services',
     popular: true
@@ -42,7 +42,7 @@ const serviceCategories = [
     icon: FaLightbulb,
     color: 'from-yellow-500 to-orange-600',
     bgColor: 'from-yellow-50 to-orange-100',
-    image: '/images/services/electrical-category.jpg',
+    image: '/images/services/electrical_service.jpg',
     priceRange: 'KES 1,000 - 50,000',
     serviceCount: '6+ Services',
     featured: true
@@ -55,7 +55,7 @@ const serviceCategories = [
     icon: FaWrench,
     color: 'from-blue-500 to-cyan-600',
     bgColor: 'from-blue-50 to-cyan-100',
-    image: '/images/services/plumbing-category.jpg',
+    image: '/images/services/plumbing_hero.jpg',
     priceRange: 'KES 1,200 - 15,000',
     serviceCount: '6+ Services',
     popular: true
@@ -68,7 +68,7 @@ const serviceCategories = [
     icon: FaBug,
     color: 'from-green-500 to-emerald-600',
     bgColor: 'from-green-50 to-emerald-100',
-    image: '/images/services/fumigation-category.jpg',
+    image: '/images/services/fumigation.webp',
     priceRange: 'KES 2,000 - 8,000',
     serviceCount: '4+ Services'
   },
@@ -80,7 +80,7 @@ const serviceCategories = [
     icon: FaTools,
     color: 'from-purple-500 to-indigo-600',
     bgColor: 'from-purple-50 to-indigo-100',
-    image: '/images/services/repairs-category.jpg',
+    image: '/images/services/general_repairs.webp',
     priceRange: 'KES 1,500 - 10,000',
     serviceCount: '8+ Services'
   }
@@ -167,11 +167,16 @@ export default function ServicesPage() {
                 <Link href={`/services/${category.id}`}>
                   <div className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-gray-200 relative h-full cursor-pointer">
                     {/* Category Image Header */}
-                    <div className={`relative h-64 overflow-hidden bg-gradient-to-br ${category.bgColor}`}>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <category.icon className="text-6xl text-white/90 drop-shadow-lg" />
-                      </div>
-                      <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-90`}></div>
+                    <div className="relative h-64 overflow-hidden">
+                      {/* Background Image */}
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {/* Dark overlay for text readability */}
+                      <div className="absolute inset-0 bg-black/40"></div>
                       <div className="absolute top-4 right-4">
                         <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                           <span className="text-white text-sm font-semibold">{category.serviceCount}</span>
