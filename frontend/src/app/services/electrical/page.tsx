@@ -32,7 +32,7 @@ const electricalServices = [
     features: ['System diagnosis', 'Safety inspection', 'Problem identification', 'Professional report'],
     duration: '1-3 hours',
     popular: true,
-    image: '/images/services/electrical-inspection.jpg'
+    image: '/images/services/electrical_diagnosis.jpg'
   },
   {
     id: 'socket-installation',
@@ -42,7 +42,7 @@ const electricalServices = [
     features: ['Socket installation', 'Switch replacement', 'Outlet repair', 'Safety testing'],
     duration: '30min-2 hours',
     popular: true,
-    image: '/images/services/socket-installation.jpg'
+    image: '/images/services/socket_installation.jpg'
   },
   {
     id: 'tv-mounting',
@@ -53,7 +53,7 @@ const electricalServices = [
     duration: '1-3 hours',
     popular: true,
     featured: true,
-    image: '/images/services/tv-mounting.jpg'
+    image: '/images/services/tv_mounting.jpg'
   },
   {
     id: 'lighting-installation',
@@ -62,7 +62,7 @@ const electricalServices = [
     description: 'Install ceiling lights, chandeliers, pendant lights, and decorative fixtures',
     features: ['Ceiling lights', 'Chandeliers', 'Pendant lights', 'LED installation'],
     duration: '1-3 hours',
-    image: '/images/services/lighting-installation.jpg'
+    image: '/images/services/lighting_installation.jpg'
   },
   {
     id: 'room-rewiring',
@@ -72,7 +72,7 @@ const electricalServices = [
     features: ['Circuit rewiring', 'Modern cables', 'Safety compliance', 'Testing included'],
     duration: '4-8 hours',
     premium: true,
-    image: '/images/services/room-rewiring.jpg'
+    image: '/images/services/small_wiring.jpg'
   },
   {
     id: 'full-rewiring',
@@ -82,7 +82,7 @@ const electricalServices = [
     features: ['Complete rewiring', 'Modern distribution board', 'Safety upgrades', 'Warranty included'],
     duration: '3-7 days',
     premium: true,
-    image: '/images/services/full-rewiring.jpg'
+    image: '/images/services/full_wiring.jpg'
   }
 ];
 
