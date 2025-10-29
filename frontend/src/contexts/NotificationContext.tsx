@@ -77,6 +77,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       })
 
       if (!response.ok) {
+        // Gracefully handle 404 - backend notifications not yet implemented
+        if (response.status === 404) {
+          console.log('Notifications endpoint not available - using empty notifications for now')
+          setNotifications([])
+          setIsLoading(false)
+          return
+        }
         throw new Error('Failed to fetch notifications')
       }
 

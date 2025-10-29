@@ -5,8 +5,8 @@ import { FaMapMarkerAlt, FaSpinner, FaSearch, FaTimes } from 'react-icons/fa'
 
 interface AddressSuggestion {
   display_name: string
-  lat: number
-  lon: number
+  lat: number | string
+  lon: number | string
   place_id: number
   class?: string
   type?: string
@@ -112,8 +112,8 @@ export default function AddressAutocomplete({
 
     // Call the callback with selected address
     onAddressSelect({
-      latitude: suggestion.lat,
-      longitude: suggestion.lon,
+      latitude: typeof suggestion.lat === 'string' ? parseFloat(suggestion.lat) : suggestion.lat,
+      longitude: typeof suggestion.lon === 'string' ? parseFloat(suggestion.lon) : suggestion.lon,
       formattedAddress: suggestion.display_name,
       components: suggestion.address
     })
