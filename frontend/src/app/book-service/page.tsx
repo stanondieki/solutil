@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleGuard from '@/components/RoleGuard'
 import LocationSharing from '@/components/LocationSharing'
+import OpenStreetMap from '@/components/OpenStreetMap'
+import AddressAutocomplete from '@/components/AddressAutocomplete'
 
 // Paystack types
 type PaystackResponse = {
@@ -1036,6 +1038,16 @@ function BookServicePageContent() {
     error: null
   })
 
+  // Azure Maps state
+  const [azureMapLocation, setAzureMapLocation] = useState<{
+    latitude: number
+    longitude: number
+    address?: string
+    formattedAddress?: string
+  } | null>(null)
+
+  const [showAzureMap, setShowAzureMap] = useState(false)
+
   // Google Maps and location refs (commented out for future use)
   const addressSearchRef = useRef<HTMLInputElement>(null)
   // const mapRef = useRef<HTMLDivElement>(null)
@@ -1890,51 +1902,96 @@ Status: ${result.data.booking.status}
     console.error('Location error:', error)
   }
 
-  // Simple location functions (without Google Maps)
-  const handleGetCurrentLocation = () => {
-    if (navigator.geolocation) {
-      setLocationSharing(prev => ({ ...prev, active: true }))
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          const location = {
-            latitude,
-            longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: Date.now()
-          }
-          
-          setLocationSharing(prev => ({
-            ...prev,
-            location,
-            active: false
-          }))
-
-          // Simple reverse geocoding simulation
-          reverseGeocode(latitude, longitude)
-        },
-        (error) => {
-          console.error('Geolocation error:', error)
-          setLocationSharing(prev => ({
-            ...prev,
-            active: false,
-            error: 'Could not get your location. Please enter address manually.'
-          }))
-        }
-      )
-    } else {
-      setLocationSharing(prev => ({
-        ...prev,
-        error: 'Geolocation is not supported by this browser.'
-      }))
-    }
-  }
-
   const handleSearchAddress = () => {
     // Focus on the address input for manual entry
     if (addressSearchRef.current) {
       addressSearchRef.current.focus()
     }
+  }
+
+  // Azure Maps handlers
+  const handleAzureMapLocationSelect = (location: {
+    latitude: number | string
+    longitude: number | string
+    address?: string
+    formattedAddress?: string
+  }) => {
+    // Convert coordinates to numbers if they're strings
+    const lat = typeof location.latitude === 'string' ? parseFloat(location.latitude) : location.latitude
+    const lng = typeof location.longitude === 'string' ? parseFloat(location.longitude) : location.longitude
+    
+    const processedLocation = {
+      latitude: lat,
+      longitude: lng,
+      address: location.address,
+      formattedAddress: location.formattedAddress
+    }
+    
+    setAzureMapLocation(processedLocation)
+    
+    // Update booking data with the selected location
+    setBookingData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        address: location.formattedAddress || location.address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      }
+    }))
+
+    // Also update location sharing for consistency
+    setLocationSharing(prev => ({
+      ...prev,
+      location: {
+        latitude: lat,
+        longitude: lng,
+        accuracy: 10, // Approximate for map selection
+        timestamp: Date.now()
+      }
+    }))
+
+    console.log('Location selected:', location)
+  }
+
+  // Address autocomplete handler
+  const handleAddressAutocompleteSelect = (address: {
+    latitude: number
+    longitude: number
+    formattedAddress: string
+    components: any
+  }) => {
+    // Update the map location state
+    setAzureMapLocation({
+      latitude: address.latitude,
+      longitude: address.longitude,
+      address: address.formattedAddress,
+      formattedAddress: address.formattedAddress
+    })
+    
+    // Update booking data
+    setBookingData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        address: address.formattedAddress
+      }
+    }))
+
+    // Also update location sharing for consistency
+    setLocationSharing(prev => ({
+      ...prev,
+      location: {
+        latitude: address.latitude,
+        longitude: address.longitude,
+        accuracy: 10,
+        timestamp: Date.now()
+      }
+    }))
+
+    console.log('Address autocomplete selected:', address)
+  }
+
+  const toggleAzureMap = () => {
+    setShowAzureMap(!showAzureMap)
   }
 
   const reverseGeocode = async (lat: number, lng: number) => {
@@ -2720,45 +2777,38 @@ Examples:
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <button
-                            onClick={() => handleGetCurrentLocation()}
-                            className="flex items-center justify-center px-4 py-3 border-2 border-blue-300 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm font-semibold text-blue-700"
+                            onClick={toggleAzureMap}
+                            className="flex items-center justify-center px-4 py-3 border-2 border-green-300 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm font-semibold text-green-700"
                           >
                             <FaMapMarkerAlt className="h-4 w-4 mr-2" />
-                            📍 Use My Current Location
+                            🗺️ Use Live Map
                           </button>
                           <button
                             onClick={() => handleSearchAddress()}
-                            className="flex items-center justify-center px-4 py-3 border-2 border-green-300 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm font-semibold text-green-700"
+                            className="flex items-center justify-center px-4 py-3 border-2 border-orange-300 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-sm font-semibold text-orange-700"
                           >
                             <FaSearch className="h-4 w-4 mr-2" />
-                            ✏️ Type Address Manually
+                            ✏️ Type Address
                           </button>
                         </div>
                         <p className="text-xs text-gray-600 mt-2">Choose the easiest way to share your location</p>
                       </div>
 
-                      {/* Search Location (simplified) */}
+                      {/* Address Autocomplete */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           <FaSearch className="inline h-4 w-4 mr-2 text-orange-500" />
                           Enter Your Full Address
                         </label>
-                        <div className="relative">
-                          <input
-                            ref={addressSearchRef}
-                            type="text"
-                            placeholder="Type your complete address here (e.g., 123 Westlands Road, Nairobi)..."
-                            value={bookingData.location.address}
-                            onChange={(e) => setBookingData(prev => ({ 
-                              ...prev, 
-                              location: { ...prev.location, address: e.target.value } 
-                            }))}
-                            className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900 font-medium text-base placeholder:text-gray-600 placeholder:font-normal"
-                          />
-                          <FaSearch className="absolute right-3 top-4 h-4 w-4 text-gray-400" />
-                        </div>
-                        <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                          💡 <strong>Coming Soon:</strong> Google Maps autocomplete will make address entry even easier!
+                        <AddressAutocomplete
+                          onAddressSelect={handleAddressAutocompleteSelect}
+                          placeholder="Start typing your address (e.g., Westlands Road, Nairobi)..."
+                          initialValue={bookingData.location.address}
+                          countryCode="ke"
+                          className="w-full"
+                        />
+                        <div className="mt-2 p-2 bg-green-50 rounded text-xs text-green-700">
+                          ✨ <strong>Smart Autocomplete:</strong> Powered by OpenStreetMap for accurate Kenya addresses!
                         </div>
                       </div>
 
@@ -2819,7 +2869,7 @@ Examples:
                             <div>
                               <h4 className="font-medium text-green-900">Location Detected</h4>
                               <p className="text-sm text-green-700 mt-1">
-                                Coordinates: {locationSharing.location.latitude?.toFixed(6)}, {locationSharing.location.longitude?.toFixed(6)}
+                                Coordinates: {typeof locationSharing.location.latitude === 'number' ? locationSharing.location.latitude.toFixed(6) : parseFloat(locationSharing.location.latitude).toFixed(6)}, {typeof locationSharing.location.longitude === 'number' ? locationSharing.location.longitude.toFixed(6) : parseFloat(locationSharing.location.longitude).toFixed(6)}
                               </p>
                             </div>
                           </div>
@@ -2827,41 +2877,88 @@ Examples:
                       )}
                     </div>
 
-                    {/* Right Column - Location Preview */}
+                    {/* Right Column - Azure Maps or Location Preview */}
                     <div className="lg:sticky lg:top-6">
-                      <div className="border border-gray-200 rounded-lg overflow-hidden">
-                        <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                          <h4 className="font-medium text-gray-900">Location Summary</h4>
+                      {showAzureMap ? (
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                            <h4 className="font-medium text-gray-900">🗺️ Select Location on Map</h4>
+                            <button
+                              onClick={toggleAzureMap}
+                              className="text-gray-500 hover:text-gray-700 text-sm"
+                            >
+                              ✕ Close
+                            </button>
+                          </div>
+                          <div className="p-4">
+                            <OpenStreetMap
+                              onLocationSelect={handleAzureMapLocationSelect}
+                              initialLocation={azureMapLocation || undefined}
+                              height="400px"
+                              showSearch={true}
+                              showCurrentLocation={true}
+                              className="w-full"
+                            />
+                          </div>
                         </div>
-                        <div className="p-4 bg-gray-50 min-h-[200px] lg:min-h-[320px] flex flex-col justify-center items-center">
-                          {locationSharing.location ? (
-                            <div className="text-center">
-                              <FaMapMarkerAlt className="h-12 w-12 mx-auto mb-3 text-green-600" />
-                              <h5 className="font-medium text-green-900 mb-2">GPS Location Detected</h5>
-                              <p className="text-sm text-gray-600 mb-2">
-                                Latitude: {locationSharing.location.latitude?.toFixed(6)}
-                              </p>
-                              <p className="text-sm text-gray-600 mb-2">
-                                Longitude: {locationSharing.location.longitude?.toFixed(6)}
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                Accuracy: ±{locationSharing.location.accuracy || 'Unknown'}m
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="text-center text-gray-600">
-                              <FaMapMarkerAlt className="h-8 w-8 mx-auto mb-2" />
-                              <p className="font-medium">No location set</p>
-                              <p className="text-sm">Use GPS or enter address manually</p>
-                              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                                <p className="text-xs text-blue-700">
-                                  📍 Google Maps integration coming soon!
+                      ) : (
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                            <h4 className="font-medium text-gray-900">📍 Location Summary</h4>
+                          </div>
+                          <div className="p-4 bg-gray-50 min-h-[200px] lg:min-h-[320px] flex flex-col justify-center items-center">
+                            {(locationSharing.location || azureMapLocation) ? (
+                              <div className="text-center">
+                                <FaMapMarkerAlt className="h-12 w-12 mx-auto mb-3 text-green-600" />
+                                <h5 className="font-medium text-green-900 mb-2">
+                                  {azureMapLocation ? '🗺️ Map Location Selected' : '📍 GPS Location Detected'}
+                                </h5>
+                                {azureMapLocation && (
+                                  <p className="text-sm text-gray-600 mb-2 font-medium">
+                                    {azureMapLocation.formattedAddress || azureMapLocation.address}
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-600 mb-2">
+                                  Latitude: {(azureMapLocation?.latitude || locationSharing.location?.latitude)?.toFixed(6)}
                                 </p>
+                                <p className="text-sm text-gray-600 mb-2">
+                                  Longitude: {(azureMapLocation?.longitude || locationSharing.location?.longitude)?.toFixed(6)}
+                                </p>
+                                {locationSharing.location?.accuracy && (
+                                  <p className="text-xs text-gray-600">
+                                    Accuracy: ±{locationSharing.location.accuracy}m
+                                  </p>
+                                )}
+                                <div className="mt-4">
+                                  <button
+                                    onClick={toggleAzureMap}
+                                    className="text-sm bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 transition-colors"
+                                  >
+                                    🗺️ Open Map to Adjust
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            ) : (
+                              <div className="text-center text-gray-600">
+                                <FaMapMarkerAlt className="h-8 w-8 mx-auto mb-2" />
+                                <p className="font-medium">No location set</p>
+                                <p className="text-sm mb-4">Use GPS, select on map, or enter address manually</p>
+                                <button
+                                  onClick={toggleAzureMap}
+                                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                                >
+                                  🗺️ Open Live Map
+                                </button>
+                                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                                  <p className="text-xs text-blue-700">
+                                    ✨ Powered by OpenStreetMap for accurate location selection!
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 

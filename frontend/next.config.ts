@@ -20,6 +20,26 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  // Webpack configuration for Azure Maps
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+      }
+    }
+    
+    // Handle Azure Maps module
+    config.module.rules.push({
+      test: /azure-maps-control/,
+      use: 'null-loader'
+    })
+    
+    return config
+  },
   
   // Image optimization - reduced for faster builds
   images: {

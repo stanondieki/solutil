@@ -17,7 +17,7 @@ export async function PATCH(
     }
 
     // Forward the request to the backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
     const response = await fetch(`${backendUrl}/api/notifications/${params.id}/read`, {
       method: 'PATCH',
       headers: {
@@ -59,7 +59,7 @@ export async function DELETE(
     }
 
     // Forward the request to the backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
     const response = await fetch(`${backendUrl}/api/notifications/${params.id}`, {
       method: 'DELETE',
       headers: {
