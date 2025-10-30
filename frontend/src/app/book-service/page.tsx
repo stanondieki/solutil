@@ -1015,6 +1015,7 @@ function BookServicePageContent() {
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isBookingInProgress, setIsBookingInProgress] = useState(false) // Add booking lock
   const [providerMatching, setProviderMatching] = useState<{
     loading: boolean
     providers: any[]
@@ -1399,7 +1400,14 @@ Please contact support with reference: ${reference}`)
   }
 
   const handleBookingConfirmation = async (paymentReference?: string) => {
+    // Prevent duplicate bookings
+    if (isBookingInProgress) {
+      console.log('🚫 Booking already in progress, preventing duplicate')
+      return
+    }
+    
     try {
+      setIsBookingInProgress(true) // Lock booking creation
       setLoading(true)
       
       const bookingPayload = {
@@ -1510,6 +1518,7 @@ Status: ${result.data.booking.status}
       alert(`Booking failed: ${errorMessage}. Please try again.`)
     } finally {
       setLoading(false)
+      setIsBookingInProgress(false) // Release booking lock
     }
   }
 
@@ -3764,6 +3773,8 @@ Examples:
                     </button>
                     <button
                       onClick={() => {
+                        if (isBookingInProgress) return // Prevent double-clicks
+                        
                         if (!validatePaymentStep()) {
                           return
                         }
@@ -3776,7 +3787,7 @@ Examples:
                           handleBookingConfirmation()
                         }
                       }}
-                      disabled={loading || !termsAgreed}
+                      disabled={loading || !termsAgreed || isBookingInProgress}
                       className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (

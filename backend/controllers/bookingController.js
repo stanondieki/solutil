@@ -821,6 +821,37 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       paymentReference
     } = req.body;
 
+    // DEDUPLICATION CHECK: Prevent duplicate bookings within 10 seconds
+    const recentDuplicateThreshold = new Date(Date.now() - 10000); // 10 seconds ago
+    const potentialDuplicate = await Booking.findOne({
+      client: req.user.id,
+      provider: selectedProvider?.id || selectedProvider?._id,
+      scheduledDate: date,
+      scheduledTime: { start: time },
+      createdAt: { $gte: recentDuplicateThreshold }
+    });
+
+    if (potentialDuplicate) {
+      console.log('🚫 DUPLICATE BOOKING DETECTED - Preventing creation');
+      console.log('Found existing booking:', potentialDuplicate.bookingNumber);
+      
+      // Return the existing booking instead of creating a new one
+      await potentialDuplicate.populate([
+        { path: 'client', select: 'name email phone' },
+        { path: 'provider', select: 'name email phone userType' },
+        { path: 'service', select: 'title category price priceType' }
+      ]);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Booking already exists for this request',
+        data: {
+          booking: potentialDuplicate,
+          isExisting: true
+        }
+      });
+    }
+
     // Generate unique booking number
     const bookingNumber = `BK${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
     

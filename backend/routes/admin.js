@@ -766,6 +766,8 @@ router.get('/bookings', protect, adminOnly, catchAsync(async (req, res) => {
   try {
     const { status, search, page = 1, limit = 50 } = req.query;
 
+    console.log('🔍 Admin bookings request:', { status, search, page, limit });
+
     // Build filter query
     let filter = {};
     
@@ -774,10 +776,8 @@ router.get('/bookings', protect, adminOnly, catchAsync(async (req, res) => {
     }
     
     if (search) {
-      // Search in customer name, provider name, or booking ID
+      // Search in booking number only for now (populated fields can't be searched this way)
       filter.$or = [
-        { 'customer.name': { $regex: search, $options: 'i' } },
-        { 'provider.name': { $regex: search, $options: 'i' } },
         { bookingNumber: { $regex: search, $options: 'i' } }
       ];
     }
@@ -785,16 +785,58 @@ router.get('/bookings', protect, adminOnly, catchAsync(async (req, res) => {
     // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch bookings with populated references
+    console.log('📋 Fetching bookings with filter:', filter);
+
+    // Fetch bookings first without service population
     const bookings = await Booking.find(filter)
-      .populate('customer', 'name email phone')
+      .populate('client', 'name email phone')
       .populate('provider', 'name email phone')
-      .populate('service', 'name description')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
+    console.log(`✅ Found ${bookings.length} bookings (before service population)`);
+
+    // Manually populate services based on serviceType
+    for (let booking of bookings) {
+      if (booking.service && booking.serviceType === 'ProviderService') {
+        try {
+          const ProviderService = require('../models/ProviderService');
+          const service = await ProviderService.findById(booking.service)
+            .select('title category description price');
+          booking.service = service;
+        } catch (error) {
+          console.log(`⚠️ Could not populate ProviderService for booking ${booking.bookingNumber}`);
+          booking.service = null;
+        }
+      } else if (booking.service && booking.serviceType === 'Service') {
+        try {
+          const Service = require('../models/Service');
+          const service = await Service.findById(booking.service)
+            .select('name category description basePrice');
+          booking.service = service;
+        } catch (error) {
+          console.log(`⚠️ Could not populate Service for booking ${booking.bookingNumber}`);
+          booking.service = null;
+        }
+      }
+    }
+
     const totalCount = await Booking.countDocuments(filter);
+
+    console.log(`✅ Found ${bookings.length} bookings out of ${totalCount} total`);
+
+    // Log sample booking for debugging
+    if (bookings.length > 0) {
+      console.log('📋 Sample booking:', {
+        id: bookings[0]._id,
+        bookingNumber: bookings[0].bookingNumber,
+        client: bookings[0].client?.name || 'null',
+        provider: bookings[0].provider?.name || 'null',
+        service: bookings[0].service?.name || bookings[0].service?.title || 'null',
+        status: bookings[0].status
+      });
+    }
 
     res.status(200).json({
       status: 'success',
@@ -831,9 +873,9 @@ router.put('/bookings/:id/status', protect, adminOnly, catchAsync(async (req, re
         updatedAt: new Date()
       },
       { new: true, runValidators: true }
-    ).populate('customer', 'name email')
+    ).populate('client', 'name email')
      .populate('provider', 'name email')
-     .populate('service', 'name');
+     .populate('service', 'name title');
 
     if (!booking) {
       return res.status(404).json({

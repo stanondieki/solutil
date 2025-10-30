@@ -40,28 +40,39 @@ export default function AdminBookingsPage() {
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('adminToken')
+      console.log('🔑 Admin token:', token ? 'Present' : 'Missing')
+      
       // Use frontend API route which forwards to backend
       const response = await fetch('/api/admin/bookings', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
+      
+      console.log('📥 Admin bookings response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      })
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('📋 Admin bookings data:', data)
+        
         // Map backend booking data to frontend format
-        const mappedBookings = (data.data.bookings || []).map((b: any) => ({
+        const mappedBookings = (data.data?.bookings || []).map((b: any) => ({
           id: b._id,
           customer: {
-            name: b.client?.name || '',
+            name: b.client?.name || 'Unknown Client',
             email: b.client?.email || '',
             phone: b.client?.phone || ''
           },
           provider: {
-            name: b.provider?.name || '',
+            name: b.provider?.name || 'Unknown Provider',
             email: b.provider?.email || '',
             phone: b.provider?.phone || ''
           },
-          service: b.service?.name || '',
+          service: b.service?.name || b.service?.title || 'Unknown Service',
           description: b.service?.description || '',
           scheduledDate: b.scheduledDate,
           status: b.status,
@@ -70,14 +81,20 @@ export default function AdminBookingsPage() {
           createdAt: b.createdAt,
           paymentStatus: b.payment?.status || 'pending'
         }))
+        
+        console.log('📊 Mapped bookings:', mappedBookings)
         setBookings(mappedBookings)
       } else {
-        const errorData = await response.json()
-        console.error('Failed to fetch bookings:', errorData.message || response.statusText)
+        const errorData = await response.text()
+        console.error('❌ Failed to fetch bookings:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        })
         setBookings([])
       }
     } catch (error) {
-      console.error('Error fetching bookings:', error)
+      console.error('💥 Error fetching bookings:', error)
     } finally {
       setLoading(false)
     }
