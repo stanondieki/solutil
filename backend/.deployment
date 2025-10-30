@@ -1,13 +1,5 @@
-#!/bin/bash
-
-# Azure Deployment Script for Solutil Backend
-echo "🚀 Starting Azure deployment for Solutil Backend..."
-
-# Set environment variables
-export NODE_ENV=production
-export PORT=${PORT:-8000}
-
-# Install dependencies
+[config]
+SCM_DO_BUILD_DURING_DEPLOYMENT=true
 echo "📦 Installing production dependencies..."
 npm ci --only=production
 

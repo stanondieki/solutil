@@ -1,0 +1,6 @@
+build:
+  commands: |
+    npm ci --production
+run:
+  commands: |
+    node server.js

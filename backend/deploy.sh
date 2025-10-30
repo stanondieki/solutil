@@ -1,21 +1,45 @@
-# Deployment script for Azure App Service
-echo "Starting deployment process..."
+#!/bin/bash
 
-# Install dependencies
-echo "Installing production dependencies..."
-npm ci --only=production
+# Azure Deployment script for Solutil Backend
+echo "🚀 Starting Azure deployment process..."
 
-# Create uploads directory if it doesn't exist
-mkdir -p uploads/documents
+# Ensure we're in the right directory
+DEPLOYMENT_SOURCE=${DEPLOYMENT_SOURCE:-$PWD}
+DEPLOYMENT_TARGET=${DEPLOYMENT_TARGET:-/home/site/wwwroot}
 
-# Set proper permissions
-echo "Setting permissions..."
-chmod -R 755 uploads/
+echo "📂 Deployment Source: $DEPLOYMENT_SOURCE"
+echo "📂 Deployment Target: $DEPLOYMENT_TARGET"
 
-# Run any migration scripts if needed
-if [ -f "scripts/migrate.js" ]; then
-  echo "Running database migrations..."
-  node scripts/migrate.js
+# Copy files to deployment target
+echo "📋 Copying files..."
+cp -R $DEPLOYMENT_SOURCE/* $DEPLOYMENT_TARGET/
+
+# Navigate to deployment target
+cd $DEPLOYMENT_TARGET
+
+# Install Node.js dependencies
+echo "📦 Installing production dependencies..."
+npm ci --production --silent
+
+if [ $? -ne 0 ]; then
+  echo "❌ npm install failed"
+  exit 1
 fi
 
-echo "Deployment completed successfully!"
+# Create necessary directories
+echo "📁 Creating required directories..."
+mkdir -p uploads/documents
+mkdir -p logs
+
+# Set proper permissions
+echo "🔒 Setting permissions..."
+chmod -R 755 uploads/
+chmod +x server.js
+
+# Verify installation
+echo "✅ Verifying installation..."
+echo "Node version: $(node --version)"
+echo "NPM version: $(npm --version)"
+ls -la node_modules/express > /dev/null && echo "✅ Express found" || echo "❌ Express not found"
+
+echo "🎉 Deployment completed successfully!"
