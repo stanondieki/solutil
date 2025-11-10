@@ -16,7 +16,8 @@ import {
   FaCheckCircle,
   FaArrowRight,
   FaFilter,
-  FaSearch
+  FaSearch,
+  FaArrowLeft
 } from 'react-icons/fa';
 
 interface Provider {
@@ -275,6 +276,17 @@ export default function ProvidersPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Back to Dashboard Button */}
+        <div className="mb-8">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center space-x-2 text-gray-600 hover:text-orange-600 transition-colors font-medium"
+          >
+            <FaArrowLeft className="text-sm" />
+            <span>Back to Dashboard</span>
+          </Link>
+        </div>
         
         {/* Header */}
         <div className="text-center mb-12">
