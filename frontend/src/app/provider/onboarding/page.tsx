@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleGuard from '@/components/RoleGuard'
@@ -1110,29 +1110,29 @@ export default function ProviderOnboardingPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto">
-              <FaUser className="w-12 h-12 text-white" />
+          <div className="text-center space-y-4 md:space-y-6">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto">
+              <FaUser className="w-8 h-8 md:w-12 md:h-12 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Welcome to Solutil!</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 px-2">Welcome to Solutil!</h2>
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-4">
               We're excited to have you join our platform as a service provider. This quick onboarding process will help you get verified and start receiving bookings from customers.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-              <div className="text-center p-6">
-                <FaCertificate className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Complete Profile</h3>
-                <p className="text-gray-600">Set up your professional profile</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12">
+              <div className="text-center p-4 md:p-6 bg-green-50 rounded-lg border border-green-100">
+                <FaCertificate className="w-8 h-8 md:w-12 md:h-12 text-green-600 mx-auto mb-3 md:mb-4" />
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">Complete Profile</h3>
+                <p className="text-sm md:text-base text-gray-600">Set up your professional profile</p>
               </div>
-              <div className="text-center p-6">
-                <FaUpload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Documents</h3>
-                <p className="text-gray-600">Verify your identity and qualifications</p>
+              <div className="text-center p-4 md:p-6 bg-blue-50 rounded-lg border border-blue-100">
+                <FaUpload className="w-8 h-8 md:w-12 md:h-12 text-blue-600 mx-auto mb-3 md:mb-4" />
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">Upload Documents</h3>
+                <p className="text-sm md:text-base text-gray-600">Verify your identity and qualifications</p>
               </div>
-              <div className="text-center p-6">
-                <FaCheckCircle className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Get Approved</h3>
-                <p className="text-gray-600">Start receiving customer bookings</p>
+              <div className="text-center p-4 md:p-6 bg-purple-50 rounded-lg border border-purple-100">
+                <FaCheckCircle className="w-8 h-8 md:w-12 md:h-12 text-purple-600 mx-auto mb-3 md:mb-4" />
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">Get Approved</h3>
+                <p className="text-sm md:text-base text-gray-600">Start receiving customer bookings</p>
               </div>
             </div>
           </div>
@@ -2846,17 +2846,17 @@ export default function ProviderOnboardingPage() {
 
   return (
     <RoleGuard requiredRole="provider">
-      <div className="min-h-screen bg-gray-50 py-8 relative">
-        <div className="max-w-4xl mx-auto px-4">
+      <div className="min-h-screen bg-gray-50 py-4 md:py-8 relative">
+        <div className="max-w-4xl mx-auto px-3 md:px-4">
           {/* Tutorial Overlay */}
           {showTutorial && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-              <div className="bg-white rounded-xl shadow-2xl p-6 m-4 max-w-md">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg md:rounded-xl shadow-2xl p-4 md:p-6 w-full max-w-md">
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3">
                     {TUTORIAL_STEPS[tutorialStep].title}
                   </h3>
-                  <p className="text-gray-700 mb-6">
+                  <p className="text-sm md:text-base text-gray-700 mb-6">
                     {TUTORIAL_STEPS[tutorialStep].content}
                   </p>
                   
@@ -2865,7 +2865,7 @@ export default function ProviderOnboardingPage() {
                       {TUTORIAL_STEPS.map((_, index) => (
                         <div
                           key={index}
-                          className={`w-3 h-3 rounded-full ${
+                          className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${
                             index === tutorialStep ? 'bg-blue-600' : 'bg-gray-300'
                           }`}
                         />
@@ -2873,16 +2873,16 @@ export default function ProviderOnboardingPage() {
                     </div>
                   </div>
                   
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={skipTutorial}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
                       Skip Tutorial
                     </button>
                     <button
                       onClick={nextTutorialStep}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700"
+                      className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700"
                     >
                       {tutorialStep < TUTORIAL_STEPS.length - 1 ? 'Next' : 'Start Onboarding'}
                     </button>
@@ -2897,86 +2897,128 @@ export default function ProviderOnboardingPage() {
           )}
 
           {/* Tutorial Help Button */}
-          <div className="fixed bottom-4 right-4 z-40">
+          <div className="fixed bottom-20 right-3 md:bottom-4 md:right-4 z-40">
             <button
               onClick={restartTutorial}
-              className="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white p-2.5 md:p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
               title="Restart Tutorial"
             >
-              <FaEye className="w-5 h-5" />
+              <FaEye className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
 
           {/* Progress Steps */}
-          <div className="mb-8 progress-steps">
-            <div className="flex items-center justify-between">
-              {ONBOARDING_STEPS.map((step, index) => (
-                <div key={step.id} className="flex items-center">
-                  <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                    step.id <= currentStep 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {step.id < currentStep ? (
-                      <FaCheck className="w-5 h-5" />
-                    ) : (
-                      <step.icon className="w-5 h-5" />
+          <div className="mb-6 md:mb-8 progress-steps">
+            {/* Mobile Progress Steps - Stack Vertically */}
+            <div className="block md:hidden">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                      ONBOARDING_STEPS[currentStep - 1].id <= currentStep 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {ONBOARDING_STEPS[currentStep - 1].id < currentStep ? (
+                        <FaCheck className="w-3 h-3" />
+                      ) : (
+                        React.createElement(ONBOARDING_STEPS[currentStep - 1].icon, { className: "w-3 h-3" })
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {ONBOARDING_STEPS[currentStep - 1].title}
+                    </span>
+                  </div>
+                  <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    Step {currentStep} of {ONBOARDING_STEPS.length}
+                  </span>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+                    style={{ width: `${(currentStep / ONBOARDING_STEPS.length) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Progress Steps - Horizontal Layout */}
+            <div className="hidden md:block">
+              <div className="flex items-center justify-between">
+                {ONBOARDING_STEPS.map((step, index) => (
+                  <div key={step.id} className="flex items-center">
+                    <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
+                      step.id <= currentStep 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {step.id < currentStep ? (
+                        <FaCheck className="w-5 h-5" />
+                      ) : (
+                        <step.icon className="w-5 h-5" />
+                      )}
+                    </div>
+                    <span className={`ml-3 text-sm font-medium ${
+                      step.id <= currentStep ? 'text-gray-900' : 'text-gray-500'
+                    }`}>
+                      {step.title}
+                    </span>
+                    {index < ONBOARDING_STEPS.length - 1 && (
+                      <div className={`flex-1 h-0.5 mx-4 ${
+                        step.id < currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                      }`} />
                     )}
                   </div>
-                  <span className={`ml-3 text-sm font-medium ${
-                    step.id <= currentStep ? 'text-gray-900' : 'text-gray-500'
-                  }`}>
-                    {step.title}
-                  </span>
-                  {index < ONBOARDING_STEPS.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-4 ${
-                      step.id < currentStep ? 'bg-blue-600' : 'bg-gray-200'
-                    }`} />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Auto-Save Status Indicator */}
-          <div className="flex items-center justify-center mb-4 auto-save-indicator">
-            <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center justify-center mb-3 md:mb-4 auto-save-indicator">
+            <div className="flex items-center space-x-2 text-xs md:text-sm bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200">
               {isSaving ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span className="text-blue-600 font-medium">Saving progress...</span>
+                  <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-blue-600"></div>
+                  <span className="text-blue-600 font-medium">Saving...</span>
                 </>
               ) : lastSaved ? (
                 <>
-                  <FaCheck className="w-4 h-4 text-green-600" />
-                  <span className="text-green-600 font-medium">
+                  <FaCheck className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
+                  <span className="text-green-600 font-medium hidden sm:inline">
                     Auto-saved at {lastSaved.toLocaleTimeString()}
+                  </span>
+                  <span className="text-green-600 font-medium sm:hidden">
+                    Saved
                   </span>
                 </>
               ) : null}
               {saveError && (
                 <>
-                  <FaExclamationTriangle className="w-4 h-4 text-red-600" />
-                  <span className="text-red-600 font-medium">{saveError}</span>
+                  <FaExclamationTriangle className="w-3 h-3 md:w-4 md:h-4 text-red-600" />
+                  <span className="text-red-600 font-medium">Error saving</span>
                 </>
               )}
             </div>
           </div>
 
           {/* Step Content */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8 profile-section">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-4 md:p-8 mb-6 md:mb-8 profile-section">
             {renderStep()}
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <button
               onClick={prevStep}
               disabled={currentStep === 1}
-              className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center px-4 md:px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
             >
               <FaArrowLeft className="w-4 h-4 mr-2" />
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Back</span>
             </button>
 
             {currentStep < ONBOARDING_STEPS.length ? (
@@ -2987,16 +3029,17 @@ export default function ProviderOnboardingPage() {
                   (currentStep === 3 && !canProceedFromDocuments()) ||
                   isLoading
                 }
-                className="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-lg font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center px-4 md:px-6 py-3 bg-blue-600 border border-transparent rounded-lg font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
               >
-                Next
+                <span className="hidden sm:inline">Next</span>
+                <span className="sm:hidden">Continue</span>
                 <FaArrowRight className="w-4 h-4 ml-2" />
               </button>
             ) : (
               <button
                 onClick={completeOnboarding}
                 disabled={isLoading}
-                className="inline-flex items-center px-8 py-3 bg-green-600 border border-transparent rounded-lg font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center px-4 md:px-8 py-3 bg-green-600 border border-transparent rounded-lg font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
               >
                 {isLoading ? 'Submitting...' : 'Submit Application'}
                 <FaCheckCircle className="w-4 h-4 ml-2" />
