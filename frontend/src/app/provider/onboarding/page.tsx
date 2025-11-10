@@ -971,23 +971,23 @@ export default function ProviderOnboardingPage() {
     const doc = documents[docType]
     
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-start space-x-4">
-          <div className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${
+      <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+        <div className="flex flex-col md:flex-row items-start md:space-x-4 space-y-3 md:space-y-0">
+          <div className={`flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center ${
             doc.uploaded ? 'bg-green-100' : 'bg-blue-100'
           }`}>
             {doc.uploaded ? (
-              <FaCheck className="w-6 h-6 text-green-600" />
+              <FaCheck className="w-4 h-4 md:w-6 md:h-6 text-green-600" />
             ) : (
-              <Icon className="w-6 h-6 text-blue-600" />
+              <Icon className="w-4 h-4 md:w-6 md:h-6 text-blue-600" />
             )}
           </div>
           
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="flex-1 w-full">
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
               {title} {required && <span className="text-red-500">*</span>}
             </h3>
-            <p className="text-gray-600 text-sm mb-4">{description}</p>
+            <p className="text-gray-600 text-xs md:text-sm mb-4">{description}</p>
             
             {doc.error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -1020,19 +1020,19 @@ export default function ProviderOnboardingPage() {
                   className="hidden"
                   id={`file-${docType}`}
                 />
-                <div className="flex space-x-3">
+                <div className="flex flex-col md:flex-row gap-2 md:space-x-3 md:gap-0">
                   <label
                     htmlFor={`camera-${docType}`}
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 cursor-pointer transition-colors"
+                    className="flex-1 inline-flex items-center justify-center px-3 md:px-4 py-2.5 md:py-2 bg-blue-600 text-white rounded-lg text-xs md:text-sm font-bold hover:bg-blue-700 cursor-pointer transition-colors"
                   >
-                    <FaCamera className="w-4 h-4 mr-2" />
+                    <FaCamera className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                     Take Photo
                   </label>
                   <label
                     htmlFor={`file-${docType}`}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex-1 inline-flex items-center justify-center px-3 md:px-4 py-2.5 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors"
                   >
-                    <FaUpload className="w-4 h-4 mr-2" />
+                    <FaUpload className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                     Choose File
                   </label>
                 </div>
@@ -1041,14 +1041,14 @@ export default function ProviderOnboardingPage() {
                   <>
                     {/* Document Preview */}
                     {documentPreviews[docType] && doc.file && (
-                      <div className="mt-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <h4 className="text-sm font-bold text-gray-900 mb-3">Document Preview</h4>
-                        <div className="flex items-start space-x-4">
-                          <div className="w-32 h-40 bg-white border border-gray-300 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="mt-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-3 md:p-4">
+                        <h4 className="text-xs md:text-sm font-bold text-gray-900 mb-3">Document Preview</h4>
+                        <div className="flex flex-col md:flex-row items-start md:space-x-4 space-y-3 md:space-y-0">
+                          <div className="w-full md:w-32 h-32 md:h-40 bg-white border border-gray-300 rounded-lg overflow-hidden flex-shrink-0">
                             {doc.file.type === 'application/pdf' ? (
                               <div className="w-full h-full flex items-center justify-center text-gray-500">
                                 <div className="text-center">
-                                  <FaUpload className="w-8 h-8 mx-auto mb-2" />
+                                  <FaUpload className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2" />
                                   <p className="text-xs">PDF Document</p>
                                 </div>
                               </div>
@@ -1060,10 +1060,10 @@ export default function ProviderOnboardingPage() {
                               />
                             )}
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900 mb-1">File: {doc.file.name}</p>
-                            <p className="text-sm text-gray-600 mb-1">Size: {(doc.file.size / 1024 / 1024).toFixed(2)} MB</p>
-                            <p className="text-sm text-gray-600 mb-3">Type: {doc.file.type}</p>
+                          <div className="flex-1 w-full">
+                            <p className="text-xs md:text-sm font-medium text-gray-900 mb-1">File: {doc.file.name.length > 25 ? doc.file.name.substring(0, 25) + '...' : doc.file.name}</p>
+                            <p className="text-xs md:text-sm text-gray-600 mb-1">Size: {(doc.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p className="text-xs md:text-sm text-gray-600 mb-3">Type: {doc.file.type}</p>
                             <p className="text-xs text-gray-500 bg-blue-50 p-2 rounded border">
                               ✓ Preview looks good? Click "Upload Document" below to proceed.
                             </p>
@@ -1073,24 +1073,26 @@ export default function ProviderOnboardingPage() {
                     )}
                     
                     {/* Upload Control */}
-                    <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-lg border border-blue-200">
-                      <div className="flex items-center space-x-3">
-                        <FaEye className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium text-gray-900">{doc.file?.name || 'Document'}</span>
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-blue-50 px-3 md:px-4 py-3 rounded-lg border border-blue-200 gap-3 md:gap-0">
+                      <div className="flex items-center space-x-2 md:space-x-3 flex-1">
+                        <FaEye className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
+                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                          {doc.file?.name && doc.file.name.length > 20 ? doc.file.name.substring(0, 20) + '...' : doc.file?.name || 'Document'}
+                        </span>
                       </div>
                       <button
                         onClick={() => uploadDocument(docType)}
                         disabled={isLoading}
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        className="w-full md:w-auto inline-flex items-center justify-center px-3 md:px-4 py-2 bg-blue-600 text-white text-xs md:text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                       >
                         {isLoading ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-white mr-2"></div>
                             Uploading...
                           </>
                         ) : (
                           <>
-                            <FaUpload className="w-4 h-4 mr-2" />
+                            <FaUpload className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                             Upload Document
                           </>
                         )}
@@ -1140,25 +1142,25 @@ export default function ProviderOnboardingPage() {
 
       case 2:
         return (
-          <div className="space-y-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Profile</h2>
-              <p className="text-gray-600 font-medium">Tell us about your experience and services. This information will be visible to potential clients.</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center mb-4 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 px-2">Complete Your Profile</h2>
+              <p className="text-sm md:text-base text-gray-600 font-medium px-4">Tell us about your experience and services. This information will be visible to potential clients.</p>
             </div>
             
-            <div className="grid gap-8">
+            <div className="grid gap-4 md:gap-8">
               {/* Profile Photo Upload */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
                 <label className="block text-sm font-bold text-gray-900 mb-3">
                   Profile Photo *
                 </label>
-                <p className="text-sm text-gray-700 font-medium mb-4">
+                <p className="text-xs md:text-sm text-gray-700 font-medium mb-4">
                   Upload a professional photo that clients will see on your profile
                 </p>
                 
-                <div className="flex items-center space-x-6">
+                <div className="flex flex-col md:flex-row items-center md:space-x-6 space-y-4 md:space-y-0">
                   {/* Photo Preview */}
-                  <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden">
+                  <div className="w-24 h-24 md:w-32 md:h-32 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden flex-shrink-0">
                     {profile.profilePhoto.preview ? (
                       <img 
                         src={profile.profilePhoto.preview} 
@@ -1167,14 +1169,14 @@ export default function ProviderOnboardingPage() {
                       />
                     ) : (
                       <div className="text-center">
-                        <FaUser className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-xs text-gray-500 font-medium">No photo selected</p>
+                        <FaUser className="w-6 h-6 md:w-8 md:h-8 text-gray-400 mx-auto mb-1 md:mb-2" />
+                        <p className="text-xs text-gray-500 font-medium">No photo</p>
                       </div>
                     )}
                   </div>
                   
                   {/* Upload Controls */}
-                  <div className="flex-1">
+                  <div className="flex-1 w-full">
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/jpg"
@@ -1190,28 +1192,28 @@ export default function ProviderOnboardingPage() {
                       className="hidden"
                       id="profile-photo-gallery"
                     />
-                    <div className="flex flex-col space-y-2 camera-upload">
+                    <div className="flex flex-col md:flex-row gap-2 md:space-y-2 camera-upload w-full">
                       <label
                         htmlFor="profile-photo-upload"
-                        className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+                        className="flex-1 inline-flex items-center justify-center px-3 md:px-4 py-2.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm font-bold rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
                       >
-                        <FaCamera className="w-4 h-4 mr-2" />
+                        <FaCamera className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Take Photo
                       </label>
                       <label
                         htmlFor="profile-photo-gallery"
-                        className="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white text-sm font-bold rounded-lg hover:bg-gray-700 cursor-pointer transition-colors"
+                        className="flex-1 inline-flex items-center justify-center px-3 md:px-4 py-2.5 md:py-2 bg-gray-600 text-white text-xs md:text-sm font-bold rounded-lg hover:bg-gray-700 cursor-pointer transition-colors"
                       >
-                        <FaUpload className="w-4 h-4 mr-2" />
+                        <FaUpload className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Choose from Gallery
                       </label>
                     </div>
-                    <p className="text-xs text-gray-600 font-medium mt-2">
+                    <p className="text-xs text-gray-600 font-medium mt-2 text-center md:text-left">
                       Recommended: Square photo, max 3MB, JPG/PNG format
                     </p>
                     {profile.profilePhoto.file && (
-                      <p className="text-sm text-green-600 font-medium mt-1">
-                        ✓ Photo selected: {profile.profilePhoto.file.name}
+                      <p className="text-xs md:text-sm text-green-600 font-medium mt-1 text-center md:text-left">
+                        ✓ Photo selected: {profile.profilePhoto.file.name.length > 20 ? profile.profilePhoto.file.name.substring(0, 20) + '...' : profile.profilePhoto.file.name}
                       </p>
                     )}
                   </div>
@@ -1219,14 +1221,14 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Experience */}
-              <div>
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-white border-2 border-gray-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Years of Experience *
                 </label>
                 <select
                   value={profile.experience}
                   onChange={(e) => setProfile(prev => ({ ...prev, experience: e.target.value }))}
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-gray-900 bg-white text-base"
+                  className="w-full px-3 md:px-4 py-3 md:py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-gray-900 bg-white text-sm md:text-base"
                 >
                   <option value="" className="text-gray-500 font-semibold">Select experience level</option>
                   <option value="0-1" className="text-gray-900 font-bold">Less than 1 year</option>
@@ -1238,46 +1240,46 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Bio */}
-              <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-orange-50 border-2 border-orange-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Professional Bio *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Describe your experience, specialties, and what makes you the right choice for clients
                 </p>
                 <textarea
                   value={profile.bio}
                   onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={6}
+                  rows={4}
                   placeholder="Tell customers about your experience, specialties, and what makes you unique..."
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-bold text-gray-900 placeholder-gray-500 resize-none bg-white"
+                  className="w-full px-3 md:px-4 py-3 md:py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-bold text-gray-900 placeholder-gray-500 resize-none bg-white text-sm md:text-base"
                   maxLength={500}
                 />
-                <div className="flex justify-between items-center mt-3">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-3 gap-2">
                   <p className="text-xs text-gray-700 font-semibold">
                     💡 Tip: Mention your certifications, years of experience, and specialties
                   </p>
-                  <p className="text-sm font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                  <p className="text-xs md:text-sm font-bold text-orange-600 bg-orange-100 px-2 md:px-3 py-1 rounded-full">
                     {profile.bio.length}/500 characters
                   </p>
                 </div>
               </div>
 
               {/* Service Categories & Sub-Services */}
-              <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-purple-50 border-2 border-purple-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Service Categories & Specializations *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Select service categories and specify what you can offer under each category
                 </p>
 
                 {/* Available Service Categories */}
-                <div className="mb-6">
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                <div className="mb-4 md:mb-6">
+                  <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                     Select Service Categories *
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
                     {Object.keys(SERVICE_CATEGORIES).map((category) => (
                       <label key={category} className="cursor-pointer">
                         <input
@@ -1292,12 +1294,12 @@ export default function ProviderOnboardingPage() {
                           }}
                           className="hidden"
                         />
-                        <div className={`p-3 rounded-lg border-2 transition-all text-center ${
+                        <div className={`p-2 md:p-3 rounded-lg border-2 transition-all text-center ${
                           profile.serviceCategories[category]
                             ? 'border-purple-500 bg-purple-100'
                             : 'border-gray-200 bg-white hover:border-purple-300'
                         }`}>
-                          <div className="font-bold text-gray-900 text-sm">{category}</div>
+                          <div className="font-bold text-gray-900 text-xs md:text-sm">{category}</div>
                           <div className="text-xs text-gray-600 mt-1">
                             KES {STANDARD_PRICING[category as keyof typeof STANDARD_PRICING] || 'N/A'} fixed
                           </div>
@@ -1309,16 +1311,16 @@ export default function ProviderOnboardingPage() {
 
                 {/* Selected Categories with Sub-Services */}
                 {Object.keys(profile.serviceCategories).map((category) => (
-                  <div key={category} className="bg-white p-4 rounded-lg border-2 border-purple-200 mb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-900">{category}</h3>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-green-700 bg-green-100 px-3 py-1 rounded">
+                  <div key={category} className="bg-white p-3 md:p-4 rounded-lg border-2 border-purple-200 mb-3 md:mb-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 md:mb-4 gap-2">
+                      <h3 className="text-base md:text-lg font-bold text-gray-900">{category}</h3>
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+                        <span className="text-xs md:text-sm font-bold text-green-700 bg-green-100 px-2 md:px-3 py-1 rounded">
                           KES {STANDARD_PRICING[category as keyof typeof STANDARD_PRICING]} fixed
                         </span>
                         <button
                           onClick={() => removeServiceCategory(category)}
-                          className="text-red-600 hover:text-red-700 font-bold text-sm"
+                          className="text-red-600 hover:text-red-700 font-bold text-xs md:text-sm"
                         >
                           Remove
                         </button>
@@ -1326,39 +1328,39 @@ export default function ProviderOnboardingPage() {
                     </div>
 
                     {/* Sub-Services Selection */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <div className="mb-3 md:mb-4">
+                      <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                         What specific services can you provide under {category}? *
                       </label>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto bg-gray-50 p-3 rounded-lg border">
+                      <div className="grid grid-cols-1 gap-1 md:gap-2 max-h-32 overflow-y-auto bg-gray-50 p-2 md:p-3 rounded-lg border">
                         {SERVICE_CATEGORIES[category as keyof typeof SERVICE_CATEGORIES]?.map((subService) => (
-                          <label key={subService} className="flex items-center space-x-2 cursor-pointer">
+                          <label key={subService} className="flex items-center space-x-2 cursor-pointer py-1">
                             <input
                               type="checkbox"
                               checked={profile.serviceCategories[category]?.subServices.includes(subService) || false}
                               onChange={() => toggleSubService(category, subService)}
-                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-4 h-4"
+                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3 h-3 md:w-4 md:h-4"
                             />
-                            <span className="text-sm font-medium text-gray-900">{subService}</span>
+                            <span className="text-xs md:text-sm font-medium text-gray-900">{subService}</span>
                           </label>
                         ))}
                       </div>
                       {profile.serviceCategories[category]?.subServices.length > 0 && (
-                        <p className="text-sm text-purple-600 font-medium mt-2">
+                        <p className="text-xs md:text-sm text-purple-600 font-medium mt-2">
                           ✓ {profile.serviceCategories[category].subServices.length} service{profile.serviceCategories[category].subServices.length === 1 ? '' : 's'} selected
                         </p>
                       )}
                     </div>
 
                     {/* Category Experience */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <div className="mb-3 md:mb-4">
+                      <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                         Your Experience in {category}
                       </label>
                       <select
                         value={profile.serviceCategories[category]?.experience || ''}
                         onChange={(e) => updateServiceCategory(category, 'experience', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-medium text-black bg-white"
+                        className="w-full px-2 md:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-medium text-black bg-white text-sm"
                       >
                         <option value="" className="text-gray-500">Select experience level</option>
                         <option value="Beginner (0-1 years)" className="text-black">Beginner (0-1 years)</option>
@@ -1370,7 +1372,7 @@ export default function ProviderOnboardingPage() {
 
                     {/* Category Description */}
                     <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">
+                      <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                         Describe your {category} approach & specializations *
                       </label>
                       <textarea
@@ -1378,10 +1380,10 @@ export default function ProviderOnboardingPage() {
                         onChange={(e) => updateServiceCategory(category, 'description', e.target.value)}
                         rows={3}
                         placeholder={`Describe your approach to ${category.toLowerCase()}, any specializations, quality standards, or what makes you unique in this category...`}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-medium resize-none text-black bg-white placeholder-gray-500"
+                        className="w-full px-2 md:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-medium resize-none text-black bg-white placeholder-gray-500 text-sm"
                         maxLength={300}
                       />
-                      <div className="flex justify-between items-center mt-2">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 gap-1 md:gap-0">
                         <p className="text-xs text-gray-600">
                           Help clients understand your expertise in this category
                         </p>
@@ -1415,17 +1417,17 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Home Address */}
-              <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Home Address *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Provide your home address details for location-based services
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3 md:gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Street Address *
                     </label>
                     <input
@@ -1436,12 +1438,12 @@ export default function ProviderOnboardingPage() {
                         homeAddress: { ...prev.homeAddress, street: e.target.value }
                       }))}
                       placeholder="Enter your street address"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500 text-sm md:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Area/Estate *
                     </label>
                     <input
@@ -1452,12 +1454,12 @@ export default function ProviderOnboardingPage() {
                         homeAddress: { ...prev.homeAddress, area: e.target.value }
                       }))}
                       placeholder="e.g., Karen, Kilimani, Westlands"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500 text-sm md:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Postal Code
                     </label>
                     <input
@@ -1468,18 +1470,18 @@ export default function ProviderOnboardingPage() {
                         homeAddress: { ...prev.homeAddress, postalCode: e.target.value }
                       }))}
                       placeholder="e.g., 00100"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium text-gray-900 placeholder-gray-500 text-sm md:text-base"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Phone Number */}
-              <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-purple-50 border-2 border-purple-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Phone Number *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Your contact number for communication with clients
                 </p>
                 <input
@@ -1487,7 +1489,7 @@ export default function ProviderOnboardingPage() {
                   value={profile.phoneNumber}
                   onChange={(e) => setProfile(prev => ({ ...prev, phoneNumber: e.target.value }))}
                   placeholder="e.g., +254 700 123 456"
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-bold text-gray-900 placeholder-gray-500"
+                  className="w-full px-3 md:px-4 py-3 md:py-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-bold text-gray-900 placeholder-gray-500 text-sm md:text-base"
                 />
                 <p className="text-xs text-gray-700 font-semibold mt-2">
                   💡 Include country code (+254 for Kenya)
@@ -1495,16 +1497,16 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Service Areas */}
-              <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Service Areas in Nairobi *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Select the areas in Nairobi where you can provide services
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
                   {KENYAN_CITIES.map((city) => (
-                    <label key={city} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border hover:border-indigo-300 transition-colors">
+                    <label key={city} className="flex items-center space-x-2 md:space-x-3 cursor-pointer bg-white p-2 md:p-3 rounded-lg border hover:border-indigo-300 transition-colors">
                       <input
                         type="checkbox"
                         checked={profile.serviceAreas.includes(city)}
@@ -1521,34 +1523,34 @@ export default function ProviderOnboardingPage() {
                             }))
                           }
                         }}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 w-3 h-3 md:w-4 md:h-4"
                       />
-                      <span className="text-sm font-medium text-gray-900">{city}</span>
+                      <span className="text-xs md:text-sm font-medium text-gray-900">{city}</span>
                     </label>
                   ))}
                 </div>
                 {profile.serviceAreas.length > 0 && (
-                  <p className="text-sm text-indigo-600 font-medium mt-3">
+                  <p className="text-xs md:text-sm text-indigo-600 font-medium mt-3">
                     ✓ {profile.serviceAreas.length} area{profile.serviceAreas.length === 1 ? '' : 's'} selected
                   </p>
                 )}
               </div>
 
               {/* Enhanced Availability Calendar */}
-              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Availability & Schedule Configuration *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Set up your working schedule and booking preferences
                 </p>
                 
                 {/* Available Days */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-bold text-gray-900 mb-2">Working Days *</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="mb-4 md:mb-6">
+                  <h4 className="text-xs md:text-sm font-bold text-gray-900 mb-2">Working Days *</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
                     {DAYS_OF_WEEK.map((day) => (
-                      <label key={day} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border hover:border-yellow-300 transition-colors">
+                      <label key={day} className="flex items-center space-x-2 md:space-x-3 cursor-pointer bg-white p-2 md:p-3 rounded-lg border hover:border-yellow-300 transition-colors">
                         <input
                           type="checkbox"
                           checked={profile.availability.days.includes(day)}
@@ -1571,9 +1573,9 @@ export default function ProviderOnboardingPage() {
                               }))
                             }
                           }}
-                          className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 w-4 h-4"
+                          className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 w-3 h-3 md:w-4 md:h-4"
                         />
-                        <span className="text-sm font-medium text-gray-900">{day}</span>
+                        <span className="text-xs md:text-sm font-medium text-gray-900">{day}</span>
                       </label>
                     ))}
                   </div>
@@ -1688,17 +1690,17 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Emergency Contact */}
-              <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Emergency Contact *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Provide emergency contact information for safety purposes
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                  <div>
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Full Name *
                     </label>
                     <input
@@ -1709,12 +1711,12 @@ export default function ProviderOnboardingPage() {
                         emergencyContact: { ...prev.emergencyContact, name: e.target.value }
                       }))}
                       placeholder="Enter emergency contact's full name"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900 placeholder-gray-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900 placeholder-gray-500 text-sm md:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Relationship *
                     </label>
                     <select
@@ -1723,7 +1725,7 @@ export default function ProviderOnboardingPage() {
                         ...prev,
                         emergencyContact: { ...prev.emergencyContact, relationship: e.target.value }
                       }))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900 text-sm md:text-base"
                     >
                       <option value="">Select relationship</option>
                       <option value="spouse">Spouse</option>
@@ -1737,7 +1739,7 @@ export default function ProviderOnboardingPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-900 mb-2">
                       Phone Number *
                     </label>
                     <input
@@ -1748,7 +1750,7 @@ export default function ProviderOnboardingPage() {
                         emergencyContact: { ...prev.emergencyContact, phoneNumber: e.target.value }
                       }))}
                       placeholder="e.g., +254 700 123 456"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900 placeholder-gray-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-gray-900 placeholder-gray-500 text-sm md:text-base"
                     />
                   </div>
                 </div>
@@ -1758,16 +1760,16 @@ export default function ProviderOnboardingPage() {
               </div>
 
               {/* Language Capabilities */}
-              <div className="bg-cyan-50 border-2 border-cyan-200 rounded-xl p-6">
-                <label className="block text-lg font-black text-gray-900 mb-3">
+              <div className="bg-cyan-50 border-2 border-cyan-200 rounded-lg md:rounded-xl p-4 md:p-6">
+                <label className="block text-base md:text-lg font-black text-gray-900 mb-3">
                   Language Capabilities *
                 </label>
-                <p className="text-sm text-gray-800 font-bold mb-4">
+                <p className="text-xs md:text-sm text-gray-800 font-bold mb-4">
                   Select all languages you can communicate in with clients
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
                   {AVAILABLE_LANGUAGES.map((language) => (
-                    <label key={language} className="flex items-center space-x-3 cursor-pointer bg-white p-3 rounded-lg border hover:border-cyan-300 transition-colors">
+                    <label key={language} className="flex items-center space-x-2 md:space-x-3 cursor-pointer bg-white p-2 md:p-3 rounded-lg border hover:border-cyan-300 transition-colors">
                       <input
                         type="checkbox"
                         checked={profile.languages.includes(language)}
@@ -1784,14 +1786,14 @@ export default function ProviderOnboardingPage() {
                             }))
                           }
                         }}
-                        className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500 w-4 h-4"
+                        className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500 w-3 h-3 md:w-4 md:h-4"
                       />
-                      <span className="text-sm font-medium text-gray-900">{language}</span>
+                      <span className="text-xs md:text-sm font-medium text-gray-900">{language}</span>
                     </label>
                   ))}
                 </div>
                 {profile.languages.length > 0 && (
-                  <p className="text-sm text-cyan-600 font-medium mt-3">
+                  <p className="text-xs md:text-sm text-cyan-600 font-medium mt-3">
                     ✓ {profile.languages.length} language{profile.languages.length === 1 ? '' : 's'} selected
                   </p>
                 )}
@@ -2161,13 +2163,13 @@ export default function ProviderOnboardingPage() {
 
       case 3:
         return (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Required Documents</h2>
-              <p className="text-gray-600">Please upload the following documents for verification</p>
+          <div className="space-y-4 md:space-y-6">
+            <div className="text-center mb-4 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 px-2">Upload Required Documents</h2>
+              <p className="text-sm md:text-base text-gray-600 px-4">Please upload the following documents for verification</p>
             </div>
             
-            <div className="grid gap-6">
+            <div className="grid gap-4 md:gap-6">
               <DocumentUploadCard
                 docType="nationalId"
                 title="National ID"
