@@ -6,11 +6,19 @@ import { motion } from 'framer-motion';
 
 // Environment-based Paystack key selection
 const getPaystackPublicKey = () => {
-  // Use TEST keys for development
-  const key = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY_TEST || process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+  // Check if we're using production backend
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || ''
+  const isProductionBackend = backendUrl.includes('azurewebsites.net') || backendUrl.includes('solutilconnect.com')
+  
+  // For production backend, prioritize LIVE keys
+  const key = isProductionBackend 
+    ? (process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY_TEST)
+    : (process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY_TEST || process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY)
+    
   const isTestKey = key?.startsWith('pk_test_')
   
   console.log(`🔑 Using Paystack ${isTestKey ? 'TEST' : 'LIVE'} key:`, key?.substring(0, 12) + '...')
+  console.log(`🌐 Backend Environment: ${isProductionBackend ? 'PRODUCTION' : 'DEVELOPMENT'}`)
   return key
 }
 import { 
