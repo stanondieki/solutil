@@ -24,8 +24,9 @@ interface PaymentRequestButtonProps {
       email: string;
     };
     service: {
-      title: string;
-    };
+      title?: string;
+      name?: string;
+    } | null;
   };
   onPaymentRequested?: () => void;
 }

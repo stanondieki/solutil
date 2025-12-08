@@ -10,11 +10,17 @@ interface ReviewModalProps {
   booking: {
     _id: string;
     service?: {
-      title: string;
-    };
+      title?: string;
+      name?: string;
+    } | null;
     provider?: {
-      name: string;
-    };
+      _id?: string;
+      businessName?: string;
+      name?: string;
+      user?: {
+        name: string;
+      };
+    } | null;
   };
   onReviewSubmit: (reviewData: { rating: number; comment: string }) => Promise<void>;
 }
@@ -87,8 +93,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, booking, onR
               <div className="mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Rate Your Experience</h3>
                 <p className="text-gray-600">
-                  How was your experience with <span className="font-medium">{booking.provider?.name}</span> 
-                  for <span className="font-medium">{booking.service?.title}</span>?
+                  How was your experience with <span className="font-medium">{booking.provider?.name || booking.provider?.businessName || booking.provider?.user?.name || 'the provider'}</span> 
+                  for <span className="font-medium">{booking.service?.title || booking.service?.name || 'this service'}</span>?
                 </p>
               </div>
 

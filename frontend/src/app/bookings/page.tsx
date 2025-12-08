@@ -147,7 +147,7 @@ export default function BookingsPage() {
   };
 
   const handleReviewSubmitted = () => {
-    fetchBookings(); // Refresh bookings to show updated review
+    loadBookings(); // Refresh bookings to show updated review
     setShowReviewModal(false);
     setSelectedBooking(null);
   };

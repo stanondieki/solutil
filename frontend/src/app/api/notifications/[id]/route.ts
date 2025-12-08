@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // PATCH /api/notifications/[id]/read - Mark notification as read
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { authToken } = body
     
@@ -18,7 +19,7 @@ export async function PATCH(
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
-    const response = await fetch(`${backendUrl}/api/notifications/${params.id}/read`, {
+    const response = await fetch(`${backendUrl}/api/notifications/${id}/read`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${authToken}`,
@@ -46,9 +47,10 @@ export async function PATCH(
 // DELETE /api/notifications/[id] - Delete notification
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const authToken = request.headers.get('Authorization')?.replace('Bearer ', '')
     
     if (!authToken) {
@@ -60,7 +62,7 @@ export async function DELETE(
 
     // Forward the request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'
-    const response = await fetch(`${backendUrl}/api/notifications/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/notifications/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${authToken}`,
