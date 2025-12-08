@@ -81,6 +81,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       description: 'Payment Records'
     },
     { 
+      name: 'Payout Management', 
+      href: '/admin/payouts', 
+      icon: '💸',
+      description: 'Provider Payouts'
+    },
+    { 
       name: 'Reports & Analytics', 
       href: '/admin/reports', 
       icon: '📈',

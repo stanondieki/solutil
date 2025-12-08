@@ -14,6 +14,7 @@ import {
   FaCalendarCheck,
   FaUserCheck
 } from 'react-icons/fa'
+import { useToast } from '@/components/ui/Toast'
 
 interface JobCompletionProps {
   bookingId: string
@@ -51,10 +52,11 @@ export default function JobCompletion({
   const [disputeReason, setDisputeReason] = useState<string>('')
   const [showDispute, setShowDispute] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const { showSuccess, showError, showWarning } = useToast()
 
   const handleConfirmCompletion = async () => {
     if (rating === 0) {
-      alert('Please provide a rating before confirming completion')
+      showWarning('Rating Required', 'Please provide a rating before confirming completion')
       return
     }
 
@@ -90,7 +92,7 @@ export default function JobCompletion({
       }
     } catch (error: any) {
       console.error('Error completing booking:', error)
-      alert(error.message || 'Failed to complete booking')
+      showError('Completion Failed', error.message || 'Failed to complete booking')
     } finally {
       setIsProcessing(false)
     }
@@ -98,7 +100,7 @@ export default function JobCompletion({
 
   const handleDispute = async () => {
     if (!disputeReason.trim()) {
-      alert('Please provide a reason for the dispute')
+      showWarning('Reason Required', 'Please provide a reason for the dispute')
       return
     }
 
@@ -126,7 +128,7 @@ export default function JobCompletion({
       }
     } catch (error: any) {
       console.error('Error initiating dispute:', error)
-      alert(error.message || 'Failed to initiate dispute')
+      showError('Dispute Failed', error.message || 'Failed to initiate dispute')
     } finally {
       setIsProcessing(false)
     }

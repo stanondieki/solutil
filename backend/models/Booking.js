@@ -90,18 +90,43 @@ const bookingSchema = new mongoose.Schema({
   payment: {
     method: {
       type: String,
-      enum: ['card', 'mpesa', 'cash', 'bank-transfer'],
+      enum: ['card', 'mpesa', 'mobile-money', 'cash', 'bank-transfer'],
       required: true
+    },
+    timing: {
+      type: String,
+      enum: ['pay-now', 'pay-after'],
+      default: 'pay-after'
     },
     status: {
       type: String,
-      enum: ['pending', 'processing', 'completed', 'failed', 'refunded'],
+      enum: ['pending', 'initiated', 'processing', 'completed', 'failed', 'refunded', 'payment_requested'],
       default: 'pending'
     },
-    transactionId: String,
+    reference: String, // Paystack reference
+    transactionId: String, // Paystack transaction ID
+    gateway: {
+      type: String,
+      enum: ['paystack', 'mpesa', 'manual'],
+      default: 'paystack'
+    },
+    gatewayResponse: Object, // Store full gateway response
+    amount: Number, // Actual paid amount
+    currency: {
+      type: String,
+      default: 'KES'
+    },
     paidAt: Date,
     refundedAt: Date,
-    refundAmount: Number
+    refundAmount: Number,
+    paymentLink: String, // For pay-after scenarios
+    paymentLinkExpiry: Date,
+    // Provider-initiated payment request fields
+    paystack_reference: String, // Paystack transaction reference for provider-initiated payments
+    payment_url: String, // Paystack payment URL sent to client
+    requested_at: Date, // When provider requested payment
+    completed_at: Date, // When client completed payment
+    paystack_data: Object // Store Paystack verification response
   },
   notes: {
     client: String,
@@ -152,6 +177,11 @@ const bookingSchema = new mongoose.Schema({
       default: 0
     }
   },
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5
+  },
   review: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Review'
@@ -171,7 +201,23 @@ const bookingSchema = new mongoose.Schema({
       enum: ['message', 'system', 'status-update'],
       default: 'message'
     }
-  }]
+  }],
+  providerPayout: {
+    transferCode: String, // Paystack transfer code or M-Pesa transaction ID
+    reference: String, // Unique payout reference
+    amount: Number, // Amount transferred to provider
+    platformCommission: Number, // Platform commission deducted
+    status: {
+      type: String,
+      enum: ['initiated', 'success', 'failed', 'reversed'],
+      default: 'initiated'
+    },
+    payoutMethod: { type: String, enum: ['bank', 'mpesa'], default: 'bank' },
+    initiatedAt: Date,
+    completedAt: Date,
+    recipientCode: String, // Provider's transfer recipient code or M-Pesa reference
+    failureReason: String
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -233,7 +279,8 @@ bookingSchema.statics.getRecentBookings = async function(userId, userType, limit
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate('client', 'name email phone avatar')
-    .populate('provider', 'name email phone userType');
+    .populate('provider', 'name email phone userType')
+    .populate('review', 'rating comment');
 
   // Manually populate services based on serviceType
   for (let booking of bookings) {
@@ -252,12 +299,11 @@ bookingSchema.statics.getRecentBookings = async function(userId, userType, limit
   return bookings;
 };
 
-// Index for better query performance
+// Index for better query performance (bookingNumber already unique, so no separate index needed)
 bookingSchema.index({ client: 1, createdAt: -1 });
 bookingSchema.index({ provider: 1, createdAt: -1 });
 bookingSchema.index({ status: 1 });
 bookingSchema.index({ scheduledDate: 1 });
-bookingSchema.index({ bookingNumber: 1 });
 bookingSchema.index({ 'location.coordinates': '2dsphere' });
 
 module.exports = mongoose.model('Booking', bookingSchema);

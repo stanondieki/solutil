@@ -16,6 +16,7 @@ import {
   FaCreditCard,
   FaMobile
 } from 'react-icons/fa'
+import { useToast } from '@/components/ui/Toast'
 
 interface Provider {
   id: string
@@ -94,7 +95,10 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
     contactPhone: '',
     contactEmail: ''
   })
+  const [paymentMethod, setPaymentMethod] = useState('mpesa')
+  const [paymentTiming, setPaymentTiming] = useState('pay-now')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { showError } = useToast()
   const [bookingComplete, setBookingComplete] = useState(false)
 
   const timeSlots = [
@@ -185,9 +189,12 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
           currency: 'KES'
         },
         payment: {
-          method: 'mpesa', // Default to M-Pesa for Kenya
+          method: paymentMethod,
+          timing: paymentTiming,
           status: 'pending'
         },
+        paymentTiming: paymentTiming,
+        paymentMethod: paymentMethod,
         notes: bookingDetails.description
       }
 
@@ -229,7 +236,10 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
 
     } catch (error) {
       console.error('Booking creation error:', error)
-      alert(`Booking failed: ${(error as any)?.message || 'Unknown error'}`)
+      showError(
+        'Booking Failed',
+        `${(error as any)?.message || 'Unknown error'}`
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -617,23 +627,66 @@ export default function BookingModal({ isOpen, onClose, service, onBookingComple
                       {/* Payment Method */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">Payment Method</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="flex items-center justify-center space-x-3 p-4 border-2 border-orange-500 bg-orange-50 text-orange-600 rounded-lg"
+                            onClick={() => {
+                              setPaymentMethod('mpesa')
+                              setPaymentTiming('pay-now')
+                            }}
+                            className={`flex items-center justify-center space-x-3 p-4 border-2 rounded-lg ${
+                              paymentMethod === 'mpesa' && paymentTiming === 'pay-now'
+                                ? 'border-orange-500 bg-orange-50 text-orange-600'
+                                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                            }`}
                           >
                             <FaMobile className="text-xl" />
-                            <span className="font-medium">M-Pesa</span>
+                            <span className="font-medium">M-Pesa Now</span>
                           </motion.button>
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="flex items-center justify-center space-x-3 p-4 border-2 border-gray-200 hover:border-gray-300 rounded-lg"
+                            onClick={() => {
+                              setPaymentMethod('card')
+                              setPaymentTiming('pay-now')
+                            }}
+                            className={`flex items-center justify-center space-x-3 p-4 border-2 rounded-lg ${
+                              paymentMethod === 'card' && paymentTiming === 'pay-now'
+                                ? 'border-purple-500 bg-purple-50 text-purple-600'
+                                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                            }`}
                           >
                             <FaCreditCard className="text-xl" />
-                            <span className="font-medium">Card</span>
+                            <span className="font-medium">Card Now</span>
                           </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              setPaymentMethod('cash')
+                              setPaymentTiming('pay-after')
+                            }}
+                            className={`flex items-center justify-center space-x-3 p-4 border-2 rounded-lg ${
+                              paymentTiming === 'pay-after'
+                                ? 'border-blue-500 bg-blue-50 text-blue-600'
+                                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                            }`}
+                          >
+                            <FaClock className="text-xl" />
+                            <span className="font-medium">Pay Later</span>
+                          </motion.button>
+                        </div>
+                        <div className="text-sm text-gray-500 mt-3 p-3 bg-gray-50 rounded-lg">
+                          {paymentTiming === 'pay-after' ? (
+                            <div className="text-blue-600">
+                              💡 <strong>Pay After Service:</strong> Your booking will be confirmed immediately. You'll pay the provider directly after the service is completed to your satisfaction.
+                            </div>
+                          ) : (
+                            <div className="text-orange-600">
+                              🔒 <strong>Pay Now:</strong> Secure payment processed immediately. Service provider will be notified once payment is confirmed.
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>

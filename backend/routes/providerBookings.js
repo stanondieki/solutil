@@ -306,7 +306,7 @@ router.patch('/:id/status', protect, catchAsync(async (req, res, next) => {
     return next(new AppError('Status is required', 400));
   }
 
-  const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rejected'];
+  const validStatuses = ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'rejected'];
   if (!validStatuses.includes(status)) {
     return next(new AppError('Invalid status', 400));
   }
@@ -402,6 +402,19 @@ router.patch('/:id/status', protect, catchAsync(async (req, res, next) => {
       });
     } catch (serviceUpdateError) {
       console.log('⚠️ Failed to update service stats:', serviceUpdateError.message);
+    }
+  }
+
+  // Create payout record if booking is completed and payment was made
+  if (status === 'completed' && oldStatus !== 'completed' && booking.pricing?.totalAmount > 0) {
+    try {
+      const payoutScheduler = require('../services/payoutScheduler');
+      
+      // Create payout record (will be processed in 1 hour)
+      await payoutScheduler.onBookingCompleted(booking._id);
+      console.log('✅ Payout scheduled for 1 hour after completion');
+    } catch (payoutError) {
+      console.log('⚠️ Failed to create payout record:', payoutError.message);
     }
   }
 

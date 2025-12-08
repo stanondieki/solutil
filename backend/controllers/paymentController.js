@@ -7,6 +7,25 @@ const AppError = require('../utils/appError');
 const logger = require('../utils/logger');
 const notificationService = require('../services/notificationService');
 
+// Environment-based Paystack key selection
+const getPaystackKeys = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secretKey = isProduction 
+    ? process.env.PAYSTACK_SECRET_KEY 
+    : process.env.PAYSTACK_SECRET_KEY_TEST || process.env.PAYSTACK_SECRET_KEY;
+  const publicKey = isProduction 
+    ? process.env.PAYSTACK_PUBLIC_KEY 
+    : process.env.PAYSTACK_PUBLIC_KEY_TEST || process.env.PAYSTACK_PUBLIC_KEY;
+    
+  logger.info(`Using Paystack ${isProduction ? 'LIVE' : 'TEST'} keys`, {
+    secretKeyPrefix: secretKey?.substring(0, 12) + '...',
+    publicKeyPrefix: publicKey?.substring(0, 12) + '...',
+    environment: process.env.NODE_ENV
+  });
+  
+  return { secretKey, publicKey };
+};
+
 class PaymentController {
   // Initialize Paystack payment
   initializePayment = catchAsync(async (req, res, next) => {
@@ -77,7 +96,7 @@ class PaymentController {
       path: '/transaction/initialize',
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${getPaystackKeys().secretKey}`,
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(params)
       }
@@ -94,12 +113,11 @@ class PaymentController {
         const response = JSON.parse(data);
         
         if (response.status) {
-          // Update booking with payment reference
-          booking.payment.reference = response.data.reference;
-          booking.payment.status = 'initiated';
-          booking.save();
-
-          logger.info(`Payment initialized for booking ${booking.bookingNumber}`, {
+    // Update booking with payment reference and timing
+    booking.payment.reference = response.data.reference;
+    booking.payment.status = 'initiated';
+    booking.payment.timing = 'pay-now'; // Set timing for immediate payments
+    booking.save();          logger.info(`Payment initialized for booking ${booking.bookingNumber}`, {
             reference: response.data.reference,
             amount: amount
           });
@@ -138,7 +156,7 @@ class PaymentController {
       path: `/transaction/verify/${reference}`,
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+        Authorization: `Bearer ${getPaystackKeys().secretKey}`
       }
     };
 
@@ -172,6 +190,7 @@ class PaymentController {
             booking.payment.amount = response.data.amount / 100; // Convert from kobo
             booking.payment.gateway = 'paystack';
             booking.payment.gatewayResponse = response.data;
+            booking.payment.transactionId = response.data.id;
 
             // Update booking status to confirmed if payment was successful
             if (booking.status === 'pending') {
@@ -180,8 +199,26 @@ class PaymentController {
 
             await booking.save();
 
-            // Send payment confirmation notifications
+            // Send comprehensive payment confirmation notifications
             try {
+              // Notify client about successful payment
+              await notificationService.sendPaymentConfirmation(
+                booking, 
+                booking.client, 
+                'completed'
+              );
+              
+              // Notify provider about new confirmed booking with payment
+              if (booking.provider) {
+                await notificationService.sendProviderBookingNotification(
+                  booking, 
+                  booking.client, 
+                  booking.provider,
+                  'payment_received'
+                );
+              }
+              
+              // Send booking status update
               await notificationService.sendBookingStatusUpdate(
                 booking, 
                 booking.client, 
@@ -231,7 +268,7 @@ class PaymentController {
 
   // Handle Paystack webhooks
   handleWebhook = catchAsync(async (req, res, next) => {
-    const secret = process.env.PAYSTACK_SECRET_KEY;
+    const secret = getPaystackKeys().secretKey;
     const hash = crypto.createHmac('sha512', secret)
       .update(JSON.stringify(req.body))
       .digest('hex');
@@ -259,6 +296,7 @@ class PaymentController {
         booking.payment.amount = amount / 100;
         booking.payment.gateway = 'paystack';
         booking.payment.gatewayResponse = event.data;
+        booking.payment.transactionId = event.data.id;
 
         if (booking.status === 'pending') {
           booking.status = 'confirmed';
@@ -266,7 +304,37 @@ class PaymentController {
 
         await booking.save();
 
-        logger.info(`Webhook payment confirmed for booking ${booking.bookingNumber}`);
+        logger.info(`Webhook payment confirmed for booking ${booking.bookingNumber}`, {
+          transactionId: event.data.id,
+          amount: amount / 100,
+          reference: reference
+        });
+        
+        // Send comprehensive notifications
+        try {
+          // Client payment confirmation
+          await notificationService.sendPaymentConfirmation(
+            booking, 
+            booking.client, 
+            'completed'
+          );
+          
+          // Provider notification with payment details
+          if (booking.provider) {
+            await notificationService.sendProviderPaymentNotification(
+              booking, 
+              booking.client, 
+              booking.provider,
+              {
+                amount: amount / 100,
+                transactionId: event.data.id,
+                reference: reference
+              }
+            );
+          }
+        } catch (notificationError) {
+          logger.error('Failed to send webhook notifications:', notificationError);
+        }
       }
     }
 

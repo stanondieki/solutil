@@ -553,7 +553,8 @@ export default function DashboardPage() {
         providerActions.push(
           { name: 'My Services', icon: FaTools, color: 'bg-gradient-to-r from-orange-500 to-orange-600', description: 'Manage your services', href: '/provider/services' },
           { name: 'Bookings', icon: FaClipboardList, color: 'bg-gradient-to-r from-orange-600 to-orange-700', description: 'Customer bookings', href: '/provider/bookings' },
-          { name: 'Analytics', icon: FaChartLine, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'Performance insights', href: '/provider/analytics' }
+          { name: 'Analytics', icon: FaChartLine, color: 'bg-gradient-to-r from-orange-400 to-orange-500', description: 'Performance insights', href: '/provider/analytics' },
+          { name: 'Reviews', icon: FaStar, color: 'bg-gradient-to-r from-yellow-400 to-yellow-500', description: 'Client reviews & ratings', href: '/provider/reviews' }
         );
       }
       

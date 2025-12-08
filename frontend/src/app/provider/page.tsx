@@ -234,6 +234,13 @@ export default function ProviderProfile() {
               </div>
               <div className="flex items-center space-x-4">
                 <Link
+                  href="/provider/reviews"
+                  className="bg-white text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-50 transition-all duration-300 inline-flex items-center space-x-2 shadow-sm border border-orange-200 font-medium"
+                >
+                  <FaStar className="h-4 w-4" />
+                  <span>Reviews</span>
+                </Link>
+                <Link
                   href="/provider/services"
                   className="bg-white text-orange-600 px-6 py-3 rounded-lg hover:bg-orange-50 transition-all duration-300 inline-flex items-center space-x-2 shadow-sm border border-orange-200 font-medium"
                 >
@@ -373,7 +380,7 @@ export default function ProviderProfile() {
             {/* Stats & Details */}
             <div className="lg:col-span-2 space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -430,13 +437,107 @@ export default function ProviderProfile() {
                     </div>
                   </div>
                 </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100"
+                >
+                  <div className="flex items-center">
+                    <div className="p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-white">
+                      <FaStar className="h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-2xl font-bold text-gray-900">
+                        {profile.rating ? profile.rating.toFixed(1) : '0.0'}
+                      </p>
+                      <p className="text-sm text-gray-600">Average Rating</p>
+                    </div>
+                  </div>
+                  <Link 
+                    href="/provider/reviews"
+                    className="mt-3 text-xs text-yellow-600 hover:text-yellow-700 font-medium inline-flex items-center"
+                  >
+                    View All Reviews →
+                  </Link>
+                </motion.div>
               </div>
+
+              {/* Reviews Overview */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white rounded-xl shadow-sm border"
+              >
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Reviews & Ratings
+                    </h3>
+                    <Link
+                      href="/provider/reviews"
+                      className="text-orange-600 hover:text-orange-700 transition-colors inline-flex items-center space-x-2"
+                    >
+                      <span>View All</span>
+                      <FaChartLine className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 mb-1">
+                        {profile.rating ? profile.rating.toFixed(1) : '0.0'}
+                      </div>
+                      <div className="flex justify-center mb-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <FaStar
+                            key={star}
+                            className={`h-4 w-4 ${
+                              star <= (profile.rating || 0)
+                                ? 'text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-sm text-gray-500">Overall Rating</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
+                      <div className="text-sm text-gray-500">Total Reviews</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
+                      <div className="text-sm text-gray-500">This Month</div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center py-8 text-gray-500">
+                    <FaStar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium mb-2">No reviews yet</p>
+                    <p className="text-sm mb-4">
+                      Complete more services to start receiving client reviews and ratings.
+                    </p>
+                    <Link
+                      href="/provider/bookings"
+                      className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                    >
+                      <FaBookOpen className="h-4 w-4 mr-2" />
+                      View Bookings
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
 
               {/* Profile Details */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.5 }}
                 className="bg-white rounded-xl shadow-sm border"
               >
                 <div className="p-6 border-b border-gray-200">

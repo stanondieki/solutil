@@ -1011,6 +1011,8 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       provider: assignedProvider, // Real provider ID
       service: assignedService, // Real service ID  
       serviceType: 'ProviderService',
+      // Set initial status based on payment timing
+      status: paymentTiming === 'pay-after' ? 'confirmed' : 'pending',
       scheduledDate: date,
       scheduledTime: {
         start: time,
@@ -1030,7 +1032,8 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       },
       payment: {
         method: paymentMethod ? (paymentMethod === 'mobile-money' ? 'mpesa' : paymentMethod) : 'cash',
-        status: paymentTiming === 'pay-now' ? 'completed' : 'pending'
+        timing: paymentTiming || 'pay-after',
+        status: 'pending' // Always start as pending - only mark completed after payment verification
       },
       notes: {
         client: description || ''

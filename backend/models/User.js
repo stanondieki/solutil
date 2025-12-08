@@ -215,7 +215,23 @@ const userSchema = new mongoose.Schema({
     }],
     completedJobs: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
-    reviewCount: { type: Number, default: 0 }
+    reviewCount: { type: Number, default: 0 },
+    averageRating: { type: Number, default: 0 },
+    totalReviews: { type: Number, default: 0 },
+    totalEarnings: { type: Number, default: 0 },
+    totalCompletedBookings: { type: Number, default: 0 },
+    payoutDetails: {
+      payoutMethod: { type: String, enum: ['bank', 'mpesa'], default: 'bank' },
+      // Bank details (Nigeria - Paystack)
+      recipientCode: String, // Paystack transfer recipient code
+      bankCode: String,
+      accountNumber: String,
+      accountName: String,
+      bankName: String,
+      // M-Pesa details (Kenya)
+      mpesaNumber: String, // Format: 254XXXXXXXXX
+      createdAt: Date
+    }
   },
   adminNotes: [{
     note: String,
@@ -304,10 +320,9 @@ userSchema.methods.generatePasswordResetToken = function() {
   return resetToken;
 };
 
-// Index for faster queries
-userSchema.index({ email: 1 });
-userSchema.index({ userType: 1 });
-userSchema.index({ isActive: 1 });
-userSchema.index({ 'address.coordinates': '2dsphere' });
+// Index for better query performance (email already unique, so no separate index needed)
+userSchema.index({ role: 1 });
+userSchema.index({ verificationStatus: 1 });
+userSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('User', userSchema);

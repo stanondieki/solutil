@@ -899,4 +899,529 @@ router.put('/bookings/:id/status', protect, adminOnly, catchAsync(async (req, re
   }
 }));
 
+// =====================================================
+// PAYOUT MANAGEMENT ROUTES
+// =====================================================
+
+// @desc    Get all payouts with filters
+// @route   GET /api/admin/payouts
+// @access  Private/Admin
+router.get('/payouts', protect, adminOnly, catchAsync(async (req, res) => {
+  const Payout = require('../models/Payout');
+  
+  const {
+    status,
+    provider,
+    dateFrom,
+    dateTo,
+    minAmount,
+    maxAmount,
+    page = 1,
+    limit = 20,
+    sortBy = 'createdAt',
+    sortOrder = 'desc'
+  } = req.query;
+
+  // Build filter object
+  const filter = {};
+  
+  if (status) filter.status = status;
+  if (provider) filter.provider = provider;
+  
+  if (dateFrom || dateTo) {
+    filter.createdAt = {};
+    if (dateFrom) filter.createdAt.$gte = new Date(dateFrom);
+    if (dateTo) filter.createdAt.$lte = new Date(dateTo);
+  }
+  
+  if (minAmount || maxAmount) {
+    filter['amounts.payoutAmount'] = {};
+    if (minAmount) filter['amounts.payoutAmount'].$gte = parseFloat(minAmount);
+    if (maxAmount) filter['amounts.payoutAmount'].$lte = parseFloat(maxAmount);
+  }
+
+  const skip = (page - 1) * limit;
+  const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
+
+  const payouts = await Payout.find(filter)
+    .populate({
+      path: 'provider',
+      select: 'name email businessName phone payoutDetails'
+    })
+    .populate({
+      path: 'client',
+      select: 'name email phone'
+    })
+    .populate({
+      path: 'booking',
+      select: 'bookingId service pricing status',
+      populate: {
+        path: 'service',
+        select: 'title category'
+      }
+    })
+    .sort(sort)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const totalPayouts = await Payout.countDocuments(filter);
+  const totalPages = Math.ceil(totalPayouts / limit);
+
+  // Calculate summary statistics
+  const summaryStats = await Payout.aggregate([
+    { $match: filter },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+        totalAmount: { $sum: '$amounts.payoutAmount' },
+        totalCommission: { $sum: '$amounts.commissionAmount' }
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      payouts,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalPayouts,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      },
+      summary: summaryStats,
+      filters: { status, provider, dateFrom, dateTo, minAmount, maxAmount }
+    }
+  });
+}));
+
+// @desc    Get payout statistics
+// @route   GET /api/admin/payout-stats
+// @access  Private/Admin
+router.get('/payout-stats', protect, adminOnly, catchAsync(async (req, res) => {
+  const Payout = require('../models/Payout');
+  const { period = '30d' } = req.query;
+  
+  // Calculate date range
+  let dateFrom;
+  switch (period) {
+    case '7d': dateFrom = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); break;
+    case '30d': dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); break;
+    case '90d': dateFrom = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000); break;
+    case '1y': dateFrom = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000); break;
+    default: dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  }
+
+  const stats = await Payout.aggregate([
+    {
+      $facet: {
+        overall: [{
+          $group: {
+            _id: null,
+            totalPayouts: { $sum: 1 },
+            totalPayoutAmount: { $sum: '$amounts.payoutAmount' },
+            totalCommissionEarned: { $sum: '$amounts.commissionAmount' },
+            avgPayoutAmount: { $avg: '$amounts.payoutAmount' }
+          }
+        }],
+        byStatus: [{
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+            totalAmount: { $sum: '$amounts.payoutAmount' }
+          }
+        }],
+        recentPeriod: [{
+          $match: { createdAt: { $gte: dateFrom } }
+        }, {
+          $group: {
+            _id: null,
+            periodPayouts: { $sum: 1 },
+            periodPayoutAmount: { $sum: '$amounts.payoutAmount' },
+            periodCommissionEarned: { $sum: '$amounts.commissionAmount' }
+          }
+        }],
+        dailyBreakdown: [{
+          $match: { createdAt: { $gte: dateFrom } }
+        }, {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+              day: { $dayOfMonth: '$createdAt' }
+            },
+            payouts: { $sum: 1 },
+            payoutAmount: { $sum: '$amounts.payoutAmount' },
+            commission: { $sum: '$amounts.commissionAmount' }
+          }
+        }, {
+          $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
+        }]
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      overall: stats[0].overall[0] || {},
+      byStatus: stats[0].byStatus,
+      recentPeriod: stats[0].recentPeriod[0] || {},
+      dailyBreakdown: stats[0].dailyBreakdown,
+      period
+    }
+  });
+}));
+
+// @desc    Process payout manually
+// @route   POST /api/admin/payouts/:id/process
+// @access  Private/Admin
+router.post('/payouts/:id/process', protect, adminOnly, catchAsync(async (req, res) => {
+  const Payout = require('../models/Payout');
+  const PayoutService = require('../services/payoutService');
+  const { reason } = req.body;
+  
+  const payout = await Payout.findById(req.params.id);
+  if (!payout) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Payout not found'
+    });
+  }
+
+  if (payout.status !== 'pending' && payout.status !== 'ready') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Payout is not in a processable state'
+    });
+  }
+
+  try {
+    const payoutService = new PayoutService();
+    const result = await payoutService.processPayout(payout);
+
+    // Add admin activity log
+    payout.activities = payout.activities || [];
+    payout.activities.push({
+      type: 'admin_manual_process',
+      description: `Manually processed by admin ${req.user.name}`,
+      reason: reason || 'Manual admin processing',
+      timestamp: new Date(),
+      adminId: req.user._id
+    });
+    await payout.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Payout processed manually',
+      data: { payout, processResult: result }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to process payout: ' + error.message
+    });
+  }
+}));
+
+// @desc    Cancel payout
+// @route   POST /api/admin/payouts/:id/cancel
+// @access  Private/Admin
+router.post('/payouts/:id/cancel', protect, adminOnly, catchAsync(async (req, res) => {
+  const Payout = require('../models/Payout');
+  const { reason } = req.body;
+  
+  if (!reason) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Cancellation reason is required'
+    });
+  }
+
+  const payout = await Payout.findById(req.params.id);
+  if (!payout) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Payout not found'
+    });
+  }
+
+  if (payout.status === 'completed' || payout.status === 'cancelled') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Cannot cancel this payout'
+    });
+  }
+
+  payout.status = 'cancelled';
+  payout.activities = payout.activities || [];
+  payout.activities.push({
+    type: 'admin_cancelled',
+    description: `Cancelled by admin ${req.user.name}`,
+    reason,
+    timestamp: new Date(),
+    adminId: req.user._id
+  });
+  await payout.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Payout cancelled successfully',
+    data: { payout }
+  });
+}));
+
+// @desc    Retry failed payout
+// @route   POST /api/admin/payouts/:id/retry
+// @access  Private/Admin
+router.post('/payouts/:id/retry', protect, adminOnly, catchAsync(async (req, res) => {
+  const Payout = require('../models/Payout');
+  const { reason } = req.body;
+  
+  const payout = await Payout.findById(req.params.id);
+  if (!payout) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Payout not found'
+    });
+  }
+
+  if (payout.status !== 'failed') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Only failed payouts can be retried'
+    });
+  }
+
+  payout.status = 'ready';
+  payout.activities = payout.activities || [];
+  payout.activities.push({
+    type: 'admin_retry',
+    description: `Retry initiated by admin ${req.user.name}`,
+    reason: reason || 'Admin retry',
+    timestamp: new Date(),
+    adminId: req.user._id
+  });
+  await payout.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Payout queued for retry',
+    data: { payout }
+  });
+}));
+
+// @desc    Create manual payout (admin initiated)
+// @route   POST /api/admin/payouts/create
+// @access  Private/Admin
+router.post('/payouts/create', protect, adminOnly, catchAsync(async (req, res) => {
+  const { 
+    bookingId, 
+    providerId, 
+    amount, 
+    reason, 
+    payoutMethod,
+    mpesaNumber,
+    bankDetails,
+    scheduleFor 
+  } = req.body;
+  
+  const Payout = require('../models/Payout');
+  const PayoutService = require('../services/payoutService');
+  
+  // Validate required fields
+  if (!providerId || !amount || !reason) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Provider ID, amount, and reason are required'
+    });
+  }
+
+  // Validate provider exists
+  const provider = await User.findById(providerId);
+  if (!provider || provider.userType !== 'provider') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid provider ID'
+    });
+  }
+
+  // Validate booking if provided
+  let booking = null;
+  if (bookingId) {
+    booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid booking ID'
+      });
+    }
+  }
+
+  try {
+    // Calculate amounts (admin can override commission rate if needed)
+    const commissionRate = req.body.commissionRate || 0.3; // 30% default
+    const totalAmount = parseFloat(amount);
+    const commissionAmount = totalAmount * commissionRate;
+    const payoutAmount = totalAmount - commissionAmount;
+
+    // Set payout schedule
+    const serviceCompleted = new Date();
+    const payoutScheduled = scheduleFor ? new Date(scheduleFor) : serviceCompleted;
+
+    // Create payout record
+    const payout = new Payout({
+      booking: bookingId || null,
+      provider: providerId,
+      client: booking?.client || null,
+      status: 'ready', // Admin created payouts are immediately ready
+      amounts: {
+        totalAmount,
+        commissionAmount,
+        payoutAmount,
+        currency: 'KES'
+      },
+      timeline: {
+        serviceCompleted,
+        payoutScheduled
+      },
+      metadata: {
+        bookingReference: booking?.bookingId || `ADMIN-${Date.now()}`,
+        serviceTitle: booking?.service?.title || 'Manual Admin Payout',
+        providerName: provider.name,
+        clientEmail: booking?.client?.email || 'admin-initiated@solutil.com',
+        adminInitiated: true,
+        adminReason: reason
+      },
+      activities: [{
+        type: 'admin_created',
+        description: `Manual payout created by admin ${req.user.name}`,
+        reason,
+        timestamp: new Date(),
+        adminId: req.user._id
+      }]
+    });
+
+    // Update provider payout details if provided
+    if (payoutMethod === 'mpesa' && mpesaNumber) {
+      provider.payoutDetails = provider.payoutDetails || {};
+      provider.payoutDetails.mpesaNumber = mpesaNumber;
+      provider.payoutDetails.preferredMethod = 'mpesa';
+      await provider.save();
+    } else if (payoutMethod === 'bank' && bankDetails) {
+      provider.payoutDetails = provider.payoutDetails || {};
+      provider.payoutDetails.bankAccount = bankDetails;
+      provider.payoutDetails.preferredMethod = 'bank';
+      await provider.save();
+    }
+
+    await payout.save();
+
+    // Optionally process immediately if requested
+    if (req.body.processImmediately) {
+      try {
+        const payoutService = new PayoutService();
+        const result = await payoutService.processPayout(payout);
+        
+        payout.activities.push({
+          type: 'admin_immediate_process',
+          description: `Immediately processed by admin ${req.user.name}`,
+          timestamp: new Date(),
+          adminId: req.user._id
+        });
+        await payout.save();
+      } catch (processError) {
+        // Log error but don't fail the payout creation
+        console.error('Failed to immediately process admin payout:', processError);
+      }
+    }
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Manual payout created successfully',
+      data: { 
+        payout,
+        provider: {
+          name: provider.name,
+          email: provider.email,
+          payoutMethod: provider.payoutDetails?.preferredMethod || 'not_set'
+        }
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to create manual payout: ' + error.message
+    });
+  }
+}));
+
+// @desc    Get provider details for payout creation
+// @route   GET /api/admin/providers/:id/payout-info
+// @access  Private/Admin
+router.get('/providers/:id/payout-info', protect, adminOnly, catchAsync(async (req, res) => {
+  const provider = await User.findById(req.params.id);
+  
+  if (!provider || provider.userType !== 'provider') {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Provider not found'
+    });
+  }
+
+  // Get provider's recent bookings and payout history
+  const recentBookings = await Booking.find({ 
+    provider: req.params.id 
+  })
+  .populate('service', 'title')
+  .sort({ createdAt: -1 })
+  .limit(5);
+
+  const Payout = require('../models/Payout');
+  const payoutHistory = await Payout.find({ 
+    provider: req.params.id 
+  })
+  .sort({ createdAt: -1 })
+  .limit(10);
+
+  const payoutStats = await Payout.aggregate([
+    { $match: { provider: provider._id } },
+    {
+      $group: {
+        _id: null,
+        totalPayouts: { $sum: 1 },
+        totalAmount: { $sum: '$amounts.payoutAmount' },
+        completedPayouts: {
+          $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+        }
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      provider: {
+        _id: provider._id,
+        name: provider.name,
+        email: provider.email,
+        phone: provider.phone,
+        businessName: provider.businessName,
+        payoutDetails: provider.payoutDetails || {},
+        profilePicture: provider.profilePicture
+      },
+      recentBookings,
+      payoutHistory,
+      stats: payoutStats[0] || {
+        totalPayouts: 0,
+        totalAmount: 0,
+        completedPayouts: 0
+      }
+    }
+  });
+}));
+
 module.exports = router;

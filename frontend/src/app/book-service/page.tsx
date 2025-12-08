@@ -102,6 +102,16 @@ interface PriceBreakdown {
   }
 }
 
+// Environment-based Paystack key selection
+const getPaystackPublicKey = () => {
+  // Use TEST keys for development
+  const key = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY_TEST || process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+  const isTestKey = key?.startsWith('pk_test_')
+  
+  console.log(`🔑 Using Paystack ${isTestKey ? 'TEST' : 'LIVE'} key:`, key?.substring(0, 12) + '...')
+  return key
+}
+
 const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
   plumbing: [
     {
@@ -1204,6 +1214,38 @@ function BookServicePageContent() {
     return pricing.finalPrice
   }
 
+  const handlePaymentVerification = async (reference: string, bookingId: string) => {
+    try {
+      setLoading(true)
+      await verifyPayment(reference, bookingId)
+      
+      // Show success message with payment details
+      alert(`🎉 Payment Successful - Booking Confirmed!
+
+Transaction Reference: ${reference}
+Amount: KES ${calculateTotalAmount().toLocaleString()}
+Status: Booking Confirmed ✅
+
+✅ Your booking is now confirmed and the provider has been notified.
+📧 You will receive email confirmations shortly.`)
+      
+      // Redirect to bookings page
+      window.location.href = '/bookings'
+    } catch (error) {
+      console.error('❌ Payment verification failed:', error)
+      alert(`⚠️ Payment Verification Pending
+
+Your payment was submitted but verification is still processing.
+Your booking remains PENDING until payment is confirmed.
+
+Please check your bookings page in a few minutes.
+If booking status doesn't change to "Confirmed" within 5 minutes, contact support.`)
+      
+      // Still redirect to bookings to show the booking
+      window.location.href = '/bookings'
+    }
+  }
+
   const handlePaystackPayment = async (bookingId: string) => {
     try {
       setLoading(true)
@@ -1221,7 +1263,7 @@ function BookServicePageContent() {
         BACKEND_URL,
         hasToken: !!token,
         userEmail: user?.email,
-        paystackKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'NOT_SET'
+        paystackKey: getPaystackPublicKey() || 'NOT_SET'
       })
 
       // Validate required fields before sending
@@ -1269,7 +1311,7 @@ function BookServicePageContent() {
       const PaystackPop = await initializePaystack()
       console.log('✅ Paystack popup initialized')
       
-      const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+      const paystackPublicKey = getPaystackPublicKey()
       const isTestMode = paystackPublicKey?.startsWith('pk_test_') || true
       console.log('🧪 Paystack Test Mode:', isTestMode)
       console.log('🔑 Using Paystack key:', paystackPublicKey?.substring(0, 15) + '...')
@@ -1288,12 +1330,10 @@ function BookServicePageContent() {
         amount: initResult.data.amount || (amount * 100), // Use backend amount or fallback to local amount in cents
         currency: 'KES', // Kenyan Shillings for our Kenyan market
         reference: initResult.data.reference,
-        callback: (response: PaystackResponse) => {
+        callback: function(response: PaystackResponse) {
           console.log('✅ Payment successful:', response)
-          // Don't await here - let it run in background
-          verifyPayment(response.reference, bookingId).catch(error => {
-            console.error('❌ Payment verification failed:', error)
-          })
+          // Use synchronous callback - handle verification immediately
+          handlePaymentVerification(response.reference, bookingId)
         },
         onClose: () => {
           console.log('❌ Payment cancelled by user')
@@ -1331,7 +1371,7 @@ Unable to connect to payment server. Please check:
 Please try again in a moment.`)
       } else {
         // Show user-friendly error message
-        const isTestMode = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_')
+        const isTestMode = getPaystackPublicKey()?.startsWith('pk_test_')
         const testModeHelp = isTestMode ? '\n\n🧪 Test Mode: Make sure your backend is running with test keys configured.' : ''
         
         alert(`💳 Payment Failed: ${errorMessage}${testModeHelp}\n\nPlease try again or contact support if the issue persists.`)
@@ -1483,9 +1523,9 @@ Please contact support with reference: ${reference}`)
         bookingNumber: result.data.booking.bookingNumber
       })
       
-      // Handle payment flow
+      // Handle different payment flows
       if (bookingData.paymentTiming === 'pay-now') {
-        console.log('🔄 Initiating payment flow...')
+        console.log('🔄 Initiating immediate payment flow...')
         // Use _id if id is not available and convert to string
         const bookingId = (result.data.booking.id || result.data.booking._id)?.toString()
         console.log('📋 Using booking ID for payment:', bookingId)
@@ -1494,25 +1534,50 @@ Please contact support with reference: ${reference}`)
           throw new Error('Booking ID not found in response')
         }
         
-        // Start payment process
-        await handlePaystackPayment(bookingId)
-        return
-      }
-      
-      // For pay-later bookings, show success message and redirect
-      alert(`🎉 Booking Confirmed!
+        // Show confirmation before payment
+        const proceedWithPayment = confirm(`📋 Booking Created (Pending Payment)
+
+Booking Number: ${result.data.booking.bookingNumber}
+Service: ${bookingData.category?.name}
+Total Amount: KES ${calculateTotalAmount().toLocaleString()}
+Status: Pending Payment
+
+⚠️ Your booking will only be confirmed after successful payment.
+
+Click OK to proceed with payment now, or Cancel to pay later.`)
+        
+        if (proceedWithPayment) {
+          // Start payment process
+          await handlePaystackPayment(bookingId)
+          return
+        } else {
+          // User chose to cancel payment - booking remains pending
+          console.log('📝 User chose to pay later')
+          alert(`📋 Booking Pending Payment
+
+Your booking has been created but remains pending until payment is completed.
+
+Booking Number: ${result.data.booking.bookingNumber}
+Status: Pending Payment
+
+💡 Complete payment to confirm your booking and notify the provider.`)
+        }
+      } else {
+        // For pay-after bookings, show success message
+        alert(`📋 Booking Created - Pay After Service
 
 Booking Number: ${result.data.booking.bookingNumber}
 Service: ${bookingData.category?.name}
 Date: ${bookingData.date} at ${bookingData.time}
-Status: ${result.data.booking.status}
+Payment: Pay After Service
+Status: Confirmed ✅
 
-📧 You will receive a payment link when service is completed.`)
-      
+📧 You will receive a payment link when the service is completed.
+💡 No payment required now - the provider will contact you to coordinate the service.`)
+      }
+
       // Redirect to bookings page to see the booking
-      window.location.href = '/bookings'
-      
-    } catch (error) {
+      window.location.href = '/bookings'    } catch (error) {
       console.error('❌ Booking creation failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       alert(`Booking failed: ${errorMessage}. Please try again.`)
@@ -3628,7 +3693,7 @@ Examples:
                     </div>
 
                     {/* Test Mode Indicator */}
-                    {process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_') && (
+                    {getPaystackPublicKey()?.startsWith('pk_test_') && (
                       <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div className="flex items-center">
                           <span className="text-yellow-600 mr-2">🧪</span>

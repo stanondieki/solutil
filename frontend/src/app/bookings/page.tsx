@@ -6,6 +6,8 @@ import { FaArrowLeft, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaStar, FaSpinner,
 import { clientAPI } from '@/lib/clientAPI'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleGuard from '@/components/RoleGuard'
+import ReviewModal from '@/components/ReviewModal'
+import StarRating from '@/components/StarRating'
 
 interface Booking {
   _id: string
@@ -39,7 +41,11 @@ interface Booking {
   }
   createdAt: string
   rating?: number
-  review?: string
+  review?: {
+    _id: string
+    rating: number
+    comment: string
+  }
 }
 
 interface CancelBookingModal {
@@ -55,6 +61,8 @@ export default function BookingsPage() {
   const [cancelReason, setCancelReason] = useState('')
   const [isCancelling, setIsCancelling] = useState(false)
   const { user } = useAuth()
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [showReviewModal, setShowReviewModal] = useState(false)
 
   useEffect(() => {
     loadBookings()
@@ -129,6 +137,20 @@ export default function BookingsPage() {
   const canCancelBooking = (booking: Booking) => {
     return ['pending', 'confirmed'].includes(booking.status)
   }
+
+  const handleReviewClick = (booking: Booking) => {
+    console.log('🎯 Review button clicked for booking:', booking._id);
+    console.log('📊 Booking details:', booking);
+    setSelectedBooking(booking);
+    setShowReviewModal(true);
+    console.log('✅ Modal state updated - showReviewModal:', true);
+  };
+
+  const handleReviewSubmitted = () => {
+    fetchBookings(); // Refresh bookings to show updated review
+    setShowReviewModal(false);
+    setSelectedBooking(null);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -221,9 +243,22 @@ export default function BookingsPage() {
                   </div>
                 </div>
 
+                {/* Review Display Section */}
+                {booking.status === 'completed' && booking.review && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-green-800">Your Review</span>
+                      <StarRating rating={booking.review.rating} size="sm" />
+                    </div>
+                    {booking.review.comment && (
+                      <p className="text-sm text-green-700">{booking.review.comment}</p>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
-                  <div className="flex space-x-3">
-                    <Link 
+                  <div className="flex space-x-4">
+                    <Link
                       href={`/bookings/${booking._id}`}
                       className="text-orange-600 hover:text-orange-700 font-medium"
                     >
@@ -239,8 +274,11 @@ export default function BookingsPage() {
                     )}
                   </div>
                   <div className="flex space-x-2">
-                    {booking.status === 'completed' && !booking.rating && (
-                      <button className="flex items-center space-x-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-lg hover:bg-orange-200 transition-colors">
+                    {booking.status === 'completed' && !booking.review && (
+                      <button 
+                        onClick={() => handleReviewClick(booking)}
+                        className="flex items-center space-x-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-lg hover:bg-orange-200 transition-colors"
+                      >
                         <FaStar className="text-sm" />
                         <span>Rate Service</span>
                       </button>
@@ -352,6 +390,38 @@ export default function BookingsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Review Modal */}
+      {showReviewModal && selectedBooking && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedBooking(null);
+          }}
+          booking={selectedBooking}
+          onReviewSubmit={async (reviewData) => {
+            console.log('🌟 Submitting review:', reviewData);
+            try {
+              const result = await clientAPI.submitReview({
+                bookingId: selectedBooking._id,
+                rating: reviewData.rating,
+                comment: reviewData.comment
+              });
+              if (result.success) {
+                console.log('✅ Review submitted successfully');
+                handleReviewSubmitted();
+              } else {
+                console.error('❌ Review submission failed:', result.message);
+                alert('Failed to submit review. Please try again.');
+              }
+            } catch (error) {
+              console.error('❌ Review submission error:', error);
+              alert('Failed to submit review. Please try again.');
+            }
+          }}
+        />
       )}
     </RoleGuard>
   )

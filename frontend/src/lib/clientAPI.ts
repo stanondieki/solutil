@@ -363,6 +363,85 @@ export const clientAPI = {
       console.error('Error fetching user bookings:', error);
       return { success: false, message: 'Failed to fetch bookings', bookings: [] };
     }
+  },
+
+  // Submit a review for a completed booking
+  submitReview: async (reviewData: {
+    bookingId: string;
+    rating: number;
+    comment: string;
+  }) => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        throw new Error('Authentication required');
+      }
+
+      console.log('📝 Submitting review:', reviewData);
+
+      const response = await fetch(`${API_BASE}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(reviewData)
+      });
+
+      const result = await response.json();
+      console.log('📊 Review submission response:', result);
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit review');
+      }
+
+      return {
+        success: true,
+        message: result.message || 'Review submitted successfully',
+        review: result.data?.review
+      };
+    } catch (error) {
+      console.error('❌ Error submitting review:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to submit review'
+      };
+    }
+  },
+
+  // Get my reviews
+  getMyReviews: async () => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_BASE}/api/reviews/my-reviews`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to fetch reviews');
+      }
+
+      return {
+        success: true,
+        reviews: result.data?.reviews || []
+      };
+    } catch (error) {
+      console.error('❌ Error fetching reviews:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to fetch reviews',
+        reviews: []
+      };
+    }
   }
 };
 

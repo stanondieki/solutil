@@ -158,8 +158,8 @@ const escrowPaymentSchema = new mongoose.Schema({
 });
 
 // Indexes for performance
-escrowPaymentSchema.index({ checkoutRequestID: 1 });
-escrowPaymentSchema.index({ mpesaReceiptNumber: 1 });
+// checkoutRequestID is already unique, so no separate index needed
+// mpesaReceiptNumber is already unique, so no separate index needed
 escrowPaymentSchema.index({ bookingId: 1 });
 escrowPaymentSchema.index({ clientId: 1 });
 escrowPaymentSchema.index({ providerId: 1 });

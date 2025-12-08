@@ -47,10 +47,12 @@ const bookingRoutes = require('./routes/bookings');
 console.log('Loaded bookingRoutes');
 const providerRoutes = require('./routes/providers');
 console.log('Loaded providerRoutes');
-const reviewRoutes = require('./routes/reviews');
+const reviewRoutes = require('./routes/reviewRoutes');
 console.log('Loaded reviewRoutes');
 const paymentRoutes = require('./routes/payments');
 console.log('Loaded paymentRoutes');
+const paymentLinkRoutes = require('./routes/paymentLinkRoutes');
+console.log('Loaded paymentLinkRoutes');
 const uploadRoutes = require('./routes/upload');
 console.log('Loaded uploadRoutes');
 const adminRoutes = require('./routes/admin');
@@ -71,11 +73,19 @@ const enhancedProviderMatchingRoutes = require('./routes/enhancedProviderMatchin
 console.log('Loaded enhancedProviderMatchingRoutes');
 const smartProviderMatchingRoutes = require('./routes/smartProviderMatching');
 console.log('Loaded smartProviderMatchingRoutes');
+const payoutRoutes = require('./routes/payoutRoutes');
+console.log('Loaded payoutRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+console.log('Loaded analyticsRoutes');
+const adminPayoutRoutes = require('./routes/adminPayouts');
+console.log('Loaded adminPayoutRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 console.log('Loaded errorHandler');
 const logger = require('./utils/logger');
 console.log('Loaded logger');
+const payoutScheduler = require('./services/payoutScheduler');
+console.log('Loaded payoutScheduler');
 
 console.log('Creating Express app...');
 const app = express();
@@ -93,12 +103,16 @@ app.set('trust proxy', 1);
 
 const limiter = rateLimit({
   windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000, // 15 minutes
-  max: process.env.RATE_LIMIT_MAX || 100,
+  max: process.env.RATE_LIMIT_MAX || 1000, // Increased for development
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for development
+  skip: (req) => {
+    return process.env.NODE_ENV === 'development' && req.ip === '::1' || req.ip === '127.0.0.1';
+  }
 });
 
 app.use(helmet({
@@ -161,6 +175,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/payment-links', paymentLinkRoutes);
 app.use('/api/payments/mpesa', mpesaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
@@ -172,16 +187,33 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/booking', providerMatchingRoutes);
 app.use('/api/booking', enhancedProviderMatchingRoutes);
 app.use('/api/booking', smartProviderMatchingRoutes); // 🧠 Smart provider matching with availability checking
+app.use('/api/payouts', payoutRoutes); // 💳 Provider payout management
+app.use('/api/analytics', analyticsRoutes); // 📊 Analytics and reporting
+app.use('/api/admin/payouts', adminPayoutRoutes); // 🔧 Admin payout management
+app.use('/api/payment-requests', require('./routes/paymentRequestRoutes')); // 💰 Provider-initiated payment requests
 app.use('/api/booking', require('./routes/optimalProviderMatching')); // 🎯 Optimal provider matching with comprehensive factors
 app.use('/api/booking', require('./routes/ultimateProviderDiscovery')); // 🚀 Ultimate provider discovery system
 
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Health check endpoint for production monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime(),
+    version: process.env.npm_package_version || '1.0.0'
+  });
+});
+
+// Production-ready 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
-    message: `Route ${req.originalUrl} not found`
+    message: `Route ${req.originalUrl} not found`,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -219,8 +251,6 @@ const connectDB = async () => {
       console.log('Trying local MongoDB...');
       conn = await Promise.race([
         mongoose.connect(localUri, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
           serverSelectionTimeoutMS: 3000,
           connectTimeoutMS: 3000
         }),
@@ -233,8 +263,6 @@ const connectDB = async () => {
       try {
         conn = await Promise.race([
           mongoose.connect(atlasUri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 5000,
             connectTimeoutMS: 5000
           }),
@@ -300,6 +328,16 @@ const startServer = async () => {
     logger.info(`💾 Database Status: ${dbConnected ? 'Connected' : 'Fallback Mode'}`);
     if (process.env.NODE_ENV === 'development') {
       logger.info(`📋 API Documentation: http://localhost:${PORT}/api/health`);
+    }
+    
+    // Start payout scheduler
+    if (dbConnected) {
+      try {
+        payoutScheduler.start();
+        logger.info('💰 Payout scheduler started successfully');
+      } catch (error) {
+        logger.error('Failed to start payout scheduler:', error);
+      }
     }
   });
 };

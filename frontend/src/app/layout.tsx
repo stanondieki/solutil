@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { ToastProvider } from '@/components/ui/Toast';
+import { ModalProvider } from '@/components/ui/Modal';
 import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
@@ -67,19 +69,23 @@ export default function RootLayout({
       >
         <AuthProvider>
           <NotificationProvider>
-            {children}
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#ffffff',
-                  color: '#1f2937',
-                  border: '1px solid #e5e7eb',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                }
-              }}
-            />
+            <ToastProvider>
+              <ModalProvider>
+                {children}
+                <Toaster 
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#ffffff',
+                      color: '#1f2937',
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    }
+                  }}
+                />
+              </ModalProvider>
+            </ToastProvider>
           </NotificationProvider>
         </AuthProvider>
       </body>
