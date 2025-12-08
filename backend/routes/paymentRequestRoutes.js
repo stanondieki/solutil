@@ -4,6 +4,9 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Public webhook route (no auth required for Paystack callbacks)
+router.post('/verify-payment', paymentRequestController.verifyPaymentRequest);
+
 // Protected routes (require authentication)
 router.use(protect);
 
@@ -12,8 +15,5 @@ router.post('/:bookingId/request-payment', paymentRequestController.initiatePaym
 
 // Get payment request status
 router.get('/:bookingId/payment-status', paymentRequestController.getPaymentRequestStatus);
-
-// Public webhook route (no auth required for Paystack callbacks)
-router.post('/verify-payment', paymentRequestController.verifyPaymentRequest);
 
 module.exports = router;
