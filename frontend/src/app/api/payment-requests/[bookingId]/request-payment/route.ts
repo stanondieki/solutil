@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the backend
-    const backendResponse = await fetch(`${process.env.BACKEND_URL}/api/payment-requests/${bookingId}/request-payment`, {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+    const backendResponse = await fetch(`${backendUrl}/api/payment-requests/${bookingId}/request-payment`, {
       method: 'POST',
       headers: {
         'Authorization': authorization,
