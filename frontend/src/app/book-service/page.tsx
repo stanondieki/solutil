@@ -174,15 +174,15 @@ const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
     }
   ],
   electrical: [
-    // {
-    //   id: 'test-service-live-payment',
-    //   name: '🧪 LIVE Payment Test Service (KES 10)',
-    //   priceRange: { min: 5, max: 5 },
-    //   sizeBased: false,
-    //   description: '⚡ TEST ONLY: Minimal service for testing live payments with real money',
-    //   estimatedDuration: '5 minutes',
-    //   category: 'electrical'
-    // },
+    {
+      id: 'test-service-live-payment',
+      name: '🧪 LIVE Payment Test Service (KES 50)',
+      priceRange: { min: 50, max: 50 },
+      sizeBased: false,
+      description: '⚡ TEST ONLY: Minimal service for testing live payments with real money',
+      estimatedDuration: '5 minutes',
+      category: 'electrical'
+    },
     {
       id: 'inspection',
       name: 'Electrical inspection / diagnosis',
