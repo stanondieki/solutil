@@ -174,6 +174,15 @@ const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
     }
   ],
   electrical: [
+    // {
+    //   id: 'test-service-live-payment',
+    //   name: '🧪 LIVE Payment Test Service (KES 10)',
+    //   priceRange: { min: 5, max: 5 },
+    //   sizeBased: false,
+    //   description: '⚡ TEST ONLY: Minimal service for testing live payments with real money',
+    //   estimatedDuration: '5 minutes',
+    //   category: 'electrical'
+    // },
     {
       id: 'inspection',
       name: 'Electrical inspection / diagnosis',
@@ -2802,7 +2811,7 @@ Examples:
                             className={`p-4 rounded-lg border-2 text-center transition-all ${
                               bookingData.urgency === urgency.value
                                 ? urgency.color + ' ring-2 ring-orange-200'
-                                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm text-gray-900'
                             }`}
                           >
                             <div className="font-semibold text-sm mb-1">{urgency.label}</div>
@@ -3480,17 +3489,17 @@ Examples:
                           </h4>
                           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-600">Service:</span>
-                              <span className="font-medium">{bookingData.priceBreakdown.serviceName}</span>
+                              <span className="text-black font-medium">Service:</span>
+                              <span className="font-medium text-black">{bookingData.priceBreakdown.serviceName}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-600">Base Price:</span>
-                              <span className="font-medium">KES {bookingData.priceBreakdown.basePrice.toLocaleString()}</span>
+                              <span className="text-black font-medium">Base Price:</span>
+                              <span className="font-medium text-black">KES {bookingData.priceBreakdown.basePrice.toLocaleString()}</span>
                             </div>
                             {bookingData.priceBreakdown.sizeMultiplier && bookingData.priceBreakdown.sizeMultiplier !== 1.0 && (
                               <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Size Adjustment ({bookingData.propertySize}):</span>
-                                <span className="font-medium">
+                                <span className="text-black font-medium">Size Adjustment ({bookingData.propertySize}):</span>
+                                <span className="font-medium text-black">
                                   {bookingData.priceBreakdown.sizeMultiplier > 1.0 ? '+' : ''}
                                   {((bookingData.priceBreakdown.sizeMultiplier - 1) * 100).toFixed(0)}%
                                 </span>
@@ -3498,7 +3507,7 @@ Examples:
                             )}
                             {bookingData.priceBreakdown && bookingData.priceBreakdown.urgencyMultiplier !== 1.0 && (
                               <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Urgency ({bookingData.urgency}):</span>
+                                <span className="text-black font-medium">Urgency ({bookingData.urgency}):</span>
                                 <span className="font-medium">
                                   +{((bookingData.priceBreakdown.urgencyMultiplier - 1) * 100).toFixed(0)}%
                                 </span>
@@ -3772,15 +3781,15 @@ Examples:
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div className="flex items-center space-x-2">
                           <FaCheck className="h-4 w-4 text-green-600" />
-                          <span>256-bit SSL Encryption</span>
+                          <span className="text-black font-medium">256-bit SSL Encryption</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaDollarSign className="h-4 w-4 text-blue-600" />
-                          <span>Paystack Secure Gateway</span>
+                          <span className="text-black font-medium">Paystack Secure Gateway</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaExclamationTriangle className="h-4 w-4 text-orange-600" />
-                          <span>Full Buyer Protection</span>
+                          <span className="text-black font-medium">Full Buyer Protection</span>
                         </div>
                       </div>
                       

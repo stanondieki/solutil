@@ -141,6 +141,14 @@ export default function BookingsPage() {
   const handleReviewClick = (booking: Booking) => {
     console.log('🎯 Review button clicked for booking:', booking._id);
     console.log('📊 Booking details:', booking);
+    console.log('📝 Booking review status:', booking.review);
+    
+    // Check if booking already has a review
+    if (booking.review) {
+      alert('This booking has already been reviewed.');
+      return;
+    }
+    
     setSelectedBooking(booking);
     setShowReviewModal(true);
     console.log('✅ Modal state updated - showReviewModal:', true);
@@ -414,7 +422,8 @@ export default function BookingsPage() {
                 handleReviewSubmitted();
               } else {
                 console.error('❌ Review submission failed:', result.message);
-                alert('Failed to submit review. Please try again.');
+                // Show specific error message from backend
+                alert(result.message || 'Failed to submit review. Please try again.');
               }
             } catch (error) {
               console.error('❌ Review submission error:', error);

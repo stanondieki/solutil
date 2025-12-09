@@ -254,12 +254,12 @@ export default function HomePage() {
                 price: 'From KES 1,800'
               },
               { 
-                image: '/service/movers.jpg', 
-                title: 'Moving', 
-                desc: 'Professional moving and relocation services', 
-                features: ['Home relocation', 'Office moving', 'Packing services', 'Secure transport'],
+                image: '/service/fumigation.jpeg', 
+                title: 'Fumigation', 
+                desc: 'Professional pest control and fumigation services', 
+                features: ['Pest control', 'Termite treatment', 'Residential fumigation', 'Commercial spaces'],
                 color: 'purple',
-                price: 'From KES 3,000'
+                price: 'From KES 2,500'
               }
             ].map((service, index) => (
               <motion.div 
