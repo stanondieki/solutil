@@ -193,7 +193,7 @@ export default function ProviderDetailPage() {
     if (!provider) return
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${provider._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'}/api/admin/users/${provider._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ export default function ProviderDetailPage() {
     if (!provider) return
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/providers/${provider._id}/documents`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'}/api/admin/providers/${provider._id}/documents`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

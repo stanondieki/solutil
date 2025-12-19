@@ -8,7 +8,8 @@ export async function POST(request: NextRequest) {
     console.log('📋 Request body:', body)
     
     // Forward the request to the backend
-    const response = await fetch('http://localhost:5000/api/bookings', {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+    const response = await fetch(`${backendUrl}/api/bookings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +45,8 @@ export async function GET(request: NextRequest) {
     const authToken = searchParams.get('authToken')
     
     // Forward the request to the backend
-    const response = await fetch('http://localhost:5000/api/bookings', {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+    const response = await fetch(`${backendUrl}/api/bookings`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authToken}`

@@ -911,6 +911,307 @@ class NotificationService {
       throw error;
     }
   }
+
+  // =====================================================
+  // PROVIDER ASSIGNMENT NOTIFICATIONS
+  // =====================================================
+
+  /**
+   * Send notification to provider when assigned to a booking
+   */
+  async sendProviderAssignmentNotification(booking, provider) {
+    try {
+      const emailContent = {
+        from: process.env.EMAIL_FROM || 'noreply@solutil.com',
+        to: provider.email,
+        subject: `🎉 New Job Assignment - ${booking.bookingNumber}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #4caf50, #2e7d32); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0;">New Job Assigned! 🛠️</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa;">
+              <h2 style="color: #333;">Hi ${provider.name || 'Provider'},</h2>
+              <p style="color: #666; font-size: 16px;">
+                Great news! You've been assigned a new service job. Please review the details below:
+              </p>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h3 style="color: #4caf50; margin-top: 0;">📋 Job Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Booking Number:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.bookingNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.serviceCategory || 'Service'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Date:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${new Date(booking.scheduledDate).toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Time:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.scheduledTime?.start || 'TBD'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Location:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.location?.address || 'Will be provided'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong>Urgency:</strong></td>
+                    <td style="padding: 10px 0;">
+                      ${booking.urgency === 'emergency' ? '🚨 Emergency' : booking.urgency === 'urgent' ? '⚡ Urgent' : '🕐 Normal'}
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h3 style="color: #2196f3; margin-top: 0;">👤 Client Information</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.client?.name || 'Client'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.client?.phone || 'Will be provided'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong>Email:</strong></td>
+                    <td style="padding: 10px 0;">${booking.client?.email || 'N/A'}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; color: #2e7d32;">
+                  <strong>💰 Earnings:</strong> KES ${booking.pricing?.totalAmount || 'TBD'}
+                </p>
+              </div>
+              
+              <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; color: #e65100;">
+                  <strong>⚠️ Important:</strong> Please arrive on time and contact the client if you have any questions. 
+                  Maintain professional conduct throughout the service.
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL || 'https://solutil.com'}/provider/bookings" 
+                   style="background: #4caf50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 5px;">
+                  View My Bookings
+                </a>
+              </div>
+            </div>
+          </div>
+        `
+      };
+
+      await this.transporter.sendMail(emailContent);
+      logger.info(`Provider assignment notification sent to ${provider.email} for booking ${booking.bookingNumber}`);
+    } catch (error) {
+      logger.error('Failed to send provider assignment notification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send notification to client when provider is assigned
+   */
+  async sendClientProviderAssigned(booking, provider) {
+    try {
+      if (!booking.client?.email) {
+        logger.warn('No client email for provider assigned notification');
+        return;
+      }
+
+      const emailContent = {
+        from: process.env.EMAIL_FROM || 'noreply@solutil.com',
+        to: booking.client.email,
+        subject: `Provider Assigned - ${booking.bookingNumber}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #ff6b35, #f7931e); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0;">Provider Assigned! ✅</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa;">
+              <h2 style="color: #333;">Hi ${booking.client.name || 'there'},</h2>
+              <p style="color: #666; font-size: 16px;">
+                Great news! A professional service provider has been assigned to your booking.
+              </p>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h3 style="color: #4caf50; margin-top: 0;">👷 Your Provider</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${provider.name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${provider.phone || 'Will contact you'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong>Rating:</strong></td>
+                    <td style="padding: 10px 0;">⭐ ${provider.providerProfile?.rating || '4.5'}/5</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h3 style="color: #2196f3; margin-top: 0;">📋 Booking Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Booking Number:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.bookingNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.serviceCategory || 'Service'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Date:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${new Date(booking.scheduledDate).toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong>Time:</strong></td>
+                    <td style="padding: 10px 0;">${booking.scheduledTime?.start || 'TBD'}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; color: #1976d2;">
+                  <strong>📱 What's Next?</strong> The provider may contact you before the scheduled service. 
+                  Please ensure you're available at the specified time and location.
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL || 'https://solutil.com'}/bookings" 
+                   style="background: #ff6b35; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  View Booking Details
+                </a>
+              </div>
+            </div>
+          </div>
+        `
+      };
+
+      await this.transporter.sendMail(emailContent);
+      logger.info(`Client provider-assigned notification sent to ${booking.client.email} for booking ${booking.bookingNumber}`);
+    } catch (error) {
+      logger.error('Failed to send client provider-assigned notification:', error);
+      throw error;
+    }
+  }
+
+  // Send notification for pending provider assignment
+  async sendBookingPendingAssignment({ booking, client, category }) {
+    try {
+      const emailContent = {
+        from: process.env.EMAIL_FROM || 'noreply@solutil.com',
+        to: client.email,
+        subject: `Booking Received - ${booking.bookingNumber}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #ff6b35, #f7931e); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0;">Booking Received! 📋</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa;">
+              <h2 style="color: #333;">Hi ${client.name || 'there'},</h2>
+              <p style="color: #666; font-size: 16px;">
+                Your ${category || 'service'} booking has been received and is being processed. 
+                We're currently finding the best available provider for your service.
+              </p>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Booking Number:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.bookingNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${category || 'Service'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Date:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${new Date(booking.scheduledDate).toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Time:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.scheduledTime?.start || 'TBD'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Location:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${booking.location?.address || 'TBD'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong>Status:</strong></td>
+                    <td style="padding: 10px 0; color: #ff9800; font-weight: bold;">⏳ Awaiting Provider Assignment</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; color: #e65100;">
+                  <strong>⏳ What Happens Next?</strong><br>
+                  Our team is reviewing your booking and will assign a qualified provider shortly. 
+                  You'll receive another email once a provider has been assigned with their contact details.
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL || 'https://solutil.com'}/bookings" 
+                   style="background: #ff6b35; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  View Your Bookings
+                </a>
+              </div>
+              
+              <p style="color: #666; font-size: 14px; margin-top: 30px;">
+                If you have any questions, please contact us at support@solutil.com
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      await this.transporter.sendMail(emailContent);
+      logger.info(`Pending assignment notification sent to ${client.email} for booking ${booking.bookingNumber}`);
+    } catch (error) {
+      logger.error('Failed to send pending assignment notification:', error);
+      // Don't throw - email is not critical
+    }
+  }
+
+  // Enhanced booking confirmation (with or without provider)
+  async sendEnhancedBookingConfirmation({ booking, client, provider, service, assignmentMethod }) {
+    try {
+      // If provider is assigned, send full confirmation
+      if (provider) {
+        await this.sendClientBookingConfirmation(booking, client);
+        await this.sendProviderBookingNotification(booking, client, provider);
+      } else {
+        // No provider yet - send pending notification
+        await this.sendBookingPendingAssignment({
+          booking,
+          client,
+          category: booking.serviceCategory || service?.category || 'Service'
+        });
+      }
+      
+      logger.info(`Enhanced booking confirmation sent for ${booking.bookingNumber}, method: ${assignmentMethod}`);
+    } catch (error) {
+      logger.error('Failed to send enhanced booking confirmation:', error);
+    }
+  }
 }
 
 module.exports = new NotificationService();

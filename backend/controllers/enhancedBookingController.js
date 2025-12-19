@@ -1,6 +1,7 @@
 const Booking = require('../models/Booking');
 const ProviderService = require('../models/ProviderService');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const mongoose = require('mongoose');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -242,19 +243,34 @@ exports.createEnhancedSimpleBooking = catchAsync(async (req, res, next) => {
       }
     }
 
-    // Ensure we have a valid provider assignment
+    // If no provider was assigned, create booking for admin assignment
+    // This allows bookings to be created without auto-assigning a provider
     if (!assignedProvider || !assignedService) {
-      console.log('❌ No providers available for assignment');
-      return next(new AppError(`No ${category.name || 'service'} providers available in ${location.area}. Please try a different area or contact support.`, 400));
+      console.log('📋 No provider auto-assigned - booking will require admin assignment');
+      providerAssignmentMethod = 'admin-pending';
+      
+      // Create a placeholder service for tracking
+      const placeholderService = await ProviderService.findOne({
+        category: category.id,
+        isActive: true
+      });
+      
+      // If we found a service, use it (but no provider)
+      // If not, we'll create the booking without a service reference
+      if (placeholderService) {
+        assignedService = placeholderService._id;
+      }
     }
 
     // Step 2: Create booking with enhanced data structure
+    // Provider can be null - admin will assign later
     const bookingData = {
       bookingNumber,
       client: req.user.id,
-      provider: assignedProvider,
-      service: assignedService,
-      serviceType: 'ProviderService',
+      provider: assignedProvider || null, // Can be null for admin assignment
+      service: assignedService || null,
+      serviceType: assignedService ? 'ProviderService' : null,
+      status: assignedProvider ? 'confirmed' : 'pending', // Pending if no provider
       scheduledDate: new Date(date),
       scheduledTime: {
         start: time,
@@ -279,6 +295,10 @@ exports.createEnhancedSimpleBooking = catchAsync(async (req, res, next) => {
       notes: {
         client: description || ''
       },
+      // Service category for admin provider matching
+      serviceCategory: category.name || category.id || 'General Service',
+      urgency: urgency || 'normal',
+      providersNeeded: providersNeeded || 1,
       // Enhanced metadata
       metadata: {
         providerAssignmentMethod,
@@ -297,12 +317,19 @@ exports.createEnhancedSimpleBooking = catchAsync(async (req, res, next) => {
     const booking = await Booking.create(bookingData);
     console.log('✅ Enhanced booking created:', booking._id);
 
-    // Step 4: Populate the booking with full details
-    await booking.populate([
-      { path: 'client', select: 'name email phone' },
-      { path: 'provider', select: 'name email phone userType providerProfile' },
-      { path: 'service', select: 'title category price priceType description' }
-    ]);
+    // Step 4: Populate the booking with full details (handle null provider/service)
+    const populateOptions = [
+      { path: 'client', select: 'name email phone' }
+    ];
+    
+    if (booking.provider) {
+      populateOptions.push({ path: 'provider', select: 'name email phone userType providerProfile' });
+    }
+    if (booking.service) {
+      populateOptions.push({ path: 'service', select: 'title category price priceType description' });
+    }
+    
+    await booking.populate(populateOptions);
 
     // Step 5: Send notifications
     try {
@@ -312,39 +339,97 @@ exports.createEnhancedSimpleBooking = catchAsync(async (req, res, next) => {
       const provider = booking.provider;
       const service = booking.service;
       
-      // Enhanced notification with better context
-      await notificationService.sendEnhancedBookingConfirmation({
-        booking,
-        client,
-        provider,
-        service,
-        assignmentMethod: providerAssignmentMethod
+      // Only send full notification if provider is assigned
+      if (provider) {
+        // Enhanced notification with better context
+        await notificationService.sendEnhancedBookingConfirmation({
+          booking,
+          client,
+          provider,
+          service,
+          assignmentMethod: providerAssignmentMethod
+        });
+        console.log('✅ Enhanced booking notifications sent successfully');
+      } else {
+        // Send client-only notification (pending provider assignment)
+        console.log('📧 Provider not assigned - sending pending notification to client only');
+        await notificationService.sendBookingPendingAssignment({
+          booking,
+          client,
+          category: category.name || category.id
+        });
+        console.log('✅ Pending assignment notification sent to client');
+      }
+      
+      // Create in-app notifications
+      console.log('🔔 Creating in-app notifications...');
+      
+      // Notification for client
+      await Notification.createNotification({
+        userId: client._id,
+        title: provider ? 'Booking Confirmed!' : 'Booking Received',
+        message: provider 
+          ? `Your ${category.name || category.id} service has been booked with ${provider.name}. Scheduled for ${new Date(date).toLocaleDateString()}.`
+          : `Your ${category.name || category.id} booking has been received. We're finding the best provider for you.`,
+        type: 'booking',
+        actionUrl: `/bookings/${booking._id}`,
+        actionText: 'View Booking',
+        metadata: {
+          bookingId: booking._id,
+          serviceId: service?._id,
+          providerId: provider?._id
+        },
+        priority: urgency === 'emergency' ? 'urgent' : 'normal'
       });
       
-      console.log('✅ Enhanced booking notifications sent successfully');
+      // Notification for provider (if assigned)
+      if (provider) {
+        await Notification.createNotification({
+          userId: provider._id,
+          title: 'New Booking Request',
+          message: `You have a new ${category.name || category.id} booking from ${client.name}. Scheduled for ${new Date(date).toLocaleDateString()}.`,
+          type: 'booking',
+          actionUrl: `/provider/bookings`,
+          actionText: 'View Bookings',
+          metadata: {
+            bookingId: booking._id,
+            serviceId: service?._id
+          },
+          priority: urgency === 'emergency' ? 'urgent' : 'normal'
+        });
+      }
+      
+      console.log('✅ In-app notifications created');
     } catch (emailError) {
       console.log('⚠️ Enhanced email notification failed:', emailError.message);
       // Don't fail the booking creation if email fails
     }
 
     // Step 6: Return success response
+    const responseMessage = assignedProvider 
+      ? 'Booking created successfully with provider assigned'
+      : 'Booking created successfully - awaiting admin provider assignment';
+      
     res.status(201).json({
       status: 'success',
-      message: 'Booking created successfully with enhanced provider matching',
+      message: responseMessage,
       data: {
         booking: {
           _id: booking._id,
+          id: booking._id, // Include both for frontend compatibility
           bookingNumber: booking.bookingNumber,
           status: booking.status,
           client: booking.client,
-          provider: booking.provider,
-          service: booking.service,
+          provider: booking.provider || null,
+          providerAssigned: !!booking.provider,
+          service: booking.service || null,
           scheduledDate: booking.scheduledDate,
           scheduledTime: booking.scheduledTime,
           location: booking.location,
           pricing: booking.pricing,
           payment: booking.payment,
-          metadata: booking.metadata
+          metadata: booking.metadata,
+          requiresAdminAssignment: !booking.provider
         }
       }
     });

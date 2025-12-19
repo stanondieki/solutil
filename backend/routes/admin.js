@@ -16,6 +16,7 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
+const Notification = require('../models/Notification');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -895,6 +896,620 @@ router.put('/bookings/:id/status', protect, adminOnly, catchAsync(async (req, re
     res.status(500).json({
       status: 'error',
       message: 'Failed to update booking status'
+    });
+  }
+}));
+
+// =====================================================
+// PROVIDER ASSIGNMENT ROUTES
+// =====================================================
+
+// @desc    Get available providers for a booking (supports multiple providers)
+// @route   GET /api/admin/bookings/:id/available-providers
+// @access  Private/Admin
+router.get('/bookings/:id/available-providers', protect, adminOnly, catchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ProviderService = require('../models/ProviderService');
+    
+    // Get the booking to understand what category is needed
+    const booking = await Booking.findById(id)
+      .populate('providers.provider', 'name email phone providerProfile');
+    if (!booking) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Booking not found'
+      });
+    }
+
+    // Get the service category from the booking - check multiple sources
+    let serviceCategory = 'other';
+    
+    // Priority 1: Check the serviceCategory field
+    if (booking.serviceCategory && booking.serviceCategory !== 'undefined') {
+      serviceCategory = booking.serviceCategory;
+    }
+    
+    // Priority 2: Check metadata.categoryRequested (from enhanced booking)
+    if (serviceCategory === 'other' && booking.metadata?.categoryRequested) {
+      serviceCategory = booking.metadata.categoryRequested;
+    }
+    
+    // Priority 3: Try to get from the associated service
+    if (serviceCategory === 'other' && booking.service) {
+      if (booking.serviceType === 'ProviderService') {
+        const service = await ProviderService.findById(booking.service);
+        if (service && service.category) {
+          serviceCategory = service.category;
+        }
+      }
+    }
+    
+    // Normalize category name to category ID for matching
+    const categoryNameToId = {
+      'Plumbing': 'plumbing',
+      'Electrical': 'electrical',
+      'Cleaning': 'cleaning',
+      'Carpentry': 'carpentry',
+      'Painting': 'painting',
+      'Gardening': 'gardening',
+      'Moving': 'movers',
+      'General Service': 'other'
+    };
+    
+    // Convert category name to ID if needed
+    const normalizedCategory = categoryNameToId[serviceCategory] || serviceCategory.toLowerCase();
+    
+    console.log(`🔍 Category detection: raw="${booking.serviceCategory}", metadata="${booking.metadata?.categoryRequested}", normalized="${normalizedCategory}"`);
+
+    // Get already assigned provider IDs
+    const alreadyAssignedIds = booking.providers?.map(
+      p => (p.provider._id || p.provider).toString()
+    ) || [];
+    
+    // Include legacy provider field if not in providers array
+    if (booking.provider && !alreadyAssignedIds.includes(booking.provider.toString())) {
+      alreadyAssignedIds.push(booking.provider.toString());
+    }
+
+    console.log(`🔍 Finding providers for category: ${normalizedCategory}, date: ${booking.scheduledDate}, time: ${booking.scheduledTime?.start}`);
+    console.log(`📋 Already assigned: ${alreadyAssignedIds.length} providers`);
+
+    // Find all approved providers
+    const allProviders = await User.find({
+      userType: 'provider',
+      providerStatus: 'approved'
+    }).select('name email phone providerProfile');
+
+    // Get provider services to match category
+    const providerServices = await ProviderService.find({
+      category: { $regex: normalizedCategory, $options: 'i' },
+      isActive: true
+    }).populate('providerId', 'name email phone providerProfile providerStatus');
+
+    // Filter to only approved providers with matching services
+    const matchingProviders = providerServices
+      .filter(ps => ps.providerId && ps.providerId.providerStatus === 'approved')
+      .map(ps => ({
+        id: ps.providerId._id,
+        name: ps.providerId.name,
+        email: ps.providerId.email,
+        phone: ps.providerId.phone,
+        rating: ps.providerId.providerProfile?.rating || 4.0,
+        totalJobs: ps.providerId.providerProfile?.totalJobs || 0,
+        serviceId: ps._id,
+        serviceTitle: ps.title,
+        servicePrice: ps.price
+      }));
+
+    // Check for time slot conflicts (with OTHER bookings)
+    const bookedProviderIds = await Booking.find({
+      $or: [
+        { provider: { $exists: true, $ne: null } },
+        { 'providers.provider': { $exists: true } }
+      ],
+      scheduledDate: booking.scheduledDate,
+      'scheduledTime.start': booking.scheduledTime?.start,
+      status: { $nin: ['cancelled', 'completed'] },
+      _id: { $ne: id } // Exclude current booking
+    }).distinct('provider');
+    
+    // Also get providers from the providers array in other bookings
+    const otherBookingsWithProviders = await Booking.find({
+      'providers.0': { $exists: true },
+      scheduledDate: booking.scheduledDate,
+      'scheduledTime.start': booking.scheduledTime?.start,
+      status: { $nin: ['cancelled', 'completed'] },
+      _id: { $ne: id }
+    }).select('providers');
+    
+    const bookedFromProvidersArray = otherBookingsWithProviders.flatMap(
+      b => b.providers.map(p => (p.provider._id || p.provider).toString())
+    );
+
+    const bookedProviderStrings = [
+      ...bookedProviderIds.map(id => id?.toString()).filter(Boolean),
+      ...bookedFromProvidersArray
+    ];
+
+    // Mark providers as available/unavailable/already-assigned
+    const providersWithAvailability = matchingProviders.map(provider => {
+      const isAlreadyAssigned = alreadyAssignedIds.includes(provider.id.toString());
+      const isBookedElsewhere = bookedProviderStrings.includes(provider.id.toString());
+      
+      return {
+        ...provider,
+        alreadyAssigned: isAlreadyAssigned,
+        available: !isAlreadyAssigned && !isBookedElsewhere,
+        conflictReason: isAlreadyAssigned 
+          ? 'Already assigned to this booking'
+          : isBookedElsewhere 
+            ? 'Already booked at this time' 
+            : null
+      };
+    });
+
+    // Sort: available first, then already assigned, then unavailable, then by rating
+    providersWithAvailability.sort((a, b) => {
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      if (a.alreadyAssigned !== b.alreadyAssigned) return a.alreadyAssigned ? -1 : 1;
+      return b.rating - a.rating;
+    });
+
+    // Also include all approved providers (even without matching service)
+    const allApprovedProviders = await User.find({
+      userType: 'provider',
+      providerStatus: 'approved'
+    }).select('name email phone providerProfile');
+
+    const otherProviders = allApprovedProviders
+      .filter(p => !matchingProviders.some(mp => mp.id.toString() === p._id.toString()))
+      .map(p => {
+        const isAlreadyAssigned = alreadyAssignedIds.includes(p._id.toString());
+        const isBookedElsewhere = bookedProviderStrings.includes(p._id.toString());
+        
+        return {
+          id: p._id,
+          name: p.name,
+          email: p.email,
+          phone: p.phone,
+          rating: p.providerProfile?.rating || 4.0,
+          totalJobs: p.providerProfile?.totalJobs || 0,
+          serviceId: null,
+          serviceTitle: 'No matching service',
+          servicePrice: null,
+          alreadyAssigned: isAlreadyAssigned,
+          available: !isAlreadyAssigned && !isBookedElsewhere,
+          conflictReason: isAlreadyAssigned 
+            ? 'Already assigned to this booking'
+            : isBookedElsewhere 
+              ? 'Already booked at this time' 
+              : null,
+          isOtherCategory: true
+        };
+      });
+
+    // Get assignment status
+    const providersNeeded = booking.providersNeeded || 1;
+    const providersAssigned = alreadyAssignedIds.length;
+    const isFullyAssigned = providersAssigned >= providersNeeded;
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        booking: {
+          id: booking._id,
+          bookingNumber: booking.bookingNumber,
+          scheduledDate: booking.scheduledDate,
+          scheduledTime: booking.scheduledTime,
+          serviceCategory,
+          providersNeeded,
+          providersAssigned,
+          isFullyAssigned,
+          slotsRemaining: Math.max(0, providersNeeded - providersAssigned),
+          currentProvider: booking.provider,
+          assignedProviders: booking.providers?.map(p => ({
+            id: p.provider._id || p.provider,
+            name: p.provider.name || 'Unknown',
+            email: p.provider.email || '',
+            phone: p.provider.phone || '',
+            assignedAt: p.assignedAt,
+            status: p.status
+          })) || []
+        },
+        matchingProviders: providersWithAvailability,
+        otherProviders: otherProviders,
+        totalAvailable: providersWithAvailability.filter(p => p.available).length + 
+                       otherProviders.filter(p => p.available).length
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching available providers:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch available providers'
+    });
+  }
+}));
+
+// @desc    Assign provider to booking (supports multiple providers)
+// @route   PUT /api/admin/bookings/:id/assign-provider
+// @access  Private/Admin
+router.put('/bookings/:id/assign-provider', protect, adminOnly, catchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { providerId, serviceId, notes } = req.body;
+    const ProviderService = require('../models/ProviderService');
+    const notificationService = require('../services/notificationService');
+
+    if (!providerId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Provider ID is required'
+      });
+    }
+
+    // Verify provider exists and is approved
+    const provider = await User.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provider not found'
+      });
+    }
+
+    if (provider.providerStatus !== 'approved') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Provider is not approved to accept bookings'
+      });
+    }
+
+    // Get the booking
+    const booking = await Booking.findById(id).populate('client', 'name email phone');
+    if (!booking) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Booking not found'
+      });
+    }
+
+    // Check if this provider is already assigned to this booking
+    const alreadyAssigned = booking.providers?.some(
+      p => p.provider.toString() === providerId.toString()
+    );
+    if (alreadyAssigned) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'This provider is already assigned to this booking'
+      });
+    }
+
+    // Check for time slot conflicts with OTHER bookings
+    const existingBooking = await Booking.findOne({
+      $or: [
+        { provider: providerId },
+        { 'providers.provider': providerId }
+      ],
+      scheduledDate: booking.scheduledDate,
+      'scheduledTime.start': booking.scheduledTime?.start,
+      status: { $nin: ['cancelled', 'completed'] },
+      _id: { $ne: id }
+    });
+
+    if (existingBooking) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'This provider is already booked at this time slot',
+        conflictBooking: existingBooking.bookingNumber
+      });
+    }
+
+    // Determine which service to use
+    let assignedService = serviceId;
+    if (!assignedService) {
+      const providerService = await ProviderService.findOne({
+        providerId: providerId,
+        isActive: true
+      });
+      if (providerService) {
+        assignedService = providerService._id;
+      }
+    }
+
+    // Initialize providers array if not exists
+    if (!booking.providers) {
+      booking.providers = [];
+    }
+
+    // Add provider to the providers array
+    booking.providers.push({
+      provider: providerId,
+      service: assignedService,
+      assignedAt: new Date(),
+      assignedBy: req.user.id,
+      status: 'assigned'
+    });
+
+    // Also set the legacy provider field (for backward compatibility)
+    // Use the first provider or update if this is the primary
+    if (!booking.provider || booking.providers.length === 1) {
+      booking.provider = providerId;
+      if (assignedService) {
+        booking.service = assignedService;
+        booking.serviceType = 'ProviderService';
+      }
+    }
+
+    // Update status based on assignment progress
+    const providersAssigned = booking.providers.length;
+    const providersNeeded = booking.providersNeeded || 1;
+    
+    if (providersAssigned >= providersNeeded) {
+      // All providers assigned - confirm the booking
+      booking.status = 'confirmed';
+    } else if (booking.status === 'pending') {
+      // Partial assignment - keep as pending but add note
+      booking.status = 'pending';
+    }
+
+    booking.assignedAt = new Date();
+    booking.assignedBy = req.user.id;
+    
+    // Add to timeline
+    if (!booking.timeline) booking.timeline = [];
+    booking.timeline.push({
+      status: 'provider-assigned',
+      timestamp: new Date(),
+      updatedBy: req.user.id,
+      notes: notes || `Provider ${provider.name} assigned by admin (${providersAssigned}/${providersNeeded} providers)`
+    });
+
+    await booking.save();
+
+    // Populate the updated booking
+    await booking.populate([
+      { path: 'client', select: 'name email phone' },
+      { path: 'provider', select: 'name email phone providerProfile' },
+      { path: 'providers.provider', select: 'name email phone providerProfile' }
+    ]);
+
+    // Send notifications
+    try {
+      await notificationService.sendProviderAssignmentNotification(booking, provider);
+      
+      // Only notify client when all providers are assigned
+      if (providersAssigned >= providersNeeded) {
+        await notificationService.sendClientProviderAssigned(booking, provider);
+      }
+      
+      console.log(`✅ Notifications sent for provider assignment: ${booking.bookingNumber}`);
+    } catch (notifyError) {
+      console.error('⚠️ Failed to send assignment notifications:', notifyError);
+    }
+
+    // Create in-app notifications
+    try {
+      // Notify the provider about the assignment
+      await Notification.createNotification({
+        userId: providerId,
+        title: 'New Booking Assignment',
+        message: `You have been assigned to booking #${booking.bookingNumber} for ${booking.serviceCategory || 'service request'}`,
+        type: 'booking',
+        priority: 'high',
+        actionUrl: `/provider/bookings/${booking._id}`,
+        metadata: {
+          bookingId: booking._id,
+          bookingNumber: booking.bookingNumber,
+          clientName: booking.client?.name
+        }
+      });
+
+      // Only notify client when all providers are assigned
+      if (providersAssigned >= providersNeeded && booking.client) {
+        await Notification.createNotification({
+          userId: booking.client._id,
+          title: 'Provider Assigned',
+          message: `A provider has been assigned to your booking #${booking.bookingNumber}. Your service is confirmed!`,
+          type: 'booking',
+          priority: 'high',
+          actionUrl: `/bookings/${booking._id}`,
+          metadata: {
+            bookingId: booking._id,
+            bookingNumber: booking.bookingNumber,
+            providerName: provider.name
+          }
+        });
+      }
+
+      console.log(`✅ In-app notifications created for provider assignment: ${booking.bookingNumber}`);
+    } catch (notifyError) {
+      console.error('⚠️ Failed to create in-app notifications:', notifyError);
+    }
+
+    console.log(`✅ Provider ${provider.name} assigned to booking ${booking.bookingNumber} (${providersAssigned}/${providersNeeded})`);
+
+    res.status(200).json({
+      status: 'success',
+      message: `Provider ${provider.name} successfully assigned (${providersAssigned}/${providersNeeded} providers)`,
+      data: {
+        booking: {
+          id: booking._id,
+          bookingNumber: booking.bookingNumber,
+          status: booking.status,
+          providersNeeded: providersNeeded,
+          providersAssigned: providersAssigned,
+          isFullyAssigned: providersAssigned >= providersNeeded,
+          providers: booking.providers.map(p => ({
+            id: p.provider._id || p.provider,
+            name: p.provider.name || 'Loading...',
+            email: p.provider.email || '',
+            phone: p.provider.phone || '',
+            assignedAt: p.assignedAt,
+            status: p.status
+          })),
+          assignedAt: booking.assignedAt,
+          client: booking.client
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error assigning provider:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to assign provider: ' + error.message
+    });
+  }
+}));
+
+// @desc    Unassign provider from booking (supports multiple providers)
+// @route   PUT /api/admin/bookings/:id/unassign-provider
+// @access  Private/Admin
+router.put('/bookings/:id/unassign-provider', protect, adminOnly, catchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { providerId, reason } = req.body;
+
+    const booking = await Booking.findById(id)
+      .populate('provider', 'name email')
+      .populate('providers.provider', 'name email')
+      .populate('client', 'name email');
+
+    if (!booking) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Booking not found'
+      });
+    }
+
+    let removedProvider = null;
+
+    // If providerId is specified, remove that specific provider
+    if (providerId) {
+      // Find and remove from providers array
+      const providerIndex = booking.providers?.findIndex(
+        p => p.provider._id?.toString() === providerId.toString() || 
+             p.provider.toString() === providerId.toString()
+      );
+
+      if (providerIndex > -1) {
+        removedProvider = booking.providers[providerIndex].provider;
+        booking.providers.splice(providerIndex, 1);
+      }
+
+      // If this was also the legacy provider field, clear it
+      if (booking.provider?.toString() === providerId.toString() || 
+          booking.provider?._id?.toString() === providerId.toString()) {
+        booking.provider = null;
+        // Set next available provider as the primary if exists
+        if (booking.providers?.length > 0) {
+          booking.provider = booking.providers[0].provider._id || booking.providers[0].provider;
+        }
+      }
+    } else {
+      // No specific provider - remove all providers
+      removedProvider = booking.provider;
+      booking.provider = null;
+      booking.providers = [];
+    }
+
+    // Update status based on remaining providers
+    const providersRemaining = booking.providers?.length || 0;
+    const providersNeeded = booking.providersNeeded || 1;
+    
+    if (providersRemaining === 0) {
+      booking.status = 'pending';
+      booking.assignedAt = null;
+    } else if (providersRemaining < providersNeeded) {
+      // Partial assignment - keep confirmed but need more
+      booking.status = 'pending';
+    }
+    
+    // Add to timeline
+    if (!booking.timeline) booking.timeline = [];
+    booking.timeline.push({
+      status: 'provider-unassigned',
+      timestamp: new Date(),
+      updatedBy: req.user.id,
+      notes: reason || `Provider ${removedProvider?.name || 'unknown'} unassigned by admin (${providersRemaining}/${providersNeeded} remaining)`
+    });
+
+    await booking.save();
+
+    // Create in-app notifications for unassignment
+    try {
+      // Notify the provider about unassignment
+      if (removedProvider && (removedProvider._id || removedProvider)) {
+        const removedProviderId = removedProvider._id || removedProvider;
+        await Notification.createNotification({
+          userId: removedProviderId,
+          title: 'Booking Unassignment',
+          message: `You have been unassigned from booking #${booking.bookingNumber}${reason ? ': ' + reason : ''}`,
+          type: 'booking',
+          priority: 'medium',
+          actionUrl: `/provider/dashboard`,
+          metadata: {
+            bookingId: booking._id,
+            bookingNumber: booking.bookingNumber,
+            reason: reason
+          }
+        });
+      }
+
+      // Notify client about the change
+      if (booking.client) {
+        await Notification.createNotification({
+          userId: booking.client._id,
+          title: 'Booking Update',
+          message: `There has been a change to your booking #${booking.bookingNumber}. A new provider will be assigned shortly.`,
+          type: 'booking',
+          priority: 'medium',
+          actionUrl: `/bookings/${booking._id}`,
+          metadata: {
+            bookingId: booking._id,
+            bookingNumber: booking.bookingNumber
+          }
+        });
+      }
+
+      console.log(`✅ In-app notifications created for provider unassignment: ${booking.bookingNumber}`);
+    } catch (notifyError) {
+      console.error('⚠️ Failed to create in-app notifications:', notifyError);
+    }
+
+    console.log(`✅ Provider unassigned from booking ${booking.bookingNumber} (${providersRemaining}/${providersNeeded} remaining)`);
+
+    res.status(200).json({
+      status: 'success',
+      message: `Provider unassigned (${providersRemaining}/${providersNeeded} providers remaining)`,
+      data: {
+        booking: {
+          id: booking._id,
+          bookingNumber: booking.bookingNumber,
+          status: booking.status,
+          providersNeeded: providersNeeded,
+          providersAssigned: providersRemaining,
+          isFullyAssigned: providersRemaining >= providersNeeded,
+          providers: booking.providers?.map(p => ({
+            id: p.provider._id || p.provider,
+            name: p.provider.name || 'Unknown',
+            email: p.provider.email || '',
+            assignedAt: p.assignedAt,
+            status: p.status
+          })) || []
+        },
+        removedProvider: removedProvider ? {
+          id: removedProvider._id || removedProvider,
+          name: removedProvider.name || 'Unknown',
+          email: removedProvider.email || ''
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error('Error unassigning provider:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to unassign provider'
     });
   }
 }));

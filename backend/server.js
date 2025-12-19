@@ -193,6 +193,8 @@ app.use('/api/admin/payouts', adminPayoutRoutes); // 🔧 Admin payout managemen
 app.use('/api/payment-requests', require('./routes/paymentRequestRoutes')); // 💰 Provider-initiated payment requests
 app.use('/api/booking', require('./routes/optimalProviderMatching')); // 🎯 Optimal provider matching with comprehensive factors
 app.use('/api/booking', require('./routes/ultimateProviderDiscovery')); // 🚀 Ultimate provider discovery system
+app.use('/api/discounts', require('./routes/discounts')); // 🎄 Discount codes and festive offers
+app.use('/api/notifications', require('./routes/notifications')); // 🔔 User notifications
 
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

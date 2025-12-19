@@ -255,6 +255,15 @@ const DYNAMIC_SERVICE_PRICING: Record<string, ServicePricing[]> = {
   ],
   cleaning: [
     {
+      id: 'mama-fua',
+      name: 'Mama Fua (Laundry Services)',
+      priceRange: { min: 800, max: 1500 },
+      sizeBased: false,
+      description: 'Professional hand washing, ironing & laundry services',
+      estimatedDuration: '2-4 hours',
+      category: 'cleaning'
+    },
+    {
       id: 'basic-1-2bed',
       name: 'Basic cleaning (1-2 bedrooms)',
       priceRange: { min: 1800, max: 3000 },
@@ -786,8 +795,8 @@ const serviceCategories: ServiceCategory[] = [
   }
 ];
 
-// Booking flow steps
-type BookingStep = 'category' | 'details' | 'location' | 'providers' | 'payment'
+// Booking flow steps - simplified (removed providers step)
+type BookingStep = 'category' | 'details' | 'location' | 'payment'
 
 interface BookingData {
   category: ServiceCategory | null
@@ -831,6 +840,39 @@ const URGENCY_MULTIPLIERS = {
   'normal': 1.0,
   'urgent': 1.5,
   'emergency': 2.0
+}
+
+// Helper function to get minimum booking date based on urgency
+// Normal bookings: at least 1 day in advance
+// Urgent/Emergency bookings: same-day allowed
+const getMinBookingDate = (urgency: 'normal' | 'urgent' | 'emergency'): string => {
+  const today = new Date()
+  if (urgency === 'normal') {
+    // Add 1 day for normal bookings
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return tomorrow.toISOString().split('T')[0]
+  }
+  // Urgent and emergency can be same-day
+  return today.toISOString().split('T')[0]
+}
+
+// Helper to check if selected date is valid for the urgency level
+const isValidBookingDate = (date: string, urgency: 'normal' | 'urgent' | 'emergency'): boolean => {
+  if (!date) return false
+  const selectedDate = new Date(date)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  selectedDate.setHours(0, 0, 0, 0)
+  
+  if (urgency === 'normal') {
+    // Must be at least 1 day in advance
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return selectedDate >= tomorrow
+  }
+  // Urgent/emergency can be same-day
+  return selectedDate >= today
 }
 
 // Helper function to get available sub-services for a category
@@ -896,9 +938,9 @@ const calculateDynamicPrice = (
   // Apply location multiplier
   const locationMultiplier = LOCATION_MULTIPLIERS[location] || 1.0
   
-  // Calculate final price
+  // Calculate final price - no longer multiplies by providers, price is fixed per service
   const finalPrice = Math.round(
-    basePrice * urgencyMultiplier * locationMultiplier * providersNeeded
+    basePrice * urgencyMultiplier * locationMultiplier
   )
   
   // Calculate the base price for calculations
@@ -1633,11 +1675,7 @@ Status: Confirmed ✅
           setCurrentStep('location')
           break
         case 'location':
-          setCurrentStep('providers')
-          // Fetch providers when entering provider selection step
-          fetchMatchingProviders()
-          break
-        case 'providers':
+          // Skip provider selection - go directly to payment
           setCurrentStep('payment')
           break
       }
@@ -2245,11 +2283,9 @@ Status: Confirmed ✅
       case 'location':
         setCurrentStep('details')
         break
-      case 'providers':
-        setCurrentStep('location')
-        break
       case 'payment':
-        setCurrentStep('providers')
+        // Go back to location (skipping provider step)
+        setCurrentStep('location')
         break
     }
   }
@@ -2264,7 +2300,15 @@ Status: Confirmed ✅
         }
         break
       case 'details':
-        if (!bookingData.date) newErrors.date = 'Please select a date'
+        if (!bookingData.date) {
+          newErrors.date = 'Please select a date'
+        } else if (!isValidBookingDate(bookingData.date, bookingData.urgency)) {
+          if (bookingData.urgency === 'normal') {
+            newErrors.date = 'Normal bookings must be made at least 1 day in advance. Select "Urgent" or "Emergency" for same-day service.'
+          } else {
+            newErrors.date = 'Please select a valid date'
+          }
+        }
         if (!bookingData.time) newErrors.time = 'Please select a time'
         if (!bookingData.selectedSubService) newErrors.subService = 'Please select a specific service'
         // Description is now optional - no validation required
@@ -2285,14 +2329,13 @@ Status: Confirmed ✅
       case 'category': return '🎯 Choose Service Category'
       case 'details': return '📋 Service Details'
       case 'location': return '📍 Location & Area'
-      case 'providers': return '👥 Select Smart-Matched Providers'
       case 'payment': return '💳 Payment & Confirmation'
       default: return '✨ Enhanced Book Service'
     }
   }
 
   const getProgress = () => {
-    const steps = ['category', 'details', 'location', 'providers', 'payment']
+    const steps = ['category', 'details', 'location', 'payment']
     return ((steps.indexOf(currentStep) + 1) / steps.length) * 100
   }
 
@@ -2315,7 +2358,7 @@ Status: Confirmed ✅
                   <p className="text-gray-700">
                     Book professional services in Nairobi
                     <span className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      🚀 v2.1 - Oct 21, 2025
+                      🚀 v3.0 - Simplified Booking
                     </span>
                   </p>
                 </div>
@@ -2340,7 +2383,6 @@ Status: Confirmed ✅
                 <span>Category</span>
                 <span>Details</span>
                 <span>Location</span>
-                <span>Providers</span>
                 <span>Payment</span>
               </div>
               
@@ -2348,7 +2390,7 @@ Status: Confirmed ✅
               <div className="mt-4 text-center">
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-100 text-green-800 border border-green-200">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                  Live v2.1 - Smart Matching & Profile Pictures Active
+                  Live v3.0 - Simplified Booking Flow
                   <span className="ml-2">🚀</span>
                 </div>
               </div>
@@ -2449,13 +2491,15 @@ Status: Confirmed ✅
                   </div>
 
                   <div className="space-y-6">
-                    {/* Phase 3: Sub-Service Selection */}
+                    {/* Phase 3: Sub-Service Selection - Compact Grid Design */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
                         <FaWrench className="inline h-4 w-4 mr-2 text-orange-500" />
                         What specific service do you need?
                       </label>
-                      <div className="grid grid-cols-1 gap-3">
+                      
+                      {/* Compact Grid Layout for Services */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
                         {getSubServices(bookingData.category.id).map((subService) => (
                           <div key={subService.id} className="relative">
                             <input
@@ -2473,50 +2517,40 @@ Status: Confirmed ✅
                             />
                             <label
                               htmlFor={`subservice-${subService.id}`}
-                              className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                              className={`flex flex-col p-3 border-2 rounded-lg cursor-pointer transition-all h-full ${
                                 bookingData.selectedSubService?.id === subService.id
-                                  ? 'border-orange-500 bg-orange-50'
-                                  : 'border-gray-200 bg-white hover:border-orange-300'
+                                  ? 'border-orange-500 bg-orange-50 shadow-md'
+                                  : 'border-gray-200 bg-white hover:border-orange-300 hover:shadow-sm'
                               }`}
                             >
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="font-semibold text-gray-900">{subService.name}</div>
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-900 text-sm leading-tight truncate">
+                                    {subService.name}
+                                  </div>
                                   {subService.isPackage && (
-                                    <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
-                                      Package Deal
+                                    <span className="inline-block mt-1 px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
+                                      📦 Package
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-sm text-gray-700 mt-1">{subService.description}</div>
-                                {subService.isPackage && subService.packageDetails ? (
-                                  <div className="mt-2 space-y-1">
-                                    <div className="text-xs text-green-600 font-semibold">
-                                      📅 {subService.packageDetails.frequency} • 💰 {subService.packageDetails.savings}
-                                    </div>
-                                    <div className="text-xs text-gray-600">
-                                      ✓ {subService.packageDetails.features.slice(0, 2).join(' • ')}
-                                    </div>
+                                <div className="text-right flex-shrink-0">
+                                  <div className="font-bold text-orange-600 text-sm whitespace-nowrap">
+                                    KES {subService.priceRange.min.toLocaleString()}
+                                    {!subService.isPackage && subService.priceRange.min !== subService.priceRange.max && (
+                                      <span className="text-xs text-gray-500">+</span>
+                                    )}
                                   </div>
-                                ) : (
-                                  <div className="text-xs text-gray-600 mt-1">
-                                    Duration: {subService.estimatedDuration}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="text-right ml-4">
-                                <div className="font-bold text-orange-600">
-                                  {subService.isPackage ? (
-                                    <>KES {subService.priceRange.min.toLocaleString()}</>
-                                  ) : (
-                                    <>KES {subService.priceRange.min.toLocaleString()} - {subService.priceRange.max.toLocaleString()}</>
-                                  )}
                                 </div>
-                                {subService.isPackage ? (
-                                  <div className="text-xs text-green-600 font-semibold">Fixed Package Price</div>
-                                ) : subService.sizeBased ? (
-                                  <div className="text-xs text-gray-600">Price varies by size</div>
-                                ) : null}
+                              </div>
+                              <div className="text-xs text-gray-600 line-clamp-2 mt-auto">
+                                {subService.description}
+                              </div>
+                              <div className="flex items-center justify-between mt-2 text-xs">
+                                <span className="text-gray-500">⏱️ {subService.estimatedDuration}</span>
+                                {subService.sizeBased && (
+                                  <span className="text-orange-500 font-medium">📏 Size-based</span>
+                                )}
                               </div>
                             </label>
                           </div>
@@ -2679,10 +2713,17 @@ Status: Confirmed ✅
                           type="date"
                           value={bookingData.date}
                           onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
-                          min={new Date().toISOString().split('T')[0]}
+                          min={getMinBookingDate(bookingData.urgency)}
                           className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-orange-50 bg-white text-gray-900 font-medium text-base"
                         />
-                        <p className="text-xs text-gray-600 mt-1">Select your preferred service date</p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {bookingData.urgency === 'normal' 
+                            ? '📅 Normal bookings require at least 1 day advance notice' 
+                            : bookingData.urgency === 'urgent'
+                              ? '⚡ Urgent service - same-day booking available (+50% fee)'
+                              : '🚨 Emergency service - same-day booking available (+100% fee)'
+                          }
+                        </p>
                         {errors.date && <div className="text-red-500 text-sm mt-1">{errors.date}</div>}
                       </div>
 
@@ -2785,29 +2826,42 @@ Examples:
                         {[
                           { 
                             value: 'normal', 
-                            label: '🕐 Normal Priority', 
-                            desc: 'Within 24-48 hours', 
-                            detail: 'Standard scheduling',
+                            label: '🕐 Normal', 
+                            desc: 'Book 1+ day ahead', 
+                            detail: 'Standard price',
+                            price: 'No extra charge',
                             color: 'bg-green-50 border-green-200 text-green-700' 
                           },
                           { 
                             value: 'urgent', 
-                            label: '⚡ Urgent Priority', 
-                            desc: 'Within 2-6 hours', 
-                            detail: 'Same day service',
+                            label: '⚡ Urgent', 
+                            desc: 'Same-day service', 
+                            detail: '+50% fee',
+                            price: '1.5× price',
                             color: 'bg-yellow-50 border-yellow-200 text-yellow-700' 
                           },
                           { 
                             value: 'emergency', 
-                            label: '🚨 Emergency Priority', 
-                            desc: 'Within 1 hour', 
-                            detail: 'Immediate response',
+                            label: '🚨 Emergency', 
+                            desc: 'Immediate response', 
+                            detail: '+100% fee',
+                            price: '2× price',
                             color: 'bg-red-50 border-red-200 text-red-700' 
                           }
                         ].map((urgency) => (
                           <button
                             key={urgency.value}
-                            onClick={() => setBookingData(prev => ({ ...prev, urgency: urgency.value as any }))}
+                            onClick={() => {
+                              const newUrgency = urgency.value as 'normal' | 'urgent' | 'emergency'
+                              // Reset date if switching to normal and current date is today
+                              const today = new Date().toISOString().split('T')[0]
+                              const shouldResetDate = newUrgency === 'normal' && bookingData.date === today
+                              setBookingData(prev => ({ 
+                                ...prev, 
+                                urgency: newUrgency,
+                                date: shouldResetDate ? '' : prev.date
+                              }))
+                            }}
                             className={`p-4 rounded-lg border-2 text-center transition-all ${
                               bookingData.urgency === urgency.value
                                 ? urgency.color + ' ring-2 ring-orange-200'
@@ -2816,11 +2870,18 @@ Examples:
                           >
                             <div className="font-semibold text-sm mb-1">{urgency.label}</div>
                             <div className="text-xs mb-1">{urgency.desc}</div>
-                            <div className="text-xs opacity-75">{urgency.detail}</div>
+                            <div className="text-xs font-medium">{urgency.price}</div>
                           </button>
                         ))}
                       </div>
-                      <p className="text-xs text-gray-600 mt-2">Emergency services may have additional charges</p>
+                      <p className="text-xs text-gray-600 mt-2">
+                        {bookingData.urgency === 'normal' 
+                          ? '📅 Normal bookings must be scheduled at least 1 day in advance'
+                          : bookingData.urgency === 'urgent'
+                            ? '⚡ Urgent bookings can be same-day but have a 50% surcharge'
+                            : '🚨 Emergency bookings are same-day with 100% surcharge for immediate response'
+                        }
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -3078,345 +3139,14 @@ Examples:
                     onClick={handleStepForward}
                     className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                   >
-                    Find Providers
+                    Continue to Payment
                     <FaArrowRight className="inline h-4 w-4 ml-2" />
                   </button>
                 </div>
               </motion.div>
             )}
 
-            {/* Step 4: Provider Selection */}
-            {currentStep === 'providers' && (
-              <motion.div
-                key="providers"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="max-w-4xl mx-auto"
-              >
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">👥 Choose Your Professional</h3>
-                    <p className="text-gray-600">Select {bookingData.providersNeeded} qualified {bookingData.category?.name.toLowerCase()} professional{bookingData.providersNeeded > 1 ? 's' : ''} for your job</p>
-                    <div className="mt-2 flex items-center justify-center space-x-4 text-sm">
-                      <span className="flex items-center text-green-600">
-                        <FaCheck className="h-3 w-3 mr-1" />
-                        Background verified
-                      </span>
-                      <span className="flex items-center text-blue-600">
-                        <FaStar className="h-3 w-3 mr-1" />
-                        Rated professionals
-                      </span>
-                      <span className="flex items-center text-orange-600">
-                        <FaDollarSign className="h-3 w-3 mr-1" />
-                        Fixed pricing
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {providerMatching.loading ? (
-                    <div className="text-center py-12">
-                      <FaSpinner className="h-12 w-12 text-orange-500 mx-auto mb-4 animate-spin" />
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">🧠 Smart Matching in Progress...</h4>
-                      <p className="text-gray-600 mb-2">
-                        Using AI-powered matching to find <strong>{bookingData.providersNeeded}</strong> available <strong>{bookingData.category?.name.toLowerCase()}</strong> professional{bookingData.providersNeeded > 1 ? 's' : ''} with real profile pictures
-                      </p>
-                      <div className="flex justify-center mb-3">
-                        <div className="bg-blue-50 px-3 py-1 rounded-full">
-                          <span className="text-xs font-medium text-blue-700">✨ Enhanced v2.1 - Smart Availability Check</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-700 space-y-1">
-                        <p>📍 Location: <strong>{bookingData.location.area}</strong></p>
-                        <p>📅 Date: <strong>{bookingData.date}</strong> at <strong>{bookingData.time}</strong></p>
-                        <p>⏱️ Duration: <strong>{bookingData.duration} hour{bookingData.duration > 1 ? 's' : ''}</strong></p>
-                      </div>
-                    </div>
-                  ) : providerMatching.error ? (
-                    <div className="text-center py-12">
-                      <FaExclamationTriangle className="h-12 w-12 text-amber-400 mx-auto mb-4" />
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">😔 No Professionals Available</h4>
-                      <p className="text-gray-600 mb-4">{providerMatching.error}</p>
-                      <div className="bg-blue-50 rounded-lg p-4 mb-4 text-left max-w-md mx-auto">
-                        <h5 className="font-semibold text-blue-900 mb-2">💡 Suggestions to find professionals:</h5>
-                        <ul className="text-sm text-blue-800 space-y-1">
-                          <li>✅ Try a different time slot (morning/afternoon)</li>
-                          <li>✅ Consider nearby areas ({serviceAreas.filter(area => area !== bookingData.location.area).slice(0, 2).join(', ')})</li>
-                          <li>✅ Book for tomorrow or next week</li>
-                          <li>✅ Reduce number of professionals needed</li>
-                        </ul>
-                      </div>
-                      <button
-                        onClick={() => setCurrentStep('location')}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold"
-                      >
-                        🔄 Modify Search Criteria
-                      </button>
-                    </div>
-                  ) : providerMatching.providers.length > 0 ? (
-                    <div className="space-y-6">
-                      <div className="text-sm text-gray-600 mb-4">
-                        Found {providerMatching.totalFound} provider(s) matching your criteria. 
-                        Showing the best {Math.min(providerMatching.providers.length, bookingData.providersNeeded * 2)} matches.
-                      </div>
-
-                      {providerMatching.providers.map((provider, index) => (
-                        <div key={provider._id} className="border border-gray-200 rounded-lg p-4 md:p-6 hover:border-orange-300 transition-colors">
-                          <div className="flex items-start space-x-3 md:space-x-4">
-                            {/* Provider Avatar */}
-                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                              {provider.profilePicture ? (
-                                <img 
-                                  src={provider.profilePicture} 
-                                  alt={provider.name}
-                                  className="w-full h-full object-cover"
-                                  onLoad={() => {
-                                    console.log(`✅ Successfully loaded profile picture for ${provider.name}: ${provider.profilePicture}`);
-                                  }}
-                                  onError={(e) => {
-                                    console.warn(`❌ Failed to load profile picture for ${provider.name}: ${provider.profilePicture}`);
-                                    // Fallback to generated avatar if image fails to load
-                                    const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=200&background=6b7280&color=ffffff&bold=true&format=png`;
-                                    (e.target as HTMLImageElement).src = fallback;
-                                    console.log(`🔄 Using fallback avatar for ${provider.name}: ${fallback}`);
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                                  <FaUser className="h-6 w-6 text-orange-600" />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Provider Info */}
-                            <div className="flex-1">
-                              <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-3 md:space-y-0">
-                                <div className="flex-1 md:pr-4">
-                                  <h4 className="text-lg font-semibold text-gray-900">{provider.name}</h4>
-                                  <p className="text-gray-600 mb-2">
-                                    {provider.providerProfile?.experience || "Experienced Professional"}
-                                  </p>
-                                  
-                                  {/* Skills */}
-                                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 mb-3">
-                                    <div className="flex items-center">
-                                      <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
-                                      <span className="text-sm font-medium text-gray-700">
-                                        Available Provider
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center">
-                                      <FaStar className="h-4 w-4 text-yellow-400 mr-1" />
-                                      <span className="text-sm font-medium text-gray-700">
-                                        {provider.providerProfile?.rating || "4.5"}
-                                      </span>
-                                      <span className="text-sm text-gray-600 ml-1">
-                                        ({provider.providerProfile?.reviewCount || "5"} reviews)
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Provider Skills */}
-                                  {provider.providerProfile?.skills?.length > 0 || provider.skills?.length > 0 ? (
-                                    <div className="flex flex-wrap gap-1 mb-3">
-                                      {(provider.providerProfile?.skills || provider.skills || []).slice(0, 3).map((skill: string, idx: number) => (
-                                        <span key={idx} className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                                          {skill}
-                                        </span>
-                                      ))}
-                                      {(provider.providerProfile?.skills || provider.skills || []).length > 3 && (
-                                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                                          +{(provider.providerProfile?.skills || provider.skills || []).length - 3} more
-                                        </span>
-                                      )}
-                                    </div>
-                                  ) : null}
-
-                                  {/* Availability & Response Time */}
-                                  <div className="text-sm text-gray-600">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
-                                      <span className="flex items-center">
-                                        <FaClock className="h-3 w-3 mr-1" />
-                                        Response: {provider.providerProfile?.responseTime || "Within 1 hour"}
-                                      </span>
-                                      <span className="flex items-center">
-                                        <FaMapMarkerAlt className="h-3 w-3 mr-1" />
-                                        {bookingData.location.area}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Price & Book Button */}
-                                <div className="flex flex-col md:items-end space-y-2">
-                                  <div className="flex flex-col md:text-right">
-                                    <div className="text-lg font-bold text-orange-600">
-                                      {bookingData.priceBreakdown ? 
-                                        `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
-                                        'Price TBD'
-                                      }
-                                    </div>
-                                    <div className="text-sm text-gray-600">
-                                      Per professional
-                                    </div>
-                                  </div>
-                                  {selectedProviders.find(p => p._id === provider._id) ? (
-                                    // Selected state - show deselect option
-                                    <div className="flex flex-col space-y-2">
-                                      <button
-                                        onClick={() => handleProviderSelection(provider)}
-                                        className="w-full md:w-auto px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium flex items-center justify-center"
-                                      >
-                                        <FaCheck className="h-3 w-3 mr-2" />
-                                        Selected
-                                      </button>
-                                      <button
-                                        onClick={() => handleProviderSelection(provider)}
-                                        className="w-full md:w-auto px-3 py-1 rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition-colors text-xs font-medium"
-                                      >
-                                        ✕ Change Provider
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    // Unselected state
-                                    <button
-                                      onClick={() => handleProviderSelection(provider)}
-                                      className={`w-full md:w-auto px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                                        selectedProviders.length >= bookingData.providersNeeded
-                                          ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                                          : 'bg-orange-600 text-white hover:bg-orange-700'
-                                      }`}
-                                      disabled={selectedProviders.length >= bookingData.providersNeeded}
-                                    >
-                                      Select Provider
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Availability Notes */}
-                              {provider.providerProfile?.notes && (
-                                <div className="mt-3 text-xs text-gray-600">
-                                  <span className="font-medium">Notes: </span>
-                                  {provider.providerProfile.notes}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Selection Summary */}
-                      {selectedProviders.length > 0 && (
-                        <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg">
-                          <h4 className="font-bold text-gray-900 mb-3 flex items-center">
-                            <FaCheck className="h-4 w-4 text-green-600 mr-2" />
-                            ✅ Selected Professionals ({selectedProviders.length}/{bookingData.providersNeeded})
-                          </h4>
-                          <div className="space-y-3">
-                            {selectedProviders.map((provider: any) => (
-                              <div key={provider._id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-100">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-                                    {provider.profilePicture ? (
-                                      <img 
-                                        src={provider.profilePicture} 
-                                        alt={provider.name} 
-                                        className="w-full h-full object-cover"
-                                        onLoad={() => {
-                                          console.log(`✅ Successfully loaded selected provider picture for ${provider.name}`);
-                                        }}
-                                        onError={(e) => {
-                                          console.warn(`❌ Failed to load selected provider picture for ${provider.name}: ${provider.profilePicture}`);
-                                          const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=64&background=6b7280&color=ffffff&bold=true&format=png`;
-                                          (e.target as HTMLImageElement).src = fallback;
-                                        }}
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                                        <FaUser className="h-3 w-3 text-orange-600" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <span className="font-semibold text-gray-900">{provider.name}</span>
-                                    <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                      <span className="flex items-center">
-                                        <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
-                                        {provider.rating || 4.5}
-                                      </span>
-                                      <span>•</span>
-                                      <span>{provider.completedJobs || 0} jobs</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <div className="font-bold text-orange-600">
-                                    {bookingData.priceBreakdown ? 
-                                      `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
-                                      'Price TBD'
-                                    }
-                                  </div>
-                                  <div className="text-xs text-gray-600">per professional</div>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="pt-3 border-t-2 border-green-200">
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-gray-900">💰 Total Service Cost:</span>
-                                <span className="text-xl font-bold text-green-600">
-                                  KES {bookingData.priceBreakdown ? 
-                                    bookingData.priceBreakdown.calculations.finalTotal.toLocaleString() :
-                                    (selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()
-                                  }
-                                </span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Dynamic pricing • No hidden fees • Payment protected</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <FaUsers className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No Providers Available</h4>
-                      <p className="text-gray-600 mb-4">
-                        No providers found matching your criteria. Please try adjusting your search.
-                      </p>
-                      <button
-                        onClick={() => setCurrentStep('location')}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                      >
-                        Modify Search
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-between">
-                  <button
-                    onClick={handleStepBack}
-                    className="px-6 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <FaArrowLeft className="inline h-4 w-4 mr-2" />
-                    Back
-                  </button>
-                  <button
-                    onClick={handleStepForward}
-                    disabled={selectedProviders.length !== bookingData.providersNeeded || providerMatching.loading}
-                    className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {selectedProviders.length === bookingData.providersNeeded 
-                      ? 'Proceed to Payment' 
-                      : `Select ${bookingData.providersNeeded - selectedProviders.length} more provider(s)`}
-                    <FaArrowRight className="inline h-4 w-4 ml-2" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 5: Payment */}
+            {/* Step 4: Payment */}
             {currentStep === 'payment' && (
               <motion.div
                 key="payment"
@@ -3480,7 +3210,7 @@ Examples:
                         </div>
                       </div>
 
-                      {/* Phase 2: Detailed Price Breakdown */}
+                      {/* Price Breakdown */}
                       {bookingData.priceBreakdown && (
                         <div className="pt-4 border-t border-gray-200">
                           <h4 className="font-bold text-gray-900 mb-3 flex items-center">
@@ -3522,12 +3252,6 @@ Examples:
                                 </span>
                               </div>
                             )}
-                            {bookingData.priceBreakdown && bookingData.priceBreakdown.providersNeeded > 1 && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Multiple Professionals (×{bookingData.priceBreakdown.providersNeeded}):</span>
-                                <span className="font-medium">×{bookingData.priceBreakdown.providersNeeded}</span>
-                              </div>
-                            )}
                             <div className="border-t border-gray-300 pt-2 mt-3">
                               <div className="flex justify-between text-lg font-bold">
                                 <span className="text-gray-900">Total Amount:</span>
@@ -3538,64 +3262,7 @@ Examples:
                         </div>
                       )}
 
-                      {/* Selected Providers */}
-                      <div className="pt-4 border-t border-gray-200">
-                        <h4 className="font-bold text-gray-900 mb-3 flex items-center">
-                          <FaUsers className="h-4 w-4 text-orange-500 mr-2" />
-                          👥 Your Selected Professionals:
-                        </h4>
-                        <div className="space-y-3">
-                          {selectedProviders.map((provider: any) => (
-                            <div key={provider._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                                  {provider.profilePicture ? (
-                                    <img 
-                                      src={provider.profilePicture} 
-                                      alt={provider.name} 
-                                      className="w-full h-full object-cover"
-                                      onLoad={() => {
-                                        console.log(`✅ Successfully loaded final provider picture for ${provider.name}`);
-                                      }}
-                                      onError={(e) => {
-                                        console.warn(`❌ Failed to load final provider picture for ${provider.name}: ${provider.profilePicture}`);
-                                        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&size=80&background=6b7280&color=ffffff&bold=true&format=png`;
-                                        (e.target as HTMLImageElement).src = fallback;
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-orange-100">
-                                      <FaUser className="h-4 w-4 text-orange-600" />
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <div className="font-semibold text-gray-900">{provider.name}</div>
-                                  <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                    <span className="flex items-center">
-                                      <FaStar className="h-3 w-3 text-yellow-400 mr-1" />
-                                      {provider.rating || 4.5} rating
-                                    </span>
-                                    <span>•</span>
-                                    <span>{provider.completedJobs || 0} jobs completed</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-bold text-orange-600">
-                                  {bookingData.priceBreakdown ? 
-                                    `KES ${Math.round(bookingData.priceBreakdown.calculations.finalTotal / bookingData.providersNeeded).toLocaleString()}` :
-                                    'Price TBD'
-                                  }
-                                </div>
-                                <div className="text-xs text-gray-600">per professional</div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Total Cost */}
+                      {/* Total Cost Summary */}
                       <div className="pt-4 border-t-2 border-gray-200">
                         <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg">
                           <div className="flex justify-between items-center">
@@ -3603,51 +3270,14 @@ Examples:
                             <span className="text-2xl font-bold text-orange-600">
                               KES {bookingData.priceBreakdown ? 
                                 bookingData.priceBreakdown.calculations.finalTotal.toLocaleString() :
-                                (selectedProviders.length * getServicePrice(bookingData.category?.id || 'electrical')).toLocaleString()
+                                getServicePrice(bookingData.category?.id || 'electrical').toLocaleString()
                               }
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-sm text-gray-600 mt-2">
                             <span>✅ Transparent pricing - No surprises</span>
-                            <span>🔒 Payment held securely until completion</span>
+                            <span>🔒 Payment protected</span>
                           </div>
-                          
-                          {/* Detailed Price Breakdown */}
-                          {bookingData.priceBreakdown && (
-                            <div className="mt-4 pt-3 border-t border-orange-200">
-                              <div className="text-sm space-y-2">
-                                <div className="font-medium text-gray-700 mb-2">💹 Price Breakdown:</div>
-                                <div className="flex justify-between text-gray-600">
-                                  <span>Base service ({bookingData.priceBreakdown.serviceName}):</span>
-                                  <span>KES {bookingData.priceBreakdown.calculations.baseService.toLocaleString()}</span>
-                                </div>
-                                {bookingData.priceBreakdown.sizeMultiplier && bookingData.priceBreakdown.sizeMultiplier !== 1.0 && (
-                                  <div className="flex justify-between text-gray-600">
-                                    <span>Size adjustment ({bookingData.propertySize}):</span>
-                                    <span>×{bookingData.priceBreakdown.sizeMultiplier}</span>
-                                  </div>
-                                )}
-                                {bookingData.priceBreakdown && bookingData.priceBreakdown.urgencyMultiplier !== 1.0 && (
-                                  <div className="flex justify-between text-gray-600">
-                                    <span>Urgency ({bookingData.urgency}):</span>
-                                    <span>×{bookingData.priceBreakdown.urgencyMultiplier}</span>
-                                  </div>
-                                )}
-                                {bookingData.location.area && bookingData.priceBreakdown && LOCATION_MULTIPLIERS[bookingData.location.area] !== 1.0 && (
-                                  <div className="flex justify-between text-gray-600">
-                                    <span>Location ({bookingData.location.area}):</span>
-                                    <span>×{bookingData.priceBreakdown.locationMultiplier}</span>
-                                  </div>
-                                )}
-                                {bookingData.providersNeeded > 1 && (
-                                  <div className="flex justify-between text-gray-600">
-                                    <span>Professionals needed:</span>
-                                    <span>×{bookingData.providersNeeded}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -3664,8 +3294,8 @@ Examples:
                   {/* Payment Options */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">💳 Payment & Timing Options</h3>
-                      <p className="text-gray-600">Choose when and how you'd like to pay for your service</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">💳 Payment Options</h3>
+                      <p className="text-gray-600">Choose when and how you'd like to pay</p>
                     </div>
                     
                     {/* Payment Timing Selection */}
@@ -3699,198 +3329,119 @@ Examples:
                           <div className="text-center">
                             <div className="text-2xl mb-2">🤝</div>
                             <h5 className="font-bold text-gray-900">Pay After Service</h5>
-                            <p className="text-sm text-gray-600">Pay once service is completed</p>
+                            <p className="text-sm text-gray-600">Pay when the job is done</p>
                             <div className="mt-2 text-xs text-blue-600 font-medium">Flexible Option</div>
                           </div>
                         </button>
                       </div>
-                      {errors.paymentTiming && (
-                        <p className="mt-2 text-sm text-red-600">{errors.paymentTiming}</p>
-                      )}
+                      {errors.paymentTiming && <div className="text-red-500 text-sm mt-2">{errors.paymentTiming}</div>}
                     </div>
 
-                    {/* Test Mode Indicator */}
-                    {getPaystackPublicKey()?.startsWith('pk_test_') && (
-                      <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div className="flex items-center">
-                          <span className="text-yellow-600 mr-2">🧪</span>
-                          <div>
-                            <p className="text-sm font-medium text-yellow-800">Test Mode Active (KES Currency)</p>
-                            <p className="text-xs text-yellow-600">Use test card: 4084084084084081 • Any CVV • Future expiry</p>
+                    {/* Payment Method Selection */}
+                    <div className="mb-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">How would you like to pay?</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button
+                          onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'mpesa' }))}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            bookingData.paymentMethod === 'mpesa'
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 hover:border-green-300'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">📱</div>
+                            <h5 className="font-bold text-gray-900">M-Pesa</h5>
+                            <p className="text-xs text-gray-600">Pay via M-Pesa</p>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        </button>
 
-                    {/* Payment Method Selection - Only show if payment timing is selected */}
-                    {bookingData.paymentTiming && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                          {bookingData.paymentTiming === 'pay-now' ? 'Pay Now With:' : 'Payment Method for Later:'}
-                        </h4>
-                        <div className="space-y-3">
-                          <button
-                            onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'mobile-money' }))}
-                            className={`w-full py-4 rounded-lg border-2 transition-all flex items-center justify-center ${
-                              bookingData.paymentMethod === 'mobile-money'
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200 hover:border-green-300'
-                            }`}
-                          >
-                            <span className="mr-3 text-2xl">📱</span>
-                            <div className="text-left">
-                              <div className="font-bold text-gray-900">M-Pesa Mobile Money</div>
-                              <div className="text-sm text-gray-600">Instant STK Push • Most Popular</div>
-                            </div>
-                            {bookingData.paymentTiming === 'pay-now' && (
-                              <span className="ml-auto bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-                                Instant
-                              </span>
-                            )}
-                          </button>
-                          
-                          <button
-                            onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'card' }))}
-                            className={`w-full py-4 rounded-lg border-2 transition-all flex items-center justify-center ${
-                              bookingData.paymentMethod === 'card'
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-blue-300'
-                            }`}
-                          >
-                            <span className="mr-3 text-2xl">💳</span>
-                            <div className="text-left">
-                              <div className="font-bold text-gray-900">Debit/Credit Card</div>
-                              <div className="text-sm text-gray-600">Visa, Mastercard accepted</div>
-                            </div>
-                            {bookingData.paymentTiming === 'pay-now' && (
-                              <span className="ml-auto bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                                Secure
-                              </span>
-                            )}
-                          </button>
-                        </div>
-                        {errors.paymentMethod && (
-                          <p className="mt-2 text-sm text-red-600">{errors.paymentMethod}</p>
-                        )}
-                      </div>
-                    )}
+                        <button
+                          onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'card' }))}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            bookingData.paymentMethod === 'card'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-blue-300'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">💳</div>
+                            <h5 className="font-bold text-gray-900">Card</h5>
+                            <p className="text-xs text-gray-600">Visa / Mastercard</p>
+                          </div>
+                        </button>
 
-                    {/* Payment Security Features */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h5 className="font-semibold text-gray-900 mb-3">🛡️ Payment Security & Protection</h5>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <FaCheck className="h-4 w-4 text-green-600" />
-                          <span className="text-black font-medium">256-bit SSL Encryption</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaDollarSign className="h-4 w-4 text-blue-600" />
-                          <span className="text-black font-medium">Paystack Secure Gateway</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaExclamationTriangle className="h-4 w-4 text-orange-600" />
-                          <span className="text-black font-medium">Full Buyer Protection</span>
-                        </div>
+                        <button
+                          onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'mobile-money' }))}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            bookingData.paymentMethod === 'mobile-money'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-purple-300'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">📲</div>
+                            <h5 className="font-bold text-gray-900">Mobile Money</h5>
+                            <p className="text-xs text-gray-600">Other mobile wallets</p>
+                          </div>
+                        </button>
                       </div>
-                      
-                      {bookingData.paymentTiming === 'pay-after' && (
-                        <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                          <p className="text-sm text-blue-800">
-                            <strong>Pay After Service:</strong> You'll receive a secure payment link once the provider marks your service as completed. No payment required now.
-                          </p>
-                        </div>
-                      )}
-                      
-                      {bookingData.paymentTiming === 'pay-now' && bookingData.paymentMethod === 'mobile-money' && (
-                        <div className="mt-3 p-3 bg-green-50 rounded border-l-4 border-green-400">
-                          <p className="text-sm text-green-800">
-                            <strong>STK Push:</strong> You'll receive a payment prompt on your phone to complete the transaction securely.
-                          </p>
-                        </div>
-                      )}
+                      {errors.paymentMethod && <div className="text-red-500 text-sm mt-2">{errors.paymentMethod}</div>}
                     </div>
-                  </div>
 
-                  {/* Terms and Confirmation */}
-                  <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border-2 border-blue-200">
-                    <div className="flex items-start space-x-3">
-                      <input 
-                        type="checkbox" 
-                        checked={termsAgreed}
-                        onChange={(e) => setTermsAgreed(e.target.checked)}
-                        className="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" 
-                        id="terms-agreement"
-                      />
-                      <div className="text-sm text-gray-700">
-                        <label htmlFor="terms-agreement" className="font-medium cursor-pointer">
-                          ✅ I agree to the booking terms and conditions
-                        </label>
-                        <div className="mt-2 space-y-1 text-xs">
-                          <p>📋 By confirming this booking, you agree to:</p>
-                          <ul className="list-disc list-inside space-y-1 ml-2">
-                            <li>Our <strong>Terms of Service</strong> and <strong>Privacy Policy</strong></li>
-                            <li>Share your location with selected professionals for service delivery</li>
-                            <li>Fixed pricing with no hidden fees</li>
-                            <li>Payment protection through our secure escrow system</li>
-                            <li>Professional background verification standards</li>
-                          </ul>
-                        </div>
-                      </div>
+                    {/* Terms and Conditions */}
+                    <div className="mb-6">
+                      <label className="flex items-start space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={termsAgreed}
+                          onChange={(e) => setTermsAgreed(e.target.checked)}
+                          className="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm text-gray-700">
+                          I agree to the <a href="/terms" className="text-orange-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-orange-600 hover:underline">Privacy Policy</a>. I understand that a professional will be assigned to my booking.
+                        </span>
+                      </label>
+                      {errors.terms && <div className="text-red-500 text-sm mt-2">{errors.terms}</div>}
                     </div>
-                    {errors.terms && (
-                      <div className="mt-2 text-red-500 text-sm flex items-center">
-                        <FaExclamationTriangle className="h-4 w-4 mr-2" />
-                        {errors.terms}
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="flex justify-between">
-                    <button
-                      onClick={handleStepBack}
-                      className="px-6 py-3 text-gray-600 hover:text-gray-900 transition-colors font-semibold flex items-center"
-                    >
-                      <FaArrowLeft className="h-4 w-4 mr-2" />
-                      ← Back to Providers
-                    </button>
+                    {/* Confirm Booking Button */}
                     <button
                       onClick={() => {
-                        if (isBookingInProgress) return // Prevent double-clicks
-                        
-                        if (!validatePaymentStep()) {
-                          return
-                        }
-                        
-                        if (bookingData.paymentTiming === 'pay-now') {
-                          // For pay-now, create booking first then handle payment
-                          handleBookingConfirmation()
-                        } else {
-                          // Pay after service - confirm booking without payment
+                        if (validatePaymentStep()) {
                           handleBookingConfirmation()
                         }
                       }}
-                      disabled={loading || !termsAgreed || isBookingInProgress}
-                      className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 flex items-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={loading || !termsAgreed}
+                      className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-lg rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     >
                       {loading ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Processing...
+                          <FaSpinner className="animate-spin h-5 w-5" />
+                          <span>Processing...</span>
                         </>
                       ) : (
                         <>
-                          <FaCheck className="h-5 w-5 mr-2" />
-                          {bookingData.paymentTiming === 'pay-now' 
-                            ? '💳 Confirm & Pay Now' 
-                            : '📝 Confirm Booking'
-                          }
+                          <FaCheck className="h-5 w-5" />
+                          <span>Confirm Booking - KES {bookingData.priceBreakdown?.calculations.finalTotal.toLocaleString() || '0'}</span>
                         </>
                       )}
                     </button>
                   </div>
                 </div>
+
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleStepBack}
+                    className="px-6 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <FaArrowLeft className="inline h-4 w-4 mr-2" />
+                    Back
+                  </button>
+                </div>
               </motion.div>
             )}
+
           </AnimatePresence>
         </div>
       </div>
@@ -3898,22 +3449,17 @@ Examples:
   )
 }
 
-// Loading component for Suspense fallback
-function BookServicePageLoading() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading booking form...</p>
-      </div>
-    </div>
-  )
-}
-
-// Main export component with Suspense boundary
+// Main page component with Suspense
 export default function BookServicePage() {
   return (
-    <Suspense fallback={<BookServicePageLoading />}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <FaSpinner className="h-12 w-12 text-orange-500 mx-auto mb-4 animate-spin" />
+          <h2 className="text-xl font-bold text-gray-900">Loading booking page...</h2>
+        </div>
+      </div>
+    }>
       <BookServicePageContent />
     </Suspense>
   )

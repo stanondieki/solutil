@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
+import FestiveWrapper from '../components/FestiveWrapper'
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -86,8 +87,9 @@ export default function HomePage() {
     if (isRightSwipe) prevSlide()
   }
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
+    <FestiveWrapper enableBanner={true} enableSnow={true} snowIntensity="light">
+      <div className="min-h-screen bg-white">
+        <Navigation />
 
       {/* Hero Slideshow Section - First Section */}
       <section 
@@ -456,6 +458,7 @@ export default function HomePage() {
       </section>
 
       <Footer />
-    </div>
+      </div>
+    </FestiveWrapper>
   )
 }

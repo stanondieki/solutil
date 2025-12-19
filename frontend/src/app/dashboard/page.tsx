@@ -11,6 +11,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { RoleManager } from '@/lib/roles'
 import RoleGuard from '@/components/RoleGuard'
 import NotificationBell from '@/components/NotificationBell'
+import FestivePromoBanner from '@/components/FestivePromoBanner'
+import { isFestiveSeason } from '@/components/FestiveWrapper'
 import { 
   FaSearch,
   FaWrench,
@@ -920,33 +922,39 @@ export default function DashboardPage() {
         {/* Promotional Banner - Only for clients */}
         {user && RoleManager.isClient(user.userType) && (
           <div className="mb-8">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 shadow-xl">
-              <div className="absolute inset-0 bg-black opacity-10"></div>
-              <div className="relative px-8 py-6 md:px-12 md:py-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                      Get 30% off your first booking! 🎉
-                    </h2>
-                    <p className="text-white/90 mb-4 text-lg">
-                      Professional services at your doorstep. Book now and save big!
-                    </p>
-                    <Link
-                      href="/services"
-                      className="inline-flex items-center bg-white text-orange-600 px-6 py-3 rounded-xl font-semibold hover:bg-orange-50 transition-all duration-200 shadow-lg hover:shadow-xl"
-                    >
-                      Browse Services
-                      <FaArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </div>
-                  <div className="hidden md:block flex-shrink-0 ml-8">
-                    <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                      <div className="text-6xl">🔧</div>
+            {/* Show festive offers during holiday season */}
+            {isFestiveSeason() ? (
+              <FestivePromoBanner />
+            ) : (
+              /* Regular promotional banner */
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 shadow-xl">
+                <div className="absolute inset-0 bg-black opacity-10"></div>
+                <div className="relative px-8 py-6 md:px-12 md:py-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        Get 30% off your first booking! 🎉
+                      </h2>
+                      <p className="text-white/90 mb-4 text-lg">
+                        Professional services at your doorstep. Book now and save big!
+                      </p>
+                      <Link
+                        href="/services"
+                        className="inline-flex items-center bg-white text-orange-600 px-6 py-3 rounded-xl font-semibold hover:bg-orange-50 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      >
+                        Browse Services
+                        <FaArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </div>
+                    <div className="hidden md:block flex-shrink-0 ml-8">
+                      <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <div className="text-6xl">🔧</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

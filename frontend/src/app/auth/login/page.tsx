@@ -181,8 +181,55 @@ function LoginPageContent() {
     setIsLoading(false)
   }
 
+  // Check if festive season
+  const isFestive = () => {
+    const now = new Date()
+    return now.getMonth() === 11 || (now.getMonth() === 0 && now.getDate() <= 5)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Festive Snowflakes Background */}
+      {isFestive() && (
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(25)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-gray-200"
+              initial={{ 
+                top: -20,
+                left: `${Math.random() * 100}%`,
+                opacity: 0.3 + Math.random() * 0.4
+              }}
+              animate={{
+                top: '105%',
+                rotate: 360
+              }}
+              transition={{
+                duration: 8 + Math.random() * 6,
+                repeat: Infinity,
+                delay: Math.random() * 5,
+                ease: 'linear'
+              }}
+              style={{ fontSize: `${8 + Math.random() * 12}px` }}
+            >
+              ❄
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* Festive Ribbon */}
+      {isFestive() && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg"
+        >
+          🎄 Season's Greetings! 🎁
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

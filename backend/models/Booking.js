@@ -11,10 +11,43 @@ const bookingSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  // Legacy single provider field (for backward compatibility)
   provider: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Updated to reference User instead of Provider
-    required: true
+    ref: 'User',
+    required: false // Changed to optional
+  },
+  // NEW: Support for multiple providers
+  providers: [{
+    provider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: 'serviceType'
+    },
+    assignedAt: {
+      type: Date,
+      default: Date.now
+    },
+    assignedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    status: {
+      type: String,
+      enum: ['assigned', 'accepted', 'declined', 'completed'],
+      default: 'assigned'
+    }
+  }],
+  // Number of providers needed for this job
+  providersNeeded: {
+    type: Number,
+    default: 1,
+    min: 1,
+    max: 10
   },
   service: {
     type: mongoose.Schema.Types.ObjectId,

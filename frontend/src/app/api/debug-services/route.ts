@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET() {
   try {
     // Get services from backend
-    const response = await fetch('http://localhost:5000/api/services')
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net';
+    const response = await fetch(`${backendUrl}/api/services`)
     
     if (!response.ok) {
       // If services API fails, create some services first
@@ -49,7 +50,7 @@ export async function POST() {
 
     const results = []
     for (const service of services) {
-      const response = await fetch('http://localhost:5000/api/services', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'}/api/services`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

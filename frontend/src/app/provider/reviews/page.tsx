@@ -43,7 +43,7 @@ const ProviderReviewsPage: React.FC<ProviderReviewsProps> = ({ className = '' })
   const fetchProviderReviews = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:5000/api/reviews/my-reviews`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://solutilconnect-backend-api-g6g4hhb2eeh7hjep.southafricanorth-01.azurewebsites.net'}/api/reviews/my-reviews`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

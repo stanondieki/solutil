@@ -106,7 +106,8 @@ exports.createBooking = catchAsync(async (req, res, next) => {
       location,
       pricing,
       payment,
-      notes
+      notes,
+      urgency
     } = req.body;
 
     console.log('Extracted fields:', {
@@ -117,8 +118,38 @@ exports.createBooking = catchAsync(async (req, res, next) => {
       location,
       pricing,
       payment,
-      notes
+      notes,
+      urgency
     });
+
+    // ==========================================
+    // ADVANCE BOOKING VALIDATION
+    // Normal bookings: at least 1 day in advance
+    // Urgent/Emergency: same-day allowed
+    // ==========================================
+    const bookingUrgency = urgency || 'normal';
+    const scheduledDateObj = new Date(scheduledDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    scheduledDateObj.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (bookingUrgency === 'normal') {
+      if (scheduledDateObj < tomorrow) {
+        console.log('❌ BOOKING VALIDATION FAILED: Normal booking requires 1 day advance');
+        return next(new AppError(
+          'Normal bookings must be scheduled at least 1 day in advance. For same-day service, please select "Urgent" or "Emergency" priority.', 
+          400
+        ));
+      }
+    } else {
+      if (scheduledDateObj < today) {
+        return next(new AppError('Cannot schedule a booking for a past date.', 400));
+      }
+    }
+    console.log(`✅ Date validation passed for ${bookingUrgency} booking`);
 
     // 🆕 UPDATED: Look for service in ProviderService collection first
     console.log('Looking for service ID:', service);
@@ -821,6 +852,38 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       paymentReference
     } = req.body;
 
+    // ==========================================
+    // ADVANCE BOOKING VALIDATION
+    // Normal bookings: at least 1 day in advance
+    // Urgent/Emergency: same-day allowed
+    // ==========================================
+    const bookingUrgency = urgency || 'normal';
+    const scheduledDateObj = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    scheduledDateObj.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (bookingUrgency === 'normal') {
+      // Normal bookings must be at least 1 day in advance
+      if (scheduledDateObj < tomorrow) {
+        console.log('❌ BOOKING VALIDATION FAILED: Normal booking requires 1 day advance');
+        return next(new AppError(
+          'Normal bookings must be scheduled at least 1 day in advance. For same-day service, please select "Urgent" or "Emergency" priority (additional fees apply).', 
+          400
+        ));
+      }
+    } else {
+      // Urgent/Emergency can be same-day but not in the past
+      if (scheduledDateObj < today) {
+        console.log('❌ BOOKING VALIDATION FAILED: Cannot book in the past');
+        return next(new AppError('Cannot schedule a booking for a past date.', 400));
+      }
+    }
+    console.log(`✅ Date validation passed for ${bookingUrgency} booking on ${date}`);
+
     // DEDUPLICATION CHECK: Prevent duplicate bookings within 10 seconds
     const recentDuplicateThreshold = new Date(Date.now() - 10000); // 10 seconds ago
     const potentialDuplicate = await Booking.findOne({
@@ -850,6 +913,30 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
           isExisting: true
         }
       });
+    }
+
+    // ==========================================
+    // TIME SLOT OVERLAP CHECK
+    // Prevent booking a provider who is already booked
+    // at the same time on the same day
+    // ==========================================
+    const providerId = selectedProvider?.id || selectedProvider?._id;
+    if (providerId && providerId !== 'temp') {
+      const existingBooking = await Booking.findOne({
+        provider: providerId,
+        scheduledDate: date,
+        'scheduledTime.start': time,
+        status: { $nin: ['cancelled', 'completed'] }
+      });
+      
+      if (existingBooking) {
+        console.log('⚠️ TIME SLOT CONFLICT: Provider already booked at this time');
+        return next(new AppError(
+          'This provider is already booked for the selected time slot. Please choose a different time or let us auto-assign another provider.', 
+          400
+        ));
+      }
+      console.log('✅ Time slot available for selected provider');
     }
 
     // Generate unique booking number
@@ -949,9 +1036,30 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
       });
       
       // Filter out services where provider didn't match the criteria (suspended/rejected providers)
-      const validServices = availableServices.filter(service => service.providerId);
+      let validServices = availableServices.filter(service => service.providerId);
       
       console.log(`Found ${validServices.length} valid services with approved providers in ${searchCategory}`);
+      
+      // ==========================================
+      // AVAILABILITY CHECK: Filter out providers
+      // who are already booked at this time slot
+      // ==========================================
+      if (date && time) {
+        const bookedProviderIds = await Booking.find({
+          scheduledDate: date,
+          'scheduledTime.start': time,
+          status: { $nin: ['cancelled', 'completed'] }
+        }).distinct('provider');
+        
+        const bookedProviderStrings = bookedProviderIds.map(id => id.toString());
+        const beforeFilter = validServices.length;
+        
+        validServices = validServices.filter(service => 
+          !bookedProviderStrings.includes(service.providerId._id.toString())
+        );
+        
+        console.log(`📅 Availability filter: ${beforeFilter} -> ${validServices.length} providers (${beforeFilter - validServices.length} already booked)`);
+      }
       
       if (validServices.length > 0) {
         // Smart provider selection - prefer providers with better ratings and more experience
@@ -995,7 +1103,7 @@ exports.createSimpleBooking = catchAsync(async (req, res, next) => {
         console.log('✅ Provider status:', bestService.providerId.providerStatus);
       } else {
         console.log('❌ No providers available for category:', searchCategory);
-        return next(new AppError(`No providers available for ${searchCategory} services`, 400));
+        return next(new AppError(`No providers available for ${searchCategory} services at this time. Please try a different time slot.`, 400));
       }
     }
 

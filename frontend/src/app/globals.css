@@ -407,3 +407,131 @@ h1, h2, h3, h4, h5, h6 {
 .admin-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(249, 115, 22, 0.7);
 }
+
+/* ===== FESTIVE SEASON ANIMATIONS ===== */
+
+/* Snowfall animation */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0.3;
+  }
+}
+
+.animate-snowfall {
+  animation: snowfall linear infinite;
+}
+
+/* Gentle float animation for festive elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Sparkle animation */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* Santa hat wiggle */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Festive gradient text */
+.festive-gradient-text {
+  background: linear-gradient(135deg, #dc2626 0%, #16a34a 50%, #dc2626 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Holiday border animation */
+.festive-border {
+  background: linear-gradient(90deg, #dc2626, #16a34a, #dc2626);
+  background-size: 200% 100%;
+  animation: border-shift 3s linear infinite;
+}
+
+@keyframes border-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+/* Candy cane stripes */
+.candy-cane {
+  background: repeating-linear-gradient(
+    45deg,
+    #dc2626,
+    #dc2626 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );
+}
+
+/* Gift wrap pattern */
+.gift-wrap {
+  background-color: #dc2626;
+  background-image: 
+    linear-gradient(#16a34a 2px, transparent 2px),
+    linear-gradient(90deg, #16a34a 2px, transparent 2px);
+  background-size: 40px 40px;
+}
+
+/* Gradient animation for festive banner */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
